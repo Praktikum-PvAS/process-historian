@@ -1,0 +1,34 @@
+@startuml "Process Historian"
+
+class CloudBuffer.Buffer {
+
+}
+class CloudBuffer.InfluxDBClient{
+
+}
+CloudBuffer.Buffer --> "1" CloudBuffer.InfluxDBClient
+
+class OPCUAClient.Client {
+
+}
+class OPCUAClient.SubscriptionHandler {
+    +datachange_notification(node : opcua.Node, value, raw_data)
+}
+OPCUAClient.Client +-- OPCUAClient.SubscriptionHandler
+
+class ConfigBuilder.Configurator {
+
+}
+class ConfigBuilder.SPARQLClient{
+
+}
+ConfigBuilder.Configurator --> "1" ConfigBuilder.SPARQLClient
+
+class ProcessHistorian {
+
+}
+ProcessHistorian "1" *-- "1" CloudBuffer.Buffer
+ProcessHistorian "1" *-- "1" OPCUAClient.Client
+ProcessHistorian "1" *-- "1" ConfigBuilder.Configurator
+
+@enduml
