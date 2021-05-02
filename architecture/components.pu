@@ -1,0 +1,30 @@
+@startuml
+
+database "TripleStore" {
+  () "TripleStore" as TS
+  TS - [Group 2]
+}
+database "InfluxDB" {
+  () "InfluxQL" as IDB
+  IDB - [InfluxDB server]
+}
+
+cloud {
+  () "OPC UA" as OPCUA
+  OPCUA - [OPC UA Server]
+}
+
+package "Process Historian" {
+  () "OPC Config" as OPC_Config
+  OPC_Config - [Config Builder]
+  () "Program Config" as PC
+  [Config Builder] --> TS
+  [Config Builder] --> PC
+  [OPC Client] --> OPCUA
+  [OPC Client] --> OPC_Config
+  [Cloud Buffer] --> IDB
+  [Cloud Buffer] --> PC
+  [OPC Client] --> [Cloud Buffer]
+}
+
+@enduml
