@@ -2,30 +2,43 @@
 
 class CloudBuffer.Buffer {
 
+    +<<Create>> __init__(connection_parameters: Dict)
+    +append(node_name, value, timestamp)
+    -pop_first(number_of_elements=1)
 }
 class CloudBuffer.InfluxDBClient{
-
+    -connection_parameters: Dict
+    +<<Create>> __init__(connection_parameters: Dict)
+    +insert(datapoint: Dict)
+    +insert_many(datapoints: List<Dict>)
 }
 CloudBuffer.Buffer --> "1" CloudBuffer.InfluxDBClient
 
 class OPCUAClient.Client {
-
+    -opcua_config: Dict
+    -opcua_lib_client: opcua.Client
+    +<<Create>> __init__(opcua_config: Dict)
+    +connect()
+    +disconnect()
+    +poll()
+    +subscribe()
 }
 class OPCUAClient.SubscriptionHandler {
-    +datachange_notification(node : opcua.Node, value, raw_data)
+    +datachange_notification(node: opcua.Node, value, raw_data)
 }
 OPCUAClient.Client +-- OPCUAClient.SubscriptionHandler
 
 class ConfigBuilder.Configurator {
-
+    +<<Create>> __init__(connection_parameters: Dict)
 }
 class ConfigBuilder.SPARQLClient{
-
+    -connection_parameters: Dict
+    +<<Create>> __init__(connection_parameters: Dict)
 }
 ConfigBuilder.Configurator --> "1" ConfigBuilder.SPARQLClient
 
 class ProcessHistorian {
-
+    +<<Create>> __init__()
 }
 ProcessHistorian "1" *-- "1" CloudBuffer.Buffer
 ProcessHistorian "1" *-- "1" OPCUAClient.Client
