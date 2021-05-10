@@ -4,7 +4,9 @@
         "buffer": {
             "properties": {
                 "size": {
-                    "type": "integer"
+                    "type": "number",
+                    "multipleOf": 1.0,
+                    "minimum": 0
                 }
             },
             "type": "object"
