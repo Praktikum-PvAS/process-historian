@@ -1,0 +1,22 @@
+@startuml "Use Case"
+left to right direction
+actor User as u
+package "InfluxDB Server" {
+  usecase "Start Server" as starti
+}
+package "Grafana" {
+  usecase "Start Grafana" as startg
+  usecase "Add InfluxDB Source" as confi
+}
+package Program {
+  usecase "Edit Program Config" as editp
+  usecase "Edit OPC UA Config" as edito
+  usecase "Start Program" as startp
+}
+u --> starti
+u --> startg
+u --> confi
+u --> editp
+u --> edito
+u --> startp
+@enduml
