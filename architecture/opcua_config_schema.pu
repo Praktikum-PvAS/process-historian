@@ -1,0 +1,54 @@
+@startjson "OPC UA Config"
+{
+  "host": string,
+  "sensors": [
+    {
+      "attributes": [
+        {
+          "intervall": "number",
+          "mode": ["\"poll\"", "\"subscription\""],
+          "name": "string",
+          "namespace": "string",
+          "nodeId": "string"
+        }
+      ],
+      "id": "string",
+      "namespace": "string",
+      "nodeId": "string"
+    }
+  ],
+  "aktors": [
+    {
+      "attributes": [
+        {
+          "intervall": "number",
+          "mode": ["\"poll\"", "\"subscription\""],
+          "name": "string",
+          "namespace": "string",
+          "nodeId": "string"
+        }
+      ],
+      "id": "string",
+      "namespace": "string",
+      "nodeId": "string"
+    }
+  ],
+  "services": [
+    {
+      "attributes": [
+        {
+          "intervall": "number",
+          "mode": ["\"poll\"", "\"subscription\""],
+          "name": "string",
+          "namespace": "string",
+          "nodeId": "string"
+        }
+      ],
+      "id": "string",
+      "namespace": "string",
+      "nodeId": "string"
+    }
+  ]
+}
+
+@endjson

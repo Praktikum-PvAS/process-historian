@@ -1,0 +1,20 @@
+@startjson "Program Config"
+{
+    "include": ["\"sensors\"", "\"actuators\"", "\"services\""],
+    "tripleStore": {
+        "host": "url",
+        "username": "string",
+        "password": "string"
+    },
+    "influxdb": {
+        "host": "url",
+        "username": "string",
+        "password": "string",
+        "organization": "string",
+        "bucket": "string"
+    },
+    "buffer": {
+        "size": "number"
+    }
+}
+@endjson
