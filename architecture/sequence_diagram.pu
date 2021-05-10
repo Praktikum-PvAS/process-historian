@@ -1,4 +1,4 @@
-@startuml "sequence diagram"
+@startuml "Sequence Diagram"
 skinparam style strictuml
 participant ProcessHistorian
 == Initialization ==
@@ -31,11 +31,41 @@ activate CloudBuffer.Buffer
 deactivate ProcessHistorian
 CloudBuffer.Buffer -> "[CloudBuffer]\nInfluxDBClient" as CloudBuffer.InfluxDBClient ** : create
 deactivate CloudBuffer.Buffer
-
-== Subscription ==
-
-
+...
 
 == Polling ==
 
+OPCUAClient.Client -> OPCUAClient.Client : timer event
+activate OPCUAClient.Client
+OPCUAClient.Client -> OPCUAClient.Client : poll data
+OPCUAClient.Client -> ProcessHistorian : send data
+activate ProcessHistorian
+deactivate OPCUAClient.Client
+ProcessHistorian -> CloudBuffer.Buffer : add data
+activate CloudBuffer.Buffer
+deactivate CloudBuffer.Buffer
+deactivate ProcessHistorian
+CloudBuffer.Buffer -> CloudBuffer.Buffer : timer event
+activate CloudBuffer.Buffer
+CloudBuffer.Buffer -> CloudBuffer.InfluxDBClient : send data
+deactivate CloudBuffer.Buffer
+...
+
+== Subscription ==
+
+OPCUAClient.SubscriptionHandler -> OPCUAClient.SubscriptionHandler : data incomming
+activate OPCUAClient.SubscriptionHandler
+OPCUAClient.SubscriptionHandler -> OPCUAClient.SubscriptionHandler : get data
+OPCUAClient.SubscriptionHandler -> ProcessHistorian : send data
+activate ProcessHistorian
+deactivate OPCUAClient.SubscriptionHandler
+ProcessHistorian -> CloudBuffer.Buffer : add data
+activate CloudBuffer.Buffer
+deactivate CloudBuffer.Buffer
+deactivate ProcessHistorian
+CloudBuffer.Buffer -> CloudBuffer.Buffer : timer event
+activate CloudBuffer.Buffer
+CloudBuffer.Buffer -> CloudBuffer.InfluxDBClient : send data
+deactivate CloudBuffer.Buffer
+...
 @enduml
