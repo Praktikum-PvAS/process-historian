@@ -1,0 +1,165 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "properties": {
+        "actuators": {
+            "items": {
+                "properties": {
+                    "attributes": {
+                        "items": {
+                            "properties": {
+                                "intervall": {
+                                    "type": "integer"
+                                },
+                                "mode": {
+                                    "enum": [
+                                        "poll",
+                                        "subscription"
+                                    ],
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "namespace": {
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "nodeId": {
+                                    "type": "string",
+                                    "minLength": 1
+                                }
+                            },
+                            "type": "object"
+                        },
+                        "type": "array"
+                    },
+                    "id": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "namespace": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "nodeId": {
+                        "type": "string",
+                        "minLength": 1
+                    }
+                },
+                "type": "object"
+            },
+            "type": "array"
+        },
+        "host": {
+            "type": "string",
+            "minLength": 1,
+            "format": "uri"
+        },
+        "sensors": {
+            "items": {
+                "properties": {
+                    "attributes": {
+                        "items": {
+                            "properties": {
+                                "intervall": {
+                                    "type": "integer"
+                                },
+                                "mode": {
+                                    "enum": [
+                                        "poll",
+                                        "subscription"
+                                    ],
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "namespace": {
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "nodeId": {
+                                    "type": "string",
+                                    "minLength": 1
+                                }
+                            },
+                            "type": "object"
+                        },
+                        "type": "array"
+                    },
+                    "id": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "namespace": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "nodeId": {
+                        "type": "string",
+                        "minLength": 1
+                    }
+                },
+                "type": "object"
+            },
+            "type": "array"
+        },
+        "services": {
+            "items": {
+                "properties": {
+                    "attributes": {
+                        "items": {
+                            "properties": {
+                                "intervall": {
+                                    "type": "integer"
+                                },
+                                "mode": {
+                                    "enum": [
+                                        "poll",
+                                        "subscription"
+                                    ],
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "namespace": {
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "nodeId": {
+                                    "type": "string",
+                                    "minLength": 1
+                                }
+                            },
+                            "type": "object"
+                        },
+                        "type": "array"
+                    },
+                    "id": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "namespace": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "nodeId": {
+                        "type": "string",
+                        "minLength": 1
+                    }
+                },
+                "type": "object"
+            },
+            "type": "array"
+        }
+    },
+    "type": "object"
+}
+
