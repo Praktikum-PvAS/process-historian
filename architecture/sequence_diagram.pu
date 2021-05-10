@@ -1,0 +1,41 @@
+@startuml "sequence diagram"
+skinparam style strictuml
+participant ProcessHistorian
+== Initialization ==
+activate ProcessHistorian
+ProcessHistorian -> "[ConfigBuilder]\nConfigurator" as ConfigBuilder.Configurator ** : create
+deactivate ProcessHistorian
+activate ConfigBuilder.Configurator
+ConfigBuilder.Configurator -> "[ConfigBuilder]\nSPARQLClient" as ConfigBuilder.SPARQLClient ** : create
+ConfigBuilder.Configurator -> ConfigBuilder.SPARQLClient : fetch data
+deactivate ConfigBuilder.Configurator
+activate ConfigBuilder.SPARQLClient
+ConfigBuilder.SPARQLClient -> ConfigBuilder.Configurator : return data
+deactivate ConfigBuilder.SPARQLClient
+activate ConfigBuilder.Configurator
+ConfigBuilder.Configurator -> ConfigBuilder.Configurator : write config
+ConfigBuilder.Configurator -> ConfigBuilder.SPARQLClient !! : delete
+deactivate ConfigBuilder.Configurator
+activate ProcessHistorian
+ProcessHistorian -> ConfigBuilder.Configurator !! : delete
+
+ProcessHistorian -> "[OPCUAClient]\nClient" as OPCUAClient.Client ** : create
+activate OPCUAClient.Client
+deactivate ProcessHistorian
+OPCUAClient.Client -> "[OPCUAClient]\nSubscriptionHandler" as OPCUAClient.SubscriptionHandler ** : create
+deactivate OPCUAClient.Client
+
+activate ProcessHistorian
+ProcessHistorian -> "[CloudBuffer]\nBuffer" as CloudBuffer.Buffer ** : create
+activate CloudBuffer.Buffer
+deactivate ProcessHistorian
+CloudBuffer.Buffer -> "[CloudBuffer]\nInfluxDBClient" as CloudBuffer.InfluxDBClient ** : create
+deactivate CloudBuffer.Buffer
+
+== Subscription ==
+
+
+
+== Polling ==
+
+@enduml
