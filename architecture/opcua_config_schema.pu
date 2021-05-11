@@ -1,6 +1,6 @@
 @startjson "OPC UA Config"
 {
-  "host": string,
+  "host": "string",
   "sensors": [
     {
       "attributes": [
