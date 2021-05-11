@@ -1,4 +1,4 @@
-@startuml "Components"
+@startuml "Components Diagram"
 
 database "TripleStore" {
   () "TripleStore" as TS
