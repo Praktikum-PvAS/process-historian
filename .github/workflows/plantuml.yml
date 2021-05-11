@@ -2,7 +2,7 @@ name: Render PlantUML Diagrams
 on:
   push:
     branches:
-      - master
+      - main
 jobs:
   render_plantuml:
     runs-on: ubuntu-latest
