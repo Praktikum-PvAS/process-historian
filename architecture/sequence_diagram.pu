@@ -53,7 +53,7 @@ deactivate CloudBuffer.Buffer
 
 == Subscription ==
 
-OPCUAClient.SubscriptionHandler -> OPCUAClient.SubscriptionHandler : data incomming
+OPCUAClient.SubscriptionHandler -> OPCUAClient.SubscriptionHandler : data incoming
 activate OPCUAClient.SubscriptionHandler
 OPCUAClient.SubscriptionHandler -> OPCUAClient.SubscriptionHandler : get data
 OPCUAClient.SubscriptionHandler -> ProcessHistorian : send data
