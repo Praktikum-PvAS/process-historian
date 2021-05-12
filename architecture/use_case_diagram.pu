@@ -1,5 +1,6 @@
 @startuml "Use Case"
 left to right direction
+actor Engineer as e
 actor User as u
 package "InfluxDB Server" {
   usecase "Start Server" as starti
@@ -13,9 +14,9 @@ package Program {
   usecase "Edit OPC UA Config" as edito
   usecase "Start Program" as startp
 }
-u --> starti
-u --> startg
-u --> confi
+e --> starti
+e --> startg
+e --> confi
 u --> editp
 u --> edito
 u --> startp
