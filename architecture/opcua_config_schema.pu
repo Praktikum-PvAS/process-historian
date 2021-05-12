@@ -1,6 +1,6 @@
 @startjson "OPC UA Config"
 {
-  "host": "string",
+  "host": "url",
   "sensors": [
     {
       "attributes": [
@@ -17,7 +17,7 @@
       "nodeId": "string"
     }
   ],
-  "aktors": [
+  "actuators": [
     {
       "attributes": [
         {
