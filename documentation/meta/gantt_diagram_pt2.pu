@@ -1,0 +1,19 @@
+@startgantt "Gantt Diagramm Part 2"
+Project starts the 2021-05-19
+printscale weekly
+
+[Zwischenpräsentation] happens at 2021-05-19
+[Implementation] starts at 2021-05-20
+[Dokumentation] starts at 2021-05-20
+[Abgabe Dokumentation] happens at 2021-07-14
+[Abschlusspräsentation] happens at 2021-07-21
+[Vorbereitung] starts at 2021-07-15
+
+[Abschlusspräsentation] displays on same row as [Zwischenpräsentation]
+
+[Vorbereitung] displays on same row as [Implementation]
+
+[Implementation] lasts 55 days
+[Dokumentation] lasts 55 days
+[Vorbereitung] lasts 6 days
+@endgantt

@@ -1,0 +1,43 @@
+@startgantt "Gantt Diagramm"
+Project starts the 2021-04-13
+
+[Vorlesungsstart] happens at 2021-04-13
+[Projekt Kickoff] happens at 2021-04-21
+[Selbststudium] starts at 2021-04-21
+[Zwischenpräsentation] happens at 2021-05-19
+
+[Projekt Kickoff] displays on same row as [Vorlesungsstart]
+[Zwischenpräsentation] displays on same row as [Vorlesungsstart]
+
+[Selbststudium] lasts 7 days
+[Problemanalyse] lasts 14 days
+[Architekturplanung] lasts 14 days
+[Theoriearbeit] lasts 14 days
+[Dokumentation] lasts 14 days
+[Bericht] lasts 7 days
+
+[Problemanalyse] starts at [Selbststudium]'s end
+[Architekturplanung] starts at [Selbststudium]'s end
+[Theoriearbeit] starts at [Selbststudium]'s end
+[Dokumentation] starts at [Selbststudium]'s end
+
+[Bericht] starts at [Dokumentation]'s end
+
+[Zwischenpräsentation] happens at 2021-05-19
+[Implementation] starts at 2021-05-20
+[Programm-Dokumentation] starts at 2021-05-20
+[Abgabe Dokumentation] happens at 2021-07-14
+[Abschlusspräsentation] happens at 2021-07-21
+[Vorbereitung] starts at 2021-07-15
+
+[Abschlusspräsentation] displays on same row as [Zwischenpräsentation]
+[Abgabe Dokumentation] displays on same row as [Programm-Dokumentation]
+
+[Implementation] displays on same row as [Selbststudium]
+[Programm-Dokumentation] displays on same row as [Problemanalyse]
+[Vorbereitung] displays on same row as [Implementation]
+
+[Implementation] lasts 55 days
+[Programm-Dokumentation] lasts 55 days
+[Vorbereitung] lasts 6 days
+@endgantt
