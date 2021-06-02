@@ -74,7 +74,7 @@ class InfluxWrapper:  # renamed so not as imported class
     def insert_many(self, points):
         try:
             with self.influxDBClient.write_api(write_options=WriteOptions(
-                    batch_size=500)) as _write_client:
+                    batch_size=len(points))) as _write_client:
                 _write_client.write(self.bucket, self.org, points)
             return 0
         except:
