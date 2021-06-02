@@ -1,16 +1,21 @@
-from influxdb_client import InfluxDBClient, Point
-from influxdb_client.client.write_api import SYNCHRONOUS
-from influxdb import SeriesHelper
-from cloudBuffer.buffer import Buffer
+from influxdb_client import InfluxDBClient
+from influxdb_client.client.write_api import SYNCHRONOUS, WriteOptions
+
 
 # TODO send connection_params from buffer ti InfluxClient
-class InfluxClient:  # renamed so not as imported class
+class InfluxWrapper:  # renamed so not as imported class
     def __init__(self, connection_params: dict):
         self.url = connection_params['host']
         self.username = connection_params['username']
         self.password = connection_params['password']
         self.org = connection_params['organization']
         self.bucket = connection_params['bucket']
+        # TODO create Token from username and password
+        token = self.username + "" + self.password
+        self.influxDBClient = InfluxDBClient(url=self.url, token=token,
+                                             org=self.org)
+        self.write_api = self.influxDBClient.write_api(
+            write_options=SYNCHRONOUS)
 
     # property methods
     @property
@@ -23,7 +28,7 @@ class InfluxClient:  # renamed so not as imported class
 
     @property
     def password(self):
-        return self._password
+        return self.__password
 
     @property
     def org(self):
@@ -56,7 +61,7 @@ class InfluxClient:  # renamed so not as imported class
             raise ValueError("variable value of password is none")
         if password == "":
             raise ValueError("password is empty")
-        self._password = password
+        self.__password = password
 
     @org.setter
     def org(self, org):
@@ -74,21 +79,22 @@ class InfluxClient:  # renamed so not as imported class
             raise ValueError("bucket is empty")
         self._bucket = bucket
 
-        # TODO create Token from username and password
-        token = self.username + "" + self.password
-        self.influxDBClient = InfluxDBClient(url=self.url, token=token,
-                                             org=self.org)
-        self.write_api = self.influxDBClient.write_api(
-            write_options=SYNCHRONOUS)
+    # TODO check if written successfully
+    def insert(self, point):
+        try:
+            with self.influxDBClient.write_api() as _write_client:
+                _write_client(bucket=self._bucket, record=point)
+            return 0
+        except:
+            # urllib.error.URLError
+            return 1
 
-    def insert(self, buffer: Buffer):
-        self.write_api.write(bucket=self._bucket,
-                             record=buffer.pop_first(number_of_element=0))
-        # TODO check if written successfully
-        buffer.delete_points(number_of_element=0)  # delete single point
-
-    def insert_many(self, buffer: Buffer):
-        # TODO insert many points with MySeriesHelper
-        # TODO https://github.com/influxdata/influxdb-python/blob/master/examples/tutorial_serieshelper.py
-
-        buffer.clear_list()  # delete all points
+    # TODO check if written successfully
+    def insert_many(self, points):
+        try:
+            with self.influxDBClient.write_api(write_options=WriteOptions(
+                    batch_size=500)) as _write_client:
+                _write_client.write(self.bucket, self.org, points)
+            return 0
+        except:
+            return 1
