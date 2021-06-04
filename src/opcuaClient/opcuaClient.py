@@ -60,6 +60,8 @@ class Client:
             if self.subscription_list[i][1] is node:
                 # use handle to unsubscribe
                 self.subscription_list[i][2].unsubscribe(self.subscription_list[i][3])
+                # delete obsolete subscription
+                del self.subscription_list[i][:]
                 return
 
 
