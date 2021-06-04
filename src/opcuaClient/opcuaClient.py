@@ -37,11 +37,14 @@ class Client:
             for node_attributes in nodes_attributes:
                 # add nodeId to the list
                 if node_attributes.mode == "poll":
+                    # get interval and node
                     interval = node_attributes.interval
                     node = self.opcua_lib_client.get_node(node_attributes.nodeId)
-                    # TODO check for duplication
-                    # TODO do we have to initialize the list first?
-                    self.nodes2poll[interval] = self.nodes2poll[interval].append(node)
+                    # append the node and interval to the list in the dictionary
+                    temp_list = self.nodes2poll.get(interval, [])
+                    temp_list.append(node)
+                    # store the list in the dict
+                    self.nodes2poll[interval] = temp_list
                 elif node_attributes.mode == "subscription":
                     self.nodes2sub.append(self.opcua_lib_client.get_node(node_attributes.nodeId))
 
@@ -83,6 +86,7 @@ class SubscriptionHandler:
 
     def datachange_notification(self, node: opcua.Node, value, raw_data):
         # Save data with callback
-        self.data_callback(value)  # TODO how is input in callback
+        callback_dict = {node.nodeid: value}
+        self.data_callback(callback_dict)
 
     # def event_notification(self, event):
