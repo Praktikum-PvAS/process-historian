@@ -9,7 +9,7 @@ class Client:
         self.opcua_lib_client = opcua.Client(self.url)
         self.callback = callback
         self.subHandler = SubscriptionHandler()
-        self.nodes2poll = []
+        self.nodes2poll = {}    # dictionary with [interval] = list<nodes>
         self.nodes2sub = []
         self.init_lists()
         self.subscription_list = []
@@ -33,19 +33,30 @@ class Client:
         type_list = ["sensors", "actuators", "services"]
         for node_type in type_list:
             # search for every node of that type
-            nodes = self.opcua_config[node_type]["attributes"]
-            for nodes in nodes:
-                if nodes.mode == "poll":
-                    self.nodes2poll.append([self.opcua_lib_client.get_node(nodes.nodeId), nodes.interval])
-                elif nodes.mode == "subscription":
-                    self.nodes2sub.append(self.opcua_lib_client.get_node(nodes.nodeId))
+            nodes_attributes = self.opcua_config[node_type]["attributes"]
+            for node_attributes in nodes_attributes:
+                # add nodeId to the list
+                if node_attributes.mode == "poll":
+                    interval = node_attributes.interval
+                    node = self.opcua_lib_client.get_node(node_attributes.nodeId)
+                    # TODO check for duplication
+                    # TODO do we have to initialize the list first?
+                    self.nodes2poll[interval] = self.nodes2poll[interval].append(node)
+                elif node_attributes.mode == "subscription":
+                    self.nodes2sub.append(self.opcua_lib_client.get_node(node_attributes.nodeId))
 
-    def poll(self):
+    def poll(self, interval):
         # return to callback
-        values = self.opcua_lib_client.get_values(self.nodes2poll[:, 0])
-        # TODO how to call back?
-        self.callback()  # returns the value to a callback function
-        # TODO keep interval in mind
+        # TODO implement interval
+        nodes = self.nodes2poll[interval]
+        # get node ids
+        nodeids = []
+        for node in nodes:
+            nodeids.append(node.nodeid)
+        values = self.opcua_lib_client.get_values(nodes)
+        # return a dic with values and nodeIds
+        nodeid_value_pairs = dict(zip(nodeids, values))
+        self.callback(nodeid_value_pairs)  # returns the value to a callback function
 
     def subscribe(self, node):
         # create one subscription and let subHandler watch it
