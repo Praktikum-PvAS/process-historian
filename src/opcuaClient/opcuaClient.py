@@ -57,9 +57,9 @@ class Client:
     def unsubscribe(self, node):
         for i in range(len(self.subscription_list)):
             # search for handle
-            if self.subscription_list[i][1] is node:
+            if self.subscription_list[i][0] is node:
                 # use handle to unsubscribe
-                self.subscription_list[i][2].unsubscribe(self.subscription_list[i][3])
+                self.subscription_list[i][1].unsubscribe(self.subscription_list[i][2])
                 # delete obsolete subscription
                 del self.subscription_list[i][:]
                 return
