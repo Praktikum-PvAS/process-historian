@@ -9,7 +9,7 @@ class Client:
         self.opcua_lib_client = opcua.Client(self.url)
         self.callback = callback
         self.subHandler = SubscriptionHandler()
-        self.nodes2poll = {}    # dictionary with [interval] = list<nodes>
+        self.nodes2poll = {}  # dictionary with [interval] = list<nodes>
         self.nodes2sub = []
         self.init_lists()
         self.subscription_list = []
@@ -47,6 +47,10 @@ class Client:
                     self.nodes2poll[interval] = temp_list
                 elif node_attributes.mode == "subscription":
                     self.nodes2sub.append(self.opcua_lib_client.get_node(node_attributes.nodeId))
+
+    def get_intervals(self):
+        # return all existing polling intervals from the polling dictionary
+        return self.nodes2poll.keys()
 
     def poll(self, interval):
         # return to callback
