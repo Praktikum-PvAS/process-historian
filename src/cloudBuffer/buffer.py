@@ -13,6 +13,7 @@ class Buffer:
         self.__buffer.append(
             Point(node_name).tag("useful", "tag").field("value", value).time(
                 timestamp))
+
     # TODO works when other thread will open?
     def write_points(self):
         if not len(self.__buffer) == 1:
