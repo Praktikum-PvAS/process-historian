@@ -54,7 +54,7 @@ class Client:
         # return all existing polling intervals from the polling dictionary
         return self._nodes2poll.keys()
 
-    def poll(self, interval):
+    def poll(self, interval: int):
         nodes = self._nodes2poll[interval]
         # get node ids
         nodeids = []
