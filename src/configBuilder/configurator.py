@@ -5,12 +5,12 @@ from sparqlClient import SPARQLClient
 
 class Configurator:
     def __init__(self, connection_params: dict):
-        self.sparql_client = SPARQLClient(connection_params)
+        self.__sparql_client = SPARQLClient(connection_params)
 
     def write_config(self):
-        nodes = self.sparql_client.get_all_nodes()
+        nodes = self.__sparql_client.get_all_nodes()
         with open("../config/opcua_config.json", "w") as file:
             json.dump(nodes, file)
 
     def on_exit(self):
-        self.sparql_client.disconnect()
+        self.__sparql_client.disconnect()
