@@ -1,5 +1,5 @@
 from influxdb_client import Point
-from influxWrapper import InfluxWrapper
+from .influxWrapper import InfluxWrapper
 
 
 class Buffer:
