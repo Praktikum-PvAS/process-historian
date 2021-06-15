@@ -1,4 +1,4 @@
-from influxdb_client import InfluxDBClient
+from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS, WriteOptions
 
 
@@ -39,7 +39,7 @@ class InfluxWrapper:  # renamed so not as imported class
 
     # setter methods
     @url.setter
-    def url(self, url):
+    def url(self, url: str):
         if url is None:
             raise ValueError("variable value of url is none")
         if url == "":
@@ -47,7 +47,7 @@ class InfluxWrapper:  # renamed so not as imported class
         self._url = url
 
     @org.setter
-    def org(self, org):
+    def org(self, org:str):
         if org is None:
             raise ValueError("variable value of org is none")
         if org == "":
@@ -55,14 +55,14 @@ class InfluxWrapper:  # renamed so not as imported class
         self._org = org
 
     @bucket.setter
-    def bucket(self, bucket):
+    def bucket(self, bucket:str):
         if bucket is None:
             raise ValueError("variable value of bucket is none")
         if bucket == "":
             raise ValueError("bucket is empty")
         self._bucket = bucket
 
-    def insert(self, point):
+    def insert(self, point:Point):
         try:
             with self.influxDBClient.write_api() as _write_client:
                 _write_client(bucket=self._bucket, record=point)
@@ -71,7 +71,7 @@ class InfluxWrapper:  # renamed so not as imported class
             # urllib.error.URLError
             return 1
 
-    def insert_many(self, points):
+    def insert_many(self, points: list[Point]):
         try:
             with self.influxDBClient.write_api(write_options=WriteOptions(
                     batch_size=len(points))) as _write_client:
