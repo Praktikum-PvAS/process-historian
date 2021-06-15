@@ -3,6 +3,11 @@ import opcua
 
 class Client:
     def __init__(self, opcua_config: dict, callback: callable):
+        if opcua_config is None:
+            ValueError("opcua_config must not be None")
+        if not callable(callback):
+            ValueError("callback is not callable")
+
         self.__opcua_config = opcua_config
         self.__url = self.__opcua_config["host"]
         self._opcua_lib_client = opcua.Client(self.__url)
