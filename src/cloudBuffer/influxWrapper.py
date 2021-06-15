@@ -35,17 +35,17 @@ class InfluxWrapper:  # renamed so not as imported class
         self.__bucket = connection_params["bucket"]
         # TODO create Token from username and password
         token = self.__username + " " + self.__password
-        self.influxDBClient = InfluxDBClient(url=self.url, token=token,
-                                             org=self.org)
-        self.write_api = self.influxDBClient.write_api(
+        self.__influxDBClient = InfluxDBClient(url=self.__url, token=token,
+                                               org=self.__org)
+        self.write_api = self.__influxDBClient.write_api(
             write_options=SYNCHRONOUS)
 
     def insert(self, point: Point):
         if point is None:
             raise ValueError("Point MUST NOT be None!")
         try:
-            with self.influxDBClient.write_api() as _write_client:
-                _write_client(bucket=self.__bucket, record=point)
+            with self.__influxDBClient.write_api() as write_client:
+                write_client(bucket=self.__bucket, record=point)
             return 0
         except:
             # urllib.error.URLError
@@ -57,9 +57,9 @@ class InfluxWrapper:  # renamed so not as imported class
         if points is []:
             raise ValueError("Point list must not be empty!")
         try:
-            with self.influxDBClient.write_api(write_options=WriteOptions(
-                    batch_size=len(points))) as _write_client:
-                _write_client.write(self.__bucket, self.__org, points)
+            with self.__influxDBClient.write_api(write_options=WriteOptions(
+                    batch_size=len(points))) as write_client:
+                write_client.write(self.__bucket, self.__org, points)
             return 0
         except:
             return 1
