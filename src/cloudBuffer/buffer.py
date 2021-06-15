@@ -5,7 +5,12 @@ from .influxWrapper import InfluxWrapper
 
 
 class Buffer:
-    def __init__(self, connection_params: dict):
+    def __init__(self, max_buffer_len: int, connection_params: dict):
+        if max_buffer_len < 1:
+            raise ValueError("Maximum buffer length must be at least 1!")
+        if connection_params is None:
+            raise ValueError("Connection parameters must not be None!")
+        self.__max_buffer_len = max_buffer_len
         self.__buffer = []
         self.__influx_wrapper = InfluxWrapper(connection_params)
 
