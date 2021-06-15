@@ -41,6 +41,8 @@ class InfluxWrapper:  # renamed so not as imported class
             write_options=SYNCHRONOUS)
 
     def insert(self, point: Point):
+        if point is None:
+            raise ValueError("Point MUST NOT be None!")
         try:
             with self.influxDBClient.write_api() as _write_client:
                 _write_client(bucket=self.__bucket, record=point)
@@ -50,6 +52,10 @@ class InfluxWrapper:  # renamed so not as imported class
             return 1
 
     def insert_many(self, points: list[Point]):
+        if points is None:
+            raise ValueError("Point list must not be None!")
+        if points is []:
+            raise ValueError("Point list must not be empty!")
         try:
             with self.influxDBClient.write_api(write_options=WriteOptions(
                     batch_size=len(points))) as _write_client:
