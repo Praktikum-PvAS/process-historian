@@ -1,8 +1,11 @@
 import opcua
+from collections.abc import Callable
+from typing import Any
 
 
 class Client:
-    def __init__(self, opcua_config: dict, callback: callable):
+    def __init__(self, opcua_config: dict,
+                 callback: Callable[[str, int, Any], None]):
         if opcua_config is None:
             ValueError("opcua_config must not be None")
         if not callable(callback):
