@@ -17,8 +17,8 @@ class SPARQLClient:
                 or connection_params["password"] == "":
             raise ValueError("No valid password provided")
 
-        self.connection_params = connection_params
-        self.sparql = sparql.Service(connection_params["url"])
+        self.__connection_params = connection_params
+        self.__sparql = sparql.Service(connection_params["url"])
 
     def connect(self, connection_params):
         # TODO
