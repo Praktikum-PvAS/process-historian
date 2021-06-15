@@ -47,4 +47,4 @@ class Buffer:
             raise ValueError("Number of Elements to pop must be at least 1")
         if number_of_elements >= len(self.__buffer):
             raise ValueError("Number of Elements to pop exceeds length of buffer")
-        self.__buffer[0:number_of_elements] = []
+        self.__buffer[0:number_of_elements - 1] = []
