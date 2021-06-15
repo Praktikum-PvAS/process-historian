@@ -7,7 +7,7 @@ from .influxWrapper import InfluxWrapper
 class Buffer:
     def __init__(self, connection_params: dict):
         self.__buffer = []
-        self.influxClient = InfluxWrapper(connection_params)
+        self.__influxClient = InfluxWrapper(connection_params)
 
     def append(self, node_name: str, value: Any, timestamp: Any):
         # TODO structure?
@@ -19,18 +19,18 @@ class Buffer:
     # TODO works when other thread will open?
     def write_points(self):
         if not len(self.__buffer) == 1:
-            status = self.influxClient.insert(self.__buffer[0])
+            status = self.__influxClient.insert(self.__buffer[0])
             if not status:  # successful
                 self.__buffer.remove(0)
         elif len(self.__buffer) > 1000:
             __buffer_part = self.__buffer[:1000].copy()
-            status = self.influxClient.insert_many(__buffer_part)
+            status = self.__influxClient.insert_many(__buffer_part)
             if not status:  # successful
                 self.pop_first(len(__buffer_part))
             else:  # push back when not written
                 self.__buffer.insert(0, __buffer_part)
         else:
-            status = self.influxClient.insert_many(self.__buffer)
+            status = self.__influxClient.insert_many(self.__buffer)
             if not status:  # successful
                 self.pop_first(len(self.__buffer))
 
