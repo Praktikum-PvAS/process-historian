@@ -29,7 +29,7 @@ class Buffer:
         # TODO add better tags
         self.__sem.acquire()
         if len(self.__buffer) >= self.__max_buffer_len:
-            self.pop_first(1)
+            self.__pop_first(1)
         self.__buffer.append(
             Point(node_name).tag("useful", "tag").field("value", value).time(
                 timestamp))
@@ -41,17 +41,17 @@ class Buffer:
             buffer_part = self.__buffer[:1000].copy()
             status = self.__influx_wrapper.insert_many(buffer_part)
             if not status:  # successful
-                self.pop_first(len(buffer_part))
+                self.__pop_first(len(buffer_part))
             else:  # push back when not written
                 self.__buffer.insert(0, buffer_part)
         else:
             buffer_copy = self.__buffer.copy()
             status = self.__influx_wrapper.insert_many(buffer_copy)
             if not status:  # successful
-                self.pop_first(len(buffer_copy))
+                self.__pop_first(len(buffer_copy))
         self.__sem.release()
 
-    def pop_first(self, number_of_elements: int):
+    def __pop_first(self, number_of_elements: int):
         if number_of_elements < 1:
             raise ValueError("Number of Elements to pop must be at least 1")
         if number_of_elements >= len(self.__buffer):
