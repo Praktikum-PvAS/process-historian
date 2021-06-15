@@ -5,7 +5,6 @@ from sparqlClient import SPARQLClient
 
 class Configurator:
     def __init__(self, connection_params: dict):
-        self.connection_params = connection_params
         self.sparql_client = SPARQLClient(connection_params)
 
     def write_config(self):
