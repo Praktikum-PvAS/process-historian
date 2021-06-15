@@ -8,7 +8,7 @@ class Client:
         self._opcua_lib_client = opcua.Client(self.__url)
         self.__callback = callback
         self.__subscription = None
-        self.__subHandler = SubscriptionHandler(callback)
+        self.__subHandler = self.SubscriptionHandler(callback)
         self._nodes2poll = {}  # dictionary with [interval] = list<nodes>
         self._nodes2sub = []
         self.__subscription_handles = []
@@ -77,12 +77,11 @@ class Client:
     def unsubscribe_all(self):
         self.__subscription.unsubscribe(self.__subscription_handles)
 
+    class SubscriptionHandler:
+        def __init__(self, data_callback: callable):
+            self.__data_callback = data_callback
 
-class SubscriptionHandler:
-    def __init__(self, data_callback: callable):
-        self.__data_callback = data_callback
-
-    def datachange_notification(self, node: opcua.Node, value, raw_data):
-        # Save data with callback
-        timestamp = raw_data.monitored_item.Value.SourceTimestamp
-        self.__data_callback(node.nodeid, value, timestamp)
+        def datachange_notification(self, node: opcua.Node, value, raw_data):
+            # Save data with callback
+            timestamp = raw_data.monitored_item.Value.SourceTimestamp
+            self.__data_callback(node.nodeid, value, timestamp)
