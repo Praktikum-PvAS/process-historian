@@ -1,5 +1,4 @@
 import opcua
-import time
 
 
 class Client:
@@ -8,25 +7,25 @@ class Client:
         self.url = self.opcua_config["host"]
         self.opcua_lib_client = opcua.Client(self.url)
         self.callback = callback
-        self.subHandler = SubscriptionHandler()
+        self.subscription = None
+        self.subHandler = SubscriptionHandler(callback)
         self.nodes2poll = {}  # dictionary with [interval] = list<nodes>
         self.nodes2sub = []
+        self.subscription_handles = []
         self.init_lists()
-        self.subscription_list = []
 
     def connect(self):
         try:
             self.opcua_lib_client.connect()
         except ConnectionError:
             print("OPCUA-Client was not able to connect to server!")
-            # TODO errorhandling
 
     def disconnect(self):
         try:
+            self.unsubscribe_all()
             self.opcua_lib_client.disconnect()
         except ConnectionError:
             print("OPCUA-Client was not able to disconnect from server!")
-            # TODO errorhandling
 
     def init_lists(self):
         # get every node from config
@@ -53,8 +52,6 @@ class Client:
         return self.nodes2poll.keys()
 
     def poll(self, interval):
-        # return to callback
-        # TODO implement interval
         nodes = self.nodes2poll[interval]
         # get node ids
         nodeids = []
@@ -65,32 +62,22 @@ class Client:
         nodeid_value_pairs = dict(zip(nodeids, values))
         self.callback(nodeid_value_pairs)  # returns the value to a callback function
 
-    def subscribe(self, node):
+    def subscribe_all(self):
         # create one subscription and let subHandler watch it
-        subscription = self.opcua_lib_client.create_subscription(100, self.subHandler)
+        self.subscription = self.opcua_lib_client.create_subscription(100, self.subHandler)
         # subscribe to node
-        handle = subscription.subscribe_data_change(node)
-        self.subscription_list.append([node, subscription, handle])
+        handles = self.subscription.subscribe_data_change(self.nodes2sub)
+        self.subscription_handles = handles
 
-    def unsubscribe(self, node):
-        for i in range(len(self.subscription_list)):
-            # search for handle
-            if self.subscription_list[i][0] is node:
-                # use handle to unsubscribe
-                self.subscription_list[i][1].unsubscribe(self.subscription_list[i][2])
-                # delete obsolete subscription
-                del self.subscription_list[i][:]
-                return
+    def unsubscribe_all(self):
+        self.subscription.unsubscribe(self.subscription_handles)
 
 
 class SubscriptionHandler:
-    def __init__(self, server, data_callback: callable):
+    def __init__(self, data_callback: callable):
         self.data_callback = data_callback
-        self.server = server
 
     def datachange_notification(self, node: opcua.Node, value, raw_data):
         # Save data with callback
-        callback_dict = {node.nodeid: value}
-        self.data_callback(callback_dict)
-
-    # def event_notification(self, event):
+        timestamp = raw_data.monitored_item.Value.SourceTimestamp
+        self.data_callback(node.nodeid, value, timestamp)
