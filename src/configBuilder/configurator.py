@@ -1,6 +1,6 @@
 import json
 
-from sparqlClient import SPARQLClient
+from .sparqlClient import SPARQLClient
 
 
 class Configurator:
