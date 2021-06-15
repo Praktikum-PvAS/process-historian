@@ -14,6 +14,7 @@ class Buffer:
         self.__buffer = []
         self.__influx_wrapper = InfluxWrapper(connection_params)
 
+    # TODO very likely not threading safe!
     def append(self, node_name: str, value: Any, timestamp: Any):
         if node_name is None:
             raise ValueError("node name MUST NOT be None!")
@@ -24,7 +25,8 @@ class Buffer:
         if timestamp is None:
             raise ValueError("Timestamp MUST NOT be None!")
         # TODO add better tags
-        # TODO check buffersize
+        if len(self.__buffer) >= self.__max_buffer_len:
+            self.pop_first(1)
         self.__buffer.append(
             Point(node_name).tag("useful", "tag").field("value", value).time(
                 timestamp))
