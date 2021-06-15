@@ -50,13 +50,10 @@ class Buffer:
             status = self.__influx_wrapper.insert_many(buffer_part)
             if not status:  # successful
                 self.__pop_first(len(buffer_part))
-            else:  # push back when not written
-                self.__buffer.insert(0, buffer_part)
         else:
-            buffer_copy = self.__buffer.copy()
-            status = self.__influx_wrapper.insert_many(buffer_copy)
+            status = self.__influx_wrapper.insert_many(self.__buffer.copy())
             if not status:  # successful
-                self.__pop_first(len(buffer_copy))
+                self.__buffer = []
         self.__sem.release()
 
     def __pop_first(self, number_of_elements: int):
