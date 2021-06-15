@@ -18,14 +18,14 @@ class Client:
         try:
             self.opcua_lib_client.connect()
         except ConnectionError:
-            print("OPCUA-Client was not able to connect to server!")
+            print("OPC UA-Client was not able to connect to server!")
 
     def disconnect(self):
         try:
             self.unsubscribe_all()
             self.opcua_lib_client.disconnect()
         except ConnectionError:
-            print("OPCUA-Client was not able to disconnect from server!")
+            print("OPC UA-Client was not able to disconnect from server!")
 
     def init_lists(self):
         # get every node from config
@@ -38,14 +38,17 @@ class Client:
                 if node_attributes.mode == "poll":
                     # get interval and node
                     interval = node_attributes.interval
-                    node = self.opcua_lib_client.get_node(node_attributes.nodeId)
-                    # append the node and interval to the list in the dictionary
+                    node = self.opcua_lib_client.get_node(
+                        node_attributes.nodeId)
+                    # append the node and interval to the list in the
+                    # dictionary
                     temp_list = self.nodes2poll.get(interval, [])
                     temp_list.append(node)
                     # store the list in the dict
                     self.nodes2poll[interval] = temp_list
                 elif node_attributes.mode == "subscription":
-                    self.nodes2sub.append(self.opcua_lib_client.get_node(node_attributes.nodeId))
+                    self.nodes2sub.append(
+                        self.opcua_lib_client.get_node(node_attributes.nodeId))
 
     def get_intervals(self):
         # return all existing polling intervals from the polling dictionary
@@ -60,11 +63,13 @@ class Client:
         values = self.opcua_lib_client.get_values(nodes)
         # return a dic with values and nodeIds
         nodeid_value_pairs = dict(zip(nodeids, values))
-        self.callback(nodeid_value_pairs)  # returns the value to a callback function
+        self.callback(
+            nodeid_value_pairs)  # returns the value to a callback function
 
     def subscribe_all(self):
         # create one subscription and let subHandler watch it
-        self.subscription = self.opcua_lib_client.create_subscription(100, self.subHandler)
+        self.subscription = self.opcua_lib_client\
+            .create_subscription(100, self.subHandler)
         # subscribe to node
         handles = self.subscription.subscribe_data_change(self.nodes2sub)
         self.subscription_handles = handles
