@@ -18,13 +18,13 @@ class Buffer:
             raise ValueError("value MUST NOT be None!")
         if timestamp is None:
             raise ValueError("Timestamp MUST NOT be None!")
-        # TODO add name as tag
+        # TODO add better tags
         # TODO check buffersize
         self.__buffer.append(
             Point(node_name).tag("useful", "tag").field("value", value).time(
                 timestamp))
 
-    # TODO works when other thread will open?
+    # TODO very likely not threading safe!
     def write_points(self):
         if not len(self.__buffer) == 1:
             status = self.__influx_wrapper.insert(self.__buffer[0])
