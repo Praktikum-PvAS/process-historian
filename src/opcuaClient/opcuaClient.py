@@ -1,4 +1,6 @@
 import opcua
+from datetime import datetime
+from opcua.ua.attribute_ids import AttributeIds
 from collections.abc import Callable
 from typing import Any
 
@@ -56,7 +58,8 @@ class Client:
                     self._nodes2poll[interval] = temp_list
                 elif node_attributes.mode == "subscription":
                     self._nodes2sub.append(
-                        self._opcua_lib_client.get_node(node_attributes.nodeId))
+                        self._opcua_lib_client.get_node(
+                            node_attributes.nodeId))
 
     def get_intervals(self):
         # return all existing polling intervals from the polling dictionary
@@ -65,18 +68,23 @@ class Client:
     def poll(self, interval: int):
         nodes = self._nodes2poll[interval]
         # get node ids
-        nodeids = []
-        for node in nodes:
-            nodeids.append(node.nodeid)
-        values = self._opcua_lib_client.get_values(nodes)
-        # return a dic with values and nodeIds
-        nodeid_value_pairs = dict(zip(nodeids, values))
-        self.__callback(
-            nodeid_value_pairs)  # returns the value to a callback function
+        nodeids = [node.nodeid for node in nodes]
+
+        results = self._opcua_lib_client.uaclient \
+            .get_attributes([nodeids], AttributeIds.Value)
+
+        for result in results:
+            if result.SourceTimestamp is None:
+                result.SourceTimestamp = datetime.now().isoformat()
+
+        # returns the value to a callback function
+        for i in range(len(results)):
+            self.__callback(nodeids[i], results[i].SourceTimestamp,
+                            results[i].Value.Value)
 
     def subscribe_all(self):
         # create one subscription and let subHandler watch it
-        self.__subscription = self._opcua_lib_client\
+        self.__subscription = self._opcua_lib_client \
             .create_subscription(100, self.__subHandler)
         # subscribe to node
         handles = self.__subscription.subscribe_data_change(self._nodes2sub)
