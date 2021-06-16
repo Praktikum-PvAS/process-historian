@@ -94,7 +94,7 @@ class Client:
         self.__subscription.unsubscribe(self.__subscription_handles)
 
     class SubscriptionHandler:
-        def __init__(self, data_callback: callable):
+        def __init__(self, data_callback: Callable[[str, int, Any], None]):
             self.__data_callback = data_callback
 
         def datachange_notification(self, node: opcua.Node, value, raw_data):
