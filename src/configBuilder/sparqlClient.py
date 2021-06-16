@@ -5,8 +5,9 @@ class SPARQLClient:
     def __init__(self, connection_params: dict, included_types: list):
         if connection_params is None:
             raise ValueError("connection_params must not be None")
-        if "url" not in connection_params or connection_params["url"] is None \
-                or connection_params["url"] == "":
+        if "host" not in connection_params \
+                or connection_params["host"] is None \
+                or connection_params["host"] == "":
             raise ValueError("No valid URL provided")
         if "username" not in connection_params \
                 or connection_params["username"] is None \
@@ -19,7 +20,7 @@ class SPARQLClient:
 
         self.__connection_params = connection_params
         self.__included_types = included_types
-        self.__sparql = SPARQLWrapper(connection_params["url"])
+        self.__sparql = SPARQLWrapper(connection_params["host"])
 
     def connect(self, connection_params):
         # TODO
