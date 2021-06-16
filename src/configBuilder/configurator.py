@@ -14,5 +14,17 @@ class Configurator:
         with open(self.__config_loc, "w") as file:
             json.dump(nodes, file)
 
+    def write_debug_config(self, exists: bool):
+        if exists:
+            return
+        else:
+            with open(self.__config_loc, "w") as file:
+                json.dump({
+                    "host": "http://example.com",
+                    "actuators": [],
+                    "sensors": [],
+                    "services": []
+                }, file)
+
     def on_exit(self):
         self.__sparql_client.disconnect()
