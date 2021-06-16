@@ -1,8 +1,7 @@
 import opcua
 from datetime import datetime
 from opcua.ua.attribute_ids import AttributeIds
-from collections.abc import Callable
-from typing import Any
+from typing import Any, Callable
 
 
 class Client:
