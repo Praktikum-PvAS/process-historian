@@ -1,3 +1,5 @@
+from typing import List
+
 from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS, WriteOptions
 
@@ -44,7 +46,7 @@ class InfluxWrapper:  # renamed so not as imported class
             # urllib.error.URLError
             return 1
 
-    def insert_many(self, points: list[Point]):
+    def insert_many(self, points: List[Point]):
         if points is None:
             raise ValueError("Point list must not be None!")
         if points is []:

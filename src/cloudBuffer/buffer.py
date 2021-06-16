@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, List, Tuple
 
 from influxdb_client import Point
 from .influxWrapper import InfluxWrapper
@@ -17,7 +17,7 @@ class Buffer:
         self.__influx_wrapper = InfluxWrapper(connection_params)
         self.__sem = threading.Semaphore()
 
-    def append(self, node_name: str, tags: list[tuple(str, str)], value: Any, timestamp: Any):
+    def append(self, node_name: str, tags: List[Tuple[str, str]], value: Any, timestamp: Any):
         if node_name is None:
             raise ValueError("node name MUST NOT be None!")
         if node_name == "":
