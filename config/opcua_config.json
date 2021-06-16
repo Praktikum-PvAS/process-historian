@@ -1,0 +1,6 @@
+{
+  "host": "http://example.com",
+  "actuators": [],
+  "sensors": [],
+  "services": []
+}
