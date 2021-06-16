@@ -41,7 +41,9 @@ class ProcessHistorian:
         self._config_builder = Configurator(self.__program_conf["tripleStore"],
                                             self.__program_conf["include"],
                                             self.__opcua_conf_loc)
-        self._config_builder.write_config()
+        # self._config_builder.write_config()
+        self._config_builder.write_debug_config(
+            os.path.isfile(self.__opcua_conf_loc))
 
         # Third step: Check for opcua_config.json and parse it
         self.__parse_opcua_conf()
