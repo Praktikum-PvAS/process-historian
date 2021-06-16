@@ -1,4 +1,4 @@
-import sparql
+from SPARQLWrapper import SPARQLWrapper
 
 
 class SPARQLClient:
@@ -18,7 +18,7 @@ class SPARQLClient:
             raise ValueError("No valid password provided")
 
         self.__connection_params = connection_params
-        self.__sparql = sparql.Service(connection_params["url"])
+        self.__sparql = SPARQLWrapper(connection_params["url"])
 
     def connect(self, connection_params):
         # TODO
