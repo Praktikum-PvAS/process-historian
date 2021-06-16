@@ -38,10 +38,8 @@ class ProcessHistorian:
         self.__parse_program_conf()
 
         # Second step: Config builder to build the OPC UA Config file
-        # TODO
-        # "include" and the location of the opcua_configuration as attributes
         self._config_builder = Configurator(self.__program_conf["tripleStore"],
-                                            self.__program_conf["included"],
+                                            self.__program_conf["include"],
                                             self.__opcua_conf_loc)
         self._config_builder.write_config()
 
@@ -101,8 +99,12 @@ class ProcessHistorian:
         if "buffer" not in self.__program_conf:
             print("Key \"buffer\" not found in program config.")
             incorrect = True
-        elif not isinstance(self.__program_conf["buffer"], int):
-            print("Value for buffer must be an int!")
+        elif "size" not in self.__program_conf["buffer"]:
+            print("Key \"buffer\" not found in buffer in program config.")
+            incorrect = True
+        elif not isinstance(self.__program_conf["buffer"]["size"], int):
+            print("Value for buffer must be an int! Found " +
+                  str(type(self.__program_conf["buffer"]["size"])))
             incorrect = True
         if "include" not in self.__program_conf:
             print("Key \"include\" not found in program config.")
@@ -127,7 +129,7 @@ class ProcessHistorian:
                   "right permissions and the file exists")
             exit()
 
-        if "host" not in opcua_conf:
+        if "host" not in self.__opcua_conf:
             print("Key \"host\" not found in opcua config.")
             print("Your opcua config seems to be incorrect or incomplete.")
             exit()
