@@ -10,17 +10,11 @@ class InfluxWrapper:  # renamed so not as imported class
             raise ValueError("url is empty")
         self.__url = connection_params['host']
 
-        if connection_params['username'] is None:
-            raise ValueError("variable value of username is none")
-        if connection_params['username'] == "":
-            raise ValueError("username is empty")
-        self.__username = connection_params['username']
-
-        if connection_params['password'] is None:
-            raise ValueError("variable value of password is none")
-        if connection_params['password'] == "":
-            raise ValueError("password is empty")
-        self.__password = connection_params['password']
+        if connection_params['token'] is None:
+            raise ValueError("variable value of token is none")
+        if connection_params['token'] == "":
+            raise ValueError("token is empty")
+        self.__token = connection_params['token']
 
         if connection_params['organization'] is None:
             raise ValueError("variable value of org is none")
@@ -33,9 +27,8 @@ class InfluxWrapper:  # renamed so not as imported class
         if connection_params["bucket"] == "":
             raise ValueError("bucket is empty")
         self.__bucket = connection_params["bucket"]
-        # TODO create Token from username and password
-        token = self.__username + " " + self.__password
-        self.__influxDBClient = InfluxDBClient(url=self.__url, token=token,
+
+        self.__influxDBClient = InfluxDBClient(url=self.__url, token=self.__token,
                                                org=self.__org)
         self.write_api = self.__influxDBClient.write_api(
             write_options=SYNCHRONOUS)
