@@ -12,7 +12,7 @@ class Configurator:
     def write_config(self):
         nodes = self.__sparql_client.get_all_nodes()
         with open(self.__config_loc, "w") as file:
-            json.dump(nodes, file)
+            json.dump(nodes, file, indent=2)
 
     def write_debug_config(self, exists: bool):
         if exists:
@@ -24,7 +24,7 @@ class Configurator:
                     "actuators": [],
                     "sensors": [],
                     "services": []
-                }, file)
+                }, file, indent=2)
 
     def on_exit(self):
         self.__sparql_client.disconnect()
