@@ -2,6 +2,7 @@ import json
 import os
 import threading
 import time
+from pathlib import Path
 
 from yaml import safe_load as yaml_load, dump as yaml_dump
 
@@ -12,10 +13,11 @@ from opcuaClient import Client as OPCClient
 
 class ProcessHistorian:
     def __init__(self):
-        self.__script_location = os.path.dirname(os.path.realpath(__file__))
-        self.__config_folder = self.__script_location + "/../config"
-        self.__program_conf_loc = self.__config_folder + "/program_config.yaml"
-        self.__opcua_conf_loc = self.__config_folder + "/opcua_config.json"
+        self.__script_location = Path(os.path.dirname(
+            os.path.realpath(__file__)))
+        self.__config_folder = self.__script_location.parent / "config"
+        self.__program_conf_loc = self.__config_folder / "program_config.yaml"
+        self.__opcua_conf_loc = self.__config_folder / "opcua_config.json"
         self.__program_conf = {}
         self.__opcua_conf = {}
         self.__exit = False
@@ -31,7 +33,7 @@ class ProcessHistorian:
             except (FileExistsError, PermissionError):
                 print("Can't create a config folder. Make sure you have the " +
                       "right permissions and no other file named \"config\" " +
-                      "in the program folder.")
+                      "exists in the program folder.")
             finally:
                 exit(1)
 
@@ -40,7 +42,7 @@ class ProcessHistorian:
         # Second step: Config builder to build the OPC UA Config file
         self._config_builder = Configurator(self.__program_conf["tripleStore"],
                                             self.__program_conf["include"],
-                                            self.__opcua_conf_loc)
+                                            str(self.__opcua_conf_loc))
         # self._config_builder.write_config()
         self._config_builder.write_debug_config(
             os.path.isfile(self.__opcua_conf_loc))
@@ -88,6 +90,20 @@ class ProcessHistorian:
             }, prog_conf)
 
     def __parse_program_conf(self):
+        if not os.path.isfile(self.__program_conf_loc):
+            print("No program_config.yaml found.")
+            try:
+                self.__create_empty_program_config()
+                print("An empty program configuration " +
+                      "was created.")
+            except (FileExistsError, PermissionError):
+                print("Can't create a empty program configuration. Make " +
+                      "sure you have the right permissions and no other " +
+                      "folder named \"program_config.yaml\" exists in the " +
+                      "config folder.")
+            finally:
+                exit(1)
+
         try:
             with open(self.__program_conf_loc) as prog_conf:
                 self.__program_conf = yaml_load(prog_conf)
