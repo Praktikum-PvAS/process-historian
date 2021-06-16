@@ -1,11 +1,12 @@
 import json
 import os
+import threading
+import time
+
 from yaml import safe_load as yaml_load, dump as yaml_dump
 
 from configBuilder import Configurator
-# TODO
-# fill __init__.py of cloud_buffer so import work
-# from cloudBuffer import Buffer
+from cloudBuffer import Buffer
 from opcuaClient import Client as OPCClient
 
 
@@ -17,6 +18,7 @@ class ProcessHistorian:
         self.__opcua_conf_loc = self.__config_folder + "/opcua_config.json"
         self.__program_conf = {}
         self.__opcua_conf = {}
+        self.__exit = False
 
         # First step: Make sure the program config is correct and parse it
         if not os.path.isdir(self.__config_folder):
@@ -38,28 +40,30 @@ class ProcessHistorian:
         # Second step: Config builder to build the OPC UA Config file
         # TODO
         # "include" and the location of the opcua_configuration as attributes
-        self._config_builder = Configurator(self.__program_conf["tripleStore"])
+        self._config_builder = Configurator(self.__program_conf["tripleStore"],
+                                            self.__program_conf["included"],
+                                            self.__opcua_conf_loc)
         self._config_builder.write_config()
 
         # Third step: Check for opcua_config.json and parse it
         self.__parse_opcua_conf()
 
         # Forth step: Create a buffer for the OPC UA client
-        # TODO
-        # fill __init__.py of cloud_buffer so import work
-        # self._buffer = Buffer()
+        self._buffer = Buffer(self.__program_conf["buffer"],
+                              self.__program_conf["influxdb"])
 
         # Fifth step: Create the OPC UA client
-        # TODO
-        # wait for buffer
-        # self._opcua_client = OPCClient(self.__opcua_conf, self._buffer.append)
-        # self._opcua_client.connect()
+        self._opcua_client = OPCClient(self.__opcua_conf, self._buffer.append)
+        self._opcua_client.connect()
 
         # Sixth step: Create timed threads to poll the data and
         # subscribe datachange
-        # TODO
-        # Threads
-        # self._opcua_client.subscribe_all()
+        intervals = self._opcua_client.get_intervals()
+        for interval in intervals:
+            threading.Thread(name="OPC UA Poll - " + interval + "ms",
+                             target=self.__poll_in_interval,
+                             args=interval)
+        self._opcua_client.subscribe_all()
 
     def __create_empty_program_config(self):
         with open(self.__program_conf_loc, "w") as prog_conf:
@@ -127,6 +131,14 @@ class ProcessHistorian:
             print("Key \"host\" not found in opcua config.")
             print("Your opcua config seems to be incorrect or incomplete.")
             exit()
+
+    def __poll_in_interval(self, interval: int):
+        while not self.__exit:
+            self._opcua_client.poll(interval)
+            # TODO
+            # This solution is not good enough. The thread will only terminate
+            # after the sleep which can be an arbitrary (high) value
+            time.sleep(interval / 1000)  # time.sleep interval in seconds
 
 
 if __name__ == "__main__":
