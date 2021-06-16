@@ -49,7 +49,7 @@ class ProcessHistorian:
         self.__parse_opcua_conf()
 
         # Forth step: Create a buffer for the OPC UA client
-        self._buffer = Buffer(self.__program_conf["buffer"],
+        self._buffer = Buffer(self.__program_conf["buffer"]["size"],
                               self.__program_conf["influxdb"])
 
         # Fifth step: Create the OPC UA client
