@@ -46,12 +46,12 @@ class Buffer:
     def write_points(self):
         self.__sem.acquire()
         if len(self.__buffer) > 1000:
-            buffer_part = self.__buffer[:1000].copy()
+            buffer_part = self.__buffer[:1000]
             status = self.__influx_wrapper.insert_many(buffer_part)
             if not status:  # successful
                 self.__pop_first(len(buffer_part))
         else:
-            status = self.__influx_wrapper.insert_many(self.__buffer.copy())
+            status = self.__influx_wrapper.insert_many(self.__buffer)
             if not status:  # successful
                 self.__buffer = []
         self.__sem.release()
