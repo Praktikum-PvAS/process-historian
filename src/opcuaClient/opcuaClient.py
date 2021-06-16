@@ -32,6 +32,7 @@ class Client:
         self.__subscription_handles = []
         self.__namespace_adapter = {}
 
+        self.connect()
         self.__init_lists()
 
         self.__subscription = None
