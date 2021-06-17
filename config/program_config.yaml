@@ -1,0 +1,15 @@
+buffer:
+  size: 1000000
+include:
+- sensors
+- actuators
+- services
+influxdb:
+  bucket: ''
+  host: http://example.com
+  organization: ''
+  token: ''
+tripleStore:
+  host: http://example.com
+  password: ''
+  username: ''

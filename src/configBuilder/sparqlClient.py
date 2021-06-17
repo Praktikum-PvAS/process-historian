@@ -9,14 +9,14 @@ class SPARQLClient:
                 or connection_params["host"] is None \
                 or connection_params["host"] == "":
             raise ValueError("No valid URL provided")
-        if "username" not in connection_params \
+        """if "username" not in connection_params \
                 or connection_params["username"] is None \
                 or connection_params["username"] == "":
             raise ValueError("No valid username provided")
         if "password" not in connection_params \
                 or connection_params["password"] is None \
                 or connection_params["password"] == "":
-            raise ValueError("No valid password provided")
+            raise ValueError("No valid password provided")"""
 
         self.__connection_params = connection_params
         self.__included_types = included_types
