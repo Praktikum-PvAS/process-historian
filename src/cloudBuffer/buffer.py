@@ -23,9 +23,7 @@ class Buffer:
         if node_name == "":
             raise ValueError("node name MUST NOT be empty!")
         if tags is None:
-            raise ValueError("tag list MUST NOT be None!")
-        if tags is []:
-            raise ValueError("tag list MUST NOT be empty!")
+            tags = []
         if value is None:
             raise ValueError("value MUST NOT be None!")
         if timestamp is None:
