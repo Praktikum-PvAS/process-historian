@@ -17,11 +17,11 @@ class Buffer:
         self.__influx_wrapper = InfluxWrapper(connection_params)
         self.__sem = threading.Semaphore()
 
-    def append(self, node_name: str, tags: List[Tuple[str, str]], value: Any, timestamp: Any):
-        if node_name is None:
-            raise ValueError("node name MUST NOT be None!")
-        if node_name == "":
-            raise ValueError("node name MUST NOT be empty!")
+    def append(self, measurement: str, tags: List[Tuple[str, str]], value: Any, timestamp: Any):
+        if measurement is None:
+            raise ValueError("measurement MUST NOT be None!")
+        if measurement == "":
+            raise ValueError("measurement MUST NOT be empty!")
         if tags is None:
             tags = []
         if value is None:
@@ -29,7 +29,7 @@ class Buffer:
         if timestamp is None:
             raise ValueError("Timestamp MUST NOT be None!")
 
-        point = Point(node_name)
+        point = Point(measurement)
         for tag in tags:
             point.tag(tag[0], tag[1])
         point.field("value", value)
