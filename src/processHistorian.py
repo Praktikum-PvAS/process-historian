@@ -217,5 +217,7 @@ if __name__ == "__main__":
     waiter = threading.Event()
     try:
         waiter.wait()
+    except KeyboardInterrupt:
+        pass
     finally:
         ph.exit()
