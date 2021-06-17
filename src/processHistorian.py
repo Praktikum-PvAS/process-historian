@@ -21,7 +21,6 @@ class ProcessHistorian:
         self.__opcua_conf_loc = self.__config_folder / "opcua_config.json"
         self.__program_conf = {}
         self.__opcua_conf = {}
-        self.__exit = False
         self.__work_thread_objs = []
         self.__threads = []
 
@@ -49,6 +48,9 @@ class ProcessHistorian:
         # self._config_builder.write_config()
         self._config_builder.write_debug_config(
             os.path.isfile(self.__opcua_conf_loc))
+
+        # After that we can delete the config builder
+        del self._config_builder
 
         # Third step: Check for opcua_config.json and parse it
         self.__parse_opcua_conf()
@@ -170,8 +172,6 @@ class ProcessHistorian:
 
     def exit(self):
         print("Exiting the ProcessHistorian...")
-        self.__exit = True
-        self._config_builder.on_exit()
         print("Waiting for all worker threads to finish...")
         self._opcua_client.unsubscribe_all()
         # Tell all threads they should stop
