@@ -1,4 +1,4 @@
-from typing import Any, List, Tuple
+from typing import Any, List, Tuple, Union
 
 from influxdb_client import Point
 from .influxWrapper import InfluxWrapper
@@ -17,7 +17,9 @@ class Buffer:
         self.__influx_wrapper = InfluxWrapper(connection_params)
         self.__sem = threading.Semaphore()
 
-    def append(self, measurement: str, tags: List[Tuple[str, str]], value: Any,
+    def append(self, measurement: str,
+               tags: Union[List[Tuple[str, str]], None],
+               value: Any,
                timestamp: Any):
         if measurement is None:
             raise ValueError("measurement MUST NOT be None!")
@@ -43,7 +45,7 @@ class Buffer:
         self.__sem.release()
 
     def append_many(self, raw_point_list: List[
-            Tuple[str, List[Tuple[str, str]], Any, Any]]):
+            Tuple[str, Union[List[Tuple[str, str]], None], Any, Any]]):
         point_list = []
         for raw_point in raw_point_list:
             if raw_point[0] is None:
