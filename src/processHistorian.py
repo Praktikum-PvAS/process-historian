@@ -169,9 +169,10 @@ class ProcessHistorian:
             exit()
 
     def exit(self):
-
+        print("Exiting the ProcessHistorian...")
         self.__exit = True
         self._config_builder.on_exit()
+        print("Waiting for all worker threads to finish...")
         self._opcua_client.unsubscribe_all()
         # Tell all threads they should stop
         for work_obj in self.__work_thread_objs:
@@ -179,9 +180,12 @@ class ProcessHistorian:
         # Wait for them to be really stopped
         for thread in self.__threads:
             thread.join()
+        print("Disconnecting from OPC UA Server...")
         self._opcua_client.disconnect()
         # One last push of the values
+        print("Push remaining values from buffer...")
         self._buffer.write_points()
+        print("Done! Goodbye!")
 
     class ProcessHistorianThread:
         def __init__(self, work_function: Callable[[Union[int, None]], None],
