@@ -3,6 +3,7 @@ import os
 import threading
 import time
 from pathlib import Path
+from typing import Callable, Union
 
 from yaml import safe_load as yaml_load, dump as yaml_dump
 
@@ -21,6 +22,8 @@ class ProcessHistorian:
         self.__program_conf = {}
         self.__opcua_conf = {}
         self.__exit = False
+        self.__work_thread_objs = []
+        self.__threads = []
 
         # First step: Make sure the program config is correct and parse it
         if not os.path.isdir(self.__config_folder):
@@ -62,10 +65,23 @@ class ProcessHistorian:
         # subscribe datachange
         intervals = self._opcua_client.get_intervals()
         for interval in intervals:
-            threading.Thread(name="OPC UA Poll - " + interval + "ms",
-                             target=self.__poll_in_interval,
-                             args=interval)
+            # Interval also is the argument for the work function
+            poll_obj = self.ProcessHistorianThread(self._opcua_client.poll,
+                                                   interval, interval)
+            self.__work_thread_objs.append(poll_obj)
+            self.__threads.append(threading.Thread(
+                name="ProcessHistorian - OPC UA Poll - " + interval + "ms",
+                target=poll_obj.work))
         self._opcua_client.subscribe_all()
+
+        # Seventh step: Create timed thread for buffer push
+        # No arguments for the push, only write_points
+        push_obj = self.ProcessHistorianThread(self._buffer.write_points,
+                                               None, 1000)
+        self.__work_thread_objs.append(push_obj)
+        self.__threads.append(threading.Thread(
+            name="ProcessHistorian - CloudBuffer Push",
+            target=push_obj.work))
 
     def __create_empty_program_config(self):
         with open(self.__program_conf_loc, "w") as prog_conf:
@@ -152,14 +168,50 @@ class ProcessHistorian:
             print("Your opcua config seems to be incorrect or incomplete.")
             exit()
 
-    def __poll_in_interval(self, interval: int):
-        while not self.__exit:
-            self._opcua_client.poll(interval)
-            # TODO
-            # This solution is not good enough. The thread will only terminate
-            # after the sleep which can be an arbitrary (high) value
-            time.sleep(interval / 1000)  # time.sleep interval in seconds
+    def exit(self):
+
+        self.__exit = True
+        self._config_builder.on_exit()
+        self._opcua_client.unsubscribe_all()
+        # Tell all threads they should stop
+        for work_obj in self.__work_thread_objs:
+            work_obj.should_exit()
+        # Wait for them to be really stopped
+        for thread in self.__threads:
+            thread.join()
+        self._opcua_client.disconnect()
+        # One last push of the values
+        self._buffer.write_points()
+
+    class ProcessHistorianThread:
+        def __init__(self, work_function: Callable[[Union[int, None]], None],
+                     argument: Union[int, None], interval: int):
+            self.__work_function = work_function
+            self.__argument = argument
+            self.__interval = interval
+            self.__sleeps = False
+            self.__should_exit = False
+
+        def should_exit(self):
+            if self.__sleeps:
+                exit()
+            else:
+                self.__should_exit = True
+
+        def work(self):
+            while not self.__should_exit:
+                self.__work_function(self.__argument)
+                self.__sleeps = True
+                if self.__should_exit:
+                    exit()
+                time.sleep(self.__interval / 1000)  # time.sleep is in seconds
+                self.__sleeps = False
 
 
 if __name__ == "__main__":
-    ProcessHistorian()
+    ph = ProcessHistorian()
+    waiter = threading.Event()
+    try:
+        waiter.wait()
+    except KeyboardInterrupt:
+        ph.exit()
