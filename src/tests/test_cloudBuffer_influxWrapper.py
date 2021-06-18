@@ -11,7 +11,8 @@ class MyTestCase(unittest.TestCase):
             "password": "root",
             "organization": "TUD",
             "bucket": "A",
-            "port": 8086
+            "port": 8086,
+            "token": "my_token"
         }
         my_influx_wrapper = InfluxWrapper(my_connection_params)
         with self.assertRaises(ValueError):
@@ -25,7 +26,8 @@ class MyTestCase(unittest.TestCase):
             "password": "root",
             "organization": "TUD",
             "bucket": "A",
-            "port": 8086
+            "port": 8086,
+            "token": "my_token"
         }
         my_influx_wrapper = InfluxWrapper(my_connection_params)
         with self.assertRaises(ValueError):
@@ -39,7 +41,8 @@ class MyTestCase(unittest.TestCase):
             "password": "root",
             "organization": "TUD",
             "bucket": "A",
-            "port": 8086
+            "port": 8086,
+            "token": "my_token"
         }
         my_influx_wrapper = InfluxWrapper(my_connection_params)
         with self.assertRaises(ValueError):

@@ -19,8 +19,9 @@ class MyTestCase(unittest.TestCase):
             "username": "root",
             "password": "root",
             "organization": "TUD",
-            "bucket": "",
-            "port": 8086
+            "bucket": "my_bucket",
+            "port": 8086,
+            "token": "my_token"
         }
 
         test_point = Point("node_name")
@@ -28,7 +29,7 @@ class MyTestCase(unittest.TestCase):
         test_point.field("value", 1)
         test_point.time("2009-11-10T23:00:00.123456Z")
 
-        my_buffer = Buffer(my_connection_params)
+        my_buffer = Buffer(1000, my_connection_params)
         my_buffer.append("node_name", [("tag_a", "tag_b")], 1, "2009-11-10T23:00:00.123456Z")
         self.assertEquals(my_buffer._Buffer__buffer[-1], test_point)
 
@@ -38,10 +39,11 @@ class MyTestCase(unittest.TestCase):
             "username": "root",
             "password": "root",
             "organization": "TUD",
-            "bucket": "",
-            "port": 8086
+            "bucket": "my_bucket",
+            "port": 8086,
+            "token": "my_token"
         }
-        my_buffer = Buffer(my_connection_params)
+        my_buffer = Buffer(1000, my_connection_params)
         with self.assertRaises(ValueError):
             my_buffer.append("", [("tag_a", "tag_b")], 1, "2009-11-10T23:00:00.123456Z")
         with self.assertRaises(ValueError):
@@ -53,14 +55,13 @@ class MyTestCase(unittest.TestCase):
             "username": "root",
             "password": "root",
             "organization": "TUD",
-            "bucket": "",
-            "port": 8086
+            "bucket": "my_bucket",
+            "port": 8086,
+            "token": "my_token"
         }
-        my_buffer = Buffer(my_connection_params)
+        my_buffer = Buffer(1000, my_connection_params)
         with self.assertRaises(ValueError):
             my_buffer.append("node_name", None, 1, "2009-11-10T23:00:00.123456Z")
-        with self.assertRaises(ValueError):
-            my_buffer.append("node_name", [], 1, "2009-11-10T23:00:00.123456Z")
 
     def test_append_invalid_value_insert(self):
         my_connection_params = {
@@ -68,12 +69,13 @@ class MyTestCase(unittest.TestCase):
             "username": "root",
             "password": "root",
             "organization": "TUD",
-            "bucket": "",
-            "port": 8086
+            "bucket": "my_bucket",
+            "port": 8086,
+            "token": "my_token"
         }
-        my_buffer = Buffer(my_connection_params)
+        my_buffer = Buffer(1000, my_connection_params)
         with self.assertRaises(ValueError):
-            my_buffer.append("node_name", [("tag_a", "tag_b")], [], "2009-11-10T23:00:00.123456Z")
+            my_buffer.append("node_name", [("tag_a", "tag_b")], None, "2009-11-10T23:00:00.123456Z")
 
     def test_append_invalid_timestamp_insert(self):
         my_connection_params = {
@@ -81,18 +83,17 @@ class MyTestCase(unittest.TestCase):
             "username": "root",
             "password": "root",
             "organization": "TUD",
-            "bucket": "",
-            "port": 8086
+            "bucket": "my_bucket",
+            "port": 8086,
+            "token": "my_token"
         }
-        my_buffer = Buffer(my_connection_params)
+        my_buffer = Buffer(1000, my_connection_params)
         with self.assertRaises(ValueError):
             my_buffer.append("node_name", [("tag_a", "tag_b")], 1, None)
 
+    # TODO How to do this test?
     def test_valid_write_points(self):
-        my_buffer = Buffer()
-        my_buffer.append("node_name", 1, "2009-11-10T23:00:00.123456Z")
-        with self.assertRaises():
-            my_buffer.write_points()
+        pass
 
     # TODO How to show invalid test?
     def test_invalid_write_points(self):
