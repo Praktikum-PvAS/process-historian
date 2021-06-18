@@ -1,0 +1,8 @@
+version: "3"
+
+services:
+  process-historian:
+    build:
+      context: .
+    volumes:
+      - ./config:/usr/app/config
