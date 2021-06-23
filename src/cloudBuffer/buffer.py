@@ -19,7 +19,7 @@ class Buffer:
 
     def append(self, measurement: str,
                tags: Union[List[Tuple[str, str]], None],
-               value: Any,
+               values: Union[List[Tuple[str, Any]], None],
                timestamp: Any):
         if measurement is None:
             raise ValueError("measurement MUST NOT be None!")
@@ -27,15 +27,16 @@ class Buffer:
             raise ValueError("measurement MUST NOT be empty!")
         if tags is None:
             tags = []
-        if value is None:
-            raise ValueError("value MUST NOT be None!")
+        if values is None or values == []:
+            raise ValueError("value MUST NOT be None or empty!")
         if timestamp is None:
             raise ValueError("Timestamp MUST NOT be None!")
 
         point = Point(measurement)
         for tag in tags:
             point.tag(tag[0], tag[1])
-        point.field("value", value)
+        for value in values:
+            point.field(value[0], value[1])
         point.time(timestamp)
 
         self.__sem.acquire()
@@ -45,7 +46,7 @@ class Buffer:
         self.__sem.release()
 
     def append_many(self, raw_point_list: List[
-            Tuple[str, Union[List[Tuple[str, str]], None], Any, Any]]):
+            Tuple[str, Union[List[Tuple[str, str]], None], Union[List[Tuple[str, Any]], None], Any]]):
         point_list = []
         for raw_point in raw_point_list:
             if raw_point[0] is None:
@@ -56,15 +57,16 @@ class Buffer:
                 tags = []
             else:
                 tags = raw_point[1]
-            if raw_point[2] is None:
-                raise ValueError("value MUST NOT be None!")
+            if raw_point[2] is None or raw_point[2] == []:
+                raise ValueError("value MUST NOT be None or emtpy!")
             if raw_point[3] is None:
                 raise ValueError("Timestamp MUST NOT be None!")
 
             point = Point(raw_point[0])
             for tag in tags:
                 point.tag(tag[0], tag[1])
-            point.field("value", raw_point[2])
+            for value in raw_point[2]:
+                point.field(value[0], value[1])
             point.time(raw_point[3])
 
         # If more points are polled than max_buffer_length we need to trim
