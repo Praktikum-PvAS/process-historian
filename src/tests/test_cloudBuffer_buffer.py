@@ -49,19 +49,20 @@ class MyTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             my_buffer.append(None, [("tag_a", "tag_b")], 1, "2009-11-10T23:00:00.123456Z")
 
-    def test_append_invalid_tag_insert(self):
-        my_connection_params = {
-            "host": "localhost",
-            "username": "root",
-            "password": "root",
-            "organization": "TUD",
-            "bucket": "my_bucket",
-            "port": 8086,
-            "token": "my_token"
-        }
-        my_buffer = Buffer(1000, my_connection_params)
-        with self.assertRaises(ValueError):
-            my_buffer.append("node_name", None, 1, "2009-11-10T23:00:00.123456Z")
+
+    # def test_append_invalid_tag_insert(self):
+    #    my_connection_params = {
+    #        "host": "localhost",
+    #        "username": "root",
+    #        "password": "root",
+    #        "organization": "TUD",
+    #        "bucket": "my_bucket",
+    #        "port": 8086,
+    #        "token": "my_token"
+    #    }
+    #    my_buffer = Buffer(1000, my_connection_params)
+    #    with self.assertRaises(ValueError):
+    #        my_buffer.append("node_name", None, 1, "2009-11-10T23:00:00.123456Z")
 
     def test_append_invalid_value_insert(self):
         my_connection_params = {
@@ -90,14 +91,6 @@ class MyTestCase(unittest.TestCase):
         my_buffer = Buffer(1000, my_connection_params)
         with self.assertRaises(ValueError):
             my_buffer.append("node_name", [("tag_a", "tag_b")], 1, None)
-
-    # TODO How to do this test?
-    def test_valid_write_points(self):
-        pass
-
-    # TODO How to show invalid test?
-    def test_invalid_write_points(self):
-        pass
 
 
 if __name__ == '__main__':
