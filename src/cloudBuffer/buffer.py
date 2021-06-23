@@ -14,7 +14,7 @@ class Buffer:
         """
         Constructor of the class Buffer which generates a buffer and an influxWrapper.
         :param max_buffer_len: The maximum amount of points which can be stored in the buffer.
-        :param connection_params: The connection parameters to connect with the InfluxDB data base.
+        :param connection_params: The necessary connection parameters to connect with the InfluxDB data base.
         """
         if max_buffer_len < 1:
             raise ValueError("Maximum buffer length must be at least 1!")
