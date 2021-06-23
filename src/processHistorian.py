@@ -91,6 +91,11 @@ class ProcessHistorian:
         for thread in self.__threads:
             thread.start()
 
+    def restart_opc_threads(self):
+        for thread in self.__threads:
+            if "OPC" in thread.getName():
+                thread.start()
+
     def __create_empty_program_config(self):
         with open(self.__program_conf_loc, "w") as prog_conf:
             yaml_dump({
@@ -224,9 +229,12 @@ class ProcessHistorian:
 if __name__ == "__main__":
     ph = ProcessHistorian()
     waiter = threading.Event()
-    try:
-        waiter.wait()
-    except KeyboardInterrupt:
-        pass
-    finally:
-        ph.exit()
+    while True:
+        try:
+            waiter.wait()
+        except KeyboardInterrupt:
+            break
+        except:
+            ph.restart_opc_threads()
+
+    ph.exit()
