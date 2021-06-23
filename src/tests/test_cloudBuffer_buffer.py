@@ -49,7 +49,6 @@ class MyTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             my_buffer.append(None, [("tag_a", "tag_b")], 1, "2009-11-10T23:00:00.123456Z")
 
-
     # def test_append_invalid_tag_insert(self):
     #    my_connection_params = {
     #        "host": "localhost",
