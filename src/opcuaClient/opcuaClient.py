@@ -77,33 +77,33 @@ class Client:
         type_list = ["sensors", "actuators", "services"]
         for node_type in type_list:
             # search for every node of that type
-            for assembly_node in self.__opcua_config[node_type]:
+            for i in range(len(self.__opcua_config[node_type])):
                 nodes_attributes = \
-                    self.__opcua_config[node_type][assembly_node]["attributes"]
+                    self.__opcua_config[node_type][i]["attributes"]
                 for attribute in nodes_attributes:
                     # add nodeId to the list
-                    if attribute.mode == "poll":
+                    if attribute["mode"] == "poll":
                         # get interval and node
-                        interval = attribute.interval
+                        interval = attribute["interval"]
                         # create a opcua node object
                         node_obj = self._opcua_lib_client.get_node(
-                            self.__create_node_id(attribute.namespace,
-                                                  attribute.node_identifier))
+                            self.__create_node_id(attribute["namespace"],
+                                                  attribute["node_identifier"]))
                         # create a CustomNode to store more information
-                        node = CustomNode(node_type, assembly_node,
-                                          attribute.name, node_obj)
+                        node = CustomNode(node_type, self.__opcua_config[node_type][i]["id"],
+                                          attribute["name"], node_obj)
                         # append the node and interval to the list in the
                         # dictionary
                         temp_list = self._nodes2poll.get(interval, [])
                         temp_list.append(node)
                         # store the list in the dict
                         self._nodes2poll[interval] = temp_list
-                    elif attribute.mode == "subscription":
+                    elif attribute["mode"] == "subscription":
                         node_obj = self._opcua_lib_client.get_node(
-                            self.__create_node_id(attribute.namespace,
-                                                  attribute.node_identifier))
-                        node = CustomNode(node_type, assembly_node,
-                                          attribute.name, node_obj)
+                            self.__create_node_id(attribute["namespace"],
+                                                  attribute["node_identifier"]))
+                        node = CustomNode(node_type, self.__opcua_config[node_type][i]["id"],
+                                          attribute["name"], node_obj)
                         self._nodes2poll[node_obj] = node
 
     def __get_namespace_indexes(self):
@@ -125,12 +125,12 @@ class Client:
         type_list = ["sensors", "actuators", "services"]
         for node_type in type_list:
             # search for every node of that type
-            for assembly_node in self.__opcua_config[node_type]:
+            for i in range(len(self.__opcua_config[node_type])):
                 nodes_attributes = \
-                    self.__opcua_config[node_type][assembly_node]["attributes"]
+                    self.__opcua_config[node_type][i]["attributes"]
                 for attribute in nodes_attributes:
-                    if attribute.namespace not in namespaces:
-                        namespaces.append(attribute.namespace)
+                    if attribute["namespace"] not in namespaces:
+                        namespaces.append(attribute["namespace"])
 
         return namespaces
 
@@ -162,7 +162,7 @@ class Client:
         nodeids = [custom_node.node_obj.nodeid for custom_node in nodes]
 
         results = self._opcua_lib_client.uaclient \
-            .get_attributes([nodeids], AttributeIds.Value)
+            .get_attributes(nodeids, AttributeIds.Value)
 
         for result in results:
             if result.SourceTimestamp is None:
@@ -171,9 +171,8 @@ class Client:
         # returns the value to a callback function
         for i in range(len(results)):
             self.__callback(nodes[i].assembly_identifier,  # measurement
-                            [("attribute", nodes[i].attribute_name),  # tags
-                             ("assembly_type", nodes[i].assembly_type)],
-                            results[i].Value.Value,
+                            [("assembly_type", nodes[i].assembly_type)],  # tags
+                            [(nodes[i].attribute_name, results[i].Value.Value)],  # values
                             results[i].SourceTimestamp)
 
     def subscribe_all(self):
@@ -184,14 +183,16 @@ class Client:
         self.__subscription = self._opcua_lib_client \
             .create_subscription(100, self.__subHandler)
         # subscribe to node
-        handles = self.__subscription.subscribe_data_change(self._nodes2sub)
-        self.__subscription_handles = handles
+        if self._nodes2sub:
+            handles = self.__subscription.subscribe_data_change(self._nodes2sub)
+            self.__subscription_handles = handles
 
     def unsubscribe_all(self):
         """
         Cancels subscriptions of nodes from OPC UA Server.
         """
-        self.__subscription.unsubscribe(self.__subscription_handles)
+        if self.__subscription_handles:
+            self.__subscription.unsubscribe(self.__subscription_handles)
 
     class SubscriptionHandler:
         """
@@ -216,7 +217,6 @@ class Client:
             timestamp = raw_data.monitored_item.Value.SourceTimestamp
             c_node = self.__node_dict[node]
             self.__data_callback(c_node.assembly_identifier,  # measurement
-                                 [("attribute", c_node.attribute_name),  # tags
-                                  ("assembly_type", c_node.assembly_type)],
-                                 value,
+                                 [("assembly_type", c_node.assembly_type)],  # tags
+                                 [(c_node.attribute_name, value)],  # values
                                  timestamp)
