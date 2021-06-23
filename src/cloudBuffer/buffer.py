@@ -7,7 +7,15 @@ import threading
 
 
 class Buffer:
+    """
+    Class enables to store data points in a Buffer and to write those into the InfluxDB data base.
+    """
     def __init__(self, max_buffer_len: int, connection_params: dict):
+        """
+        Constructor of the class Buffer which generates a buffer and an influxWrapper.
+        :param max_buffer_len: The maximum amount of points which can be stored in the buffer.
+        :param connection_params: The connection parameters to connect with the InfluxDB data base.
+        """
         if max_buffer_len < 1:
             raise ValueError("Maximum buffer length must be at least 1!")
         if connection_params is None:
@@ -21,6 +29,13 @@ class Buffer:
                tags: Union[List[Tuple[str, str]], None],
                values: Union[List[Tuple[str, Any]], None],
                timestamp: Any):
+        """"
+        Function which adds a measurement point at the end of the private list buffer.
+        :param measurement: Kind of measurement.
+        :param tags: A list containing the name of the sensor and the location of the sensor.
+        :param value: Value of the measurement
+        :param timestamp: Timestamp of the measurement.
+        """
         if measurement is None:
             raise ValueError("measurement MUST NOT be None!")
         if measurement == "":
@@ -47,6 +62,10 @@ class Buffer:
 
     def append_many(self, raw_point_list: List[
             Tuple[str, Union[List[Tuple[str, str]], None], Union[List[Tuple[str, Any]], None], Any]]):
+        """"
+        Function which adds multiple measurement points at the end of the private list buffer.
+        :param raw_point_list: A list which contains multiple measurement points.
+        """
         point_list = []
         for raw_point in raw_point_list:
             if raw_point[0] is None:
@@ -81,6 +100,9 @@ class Buffer:
         self.__sem.release()
 
     def write_points(self):
+        """
+        Function which writes points into the InfluxDB. If the transmission was successful, the points will be deleted.
+        """
         self.__sem.acquire()
         if len(self.__buffer) > 1000:
             buffer_part = self.__buffer[:1000]
@@ -94,6 +116,10 @@ class Buffer:
         self.__sem.release()
 
     def __pop_first(self, number_of_elements: int):
+        """
+        Function which deletes the first n elements from the point list.
+        :param number_of_elements: Amount of elements to be deleted.
+        """
         if number_of_elements < 1:
             raise ValueError("Number of Elements to pop must be at least 1")
         if number_of_elements >= len(self.__buffer):
