@@ -72,7 +72,7 @@ class ProcessHistorian:
                                                    interval, interval)
             self.__work_thread_objs.append(poll_obj)
             self.__threads.append(threading.Thread(
-                name="ProcessHistorian - OPC UA Poll - " + interval + "ms",
+                name=f"ProcessHistorian - OPC UA Poll - {interval}ms",
                 target=poll_obj.work))
         self._opcua_client.subscribe_all()
 
@@ -84,6 +84,12 @@ class ProcessHistorian:
         self.__threads.append(threading.Thread(
             name="ProcessHistorian - CloudBuffer Push",
             target=push_obj.work))
+
+        print("Work threads:")
+        print(self.__threads)
+
+        for thread in self.__threads:
+            thread.start()
 
     def __create_empty_program_config(self):
         with open(self.__program_conf_loc, "w") as prog_conf:
@@ -204,7 +210,10 @@ class ProcessHistorian:
 
         def work(self):
             while not self.__should_exit:
-                self.__work_function(self.__argument)
+                if self.__argument:
+                    self.__work_function(self.__argument)
+                else:
+                    self.__work_function()
                 self.__sleeps = True
                 if self.__should_exit:
                     exit()
