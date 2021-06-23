@@ -5,7 +5,14 @@ from influxdb_client.client.write_api import SYNCHRONOUS, WriteOptions
 
 
 class InfluxWrapper:  # renamed so not as imported class
+    """
+    Class InfluxWrapper enables to connect with the InfluxDB data base.
+    """
     def __init__(self, connection_params: dict):
+        """
+        Constructor of the class InfluxWrapper opens a connection to the InfluxDB data base.
+        :param connection_params: The necessary connection parameters to connect with the InfluxDB data base.
+        """
         if connection_params['host'] is None:
             raise ValueError("variable value of url is none")
         if connection_params['host'] == "":
@@ -36,6 +43,11 @@ class InfluxWrapper:  # renamed so not as imported class
             write_options=SYNCHRONOUS)
 
     def insert(self, point: Point):
+        """
+        The function inserts a data point into the InfluxDB data base.
+        :param point: A point which should be stored in the InfluxDB data base.
+        :return: If the data point could be written, it returns the boolean value TRUE, otherwise FALSE.
+        """
         if point is None:
             raise ValueError("Point MUST NOT be None!")
         try:
@@ -47,6 +59,11 @@ class InfluxWrapper:  # renamed so not as imported class
             return 1
 
     def insert_many(self, points: List[Point]):
+        """
+        The function inserts multiple data points into the InfluxDB data base.
+        :param points: List of points which should be stored in the InfluxDB data base.
+        :return: If the data point could be written, it returns the boolean value TRUE, otherwise FALSE.
+        """
         if points is None:
             raise ValueError("Point list must not be None!")
         if points is []:
