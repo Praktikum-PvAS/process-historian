@@ -91,10 +91,14 @@ class ProcessHistorian:
         for thread in self.__threads:
             thread.start()
 
-    def restart_opc_threads(self):
+    def heartbeat(self):
+        self._opcua_client.poll_server_status()
+
+    def restart_opc(self):
         for thread in self.__threads:
             if "OPC" in thread.getName():
                 thread.start()
+        self._opcua_client.subscribe_all()
 
     def __create_empty_program_config(self):
         with open(self.__program_conf_loc, "w") as prog_conf:
@@ -229,12 +233,30 @@ class ProcessHistorian:
 if __name__ == "__main__":
     ph = ProcessHistorian()
     waiter = threading.Event()
+
+    def wait_till_connection_reestablished():
+        print("Waiting for opc connection to be reestablished...")
+        while True:
+            try:
+                ph.heartbeat()
+                break
+            except KeyboardInterrupt:
+                break
+            except:
+                pass
+        print("Restarting polling threads and subscriptions")
+
+
     while True:
         try:
             waiter.wait()
+            while True:
+                ph.heartbeat()
+                time.sleep(1)
         except KeyboardInterrupt:
             break
         except:
-            ph.restart_opc_threads()
+            print("Restarting polling threads and subscriptions")
+            ph.restart_opc()
 
     ph.exit()
