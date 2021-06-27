@@ -32,14 +32,14 @@ class Client:
         self.__subscription_handles = []
         self.__namespace_adapter = {}
 
-        self.__init_lists()
-
         self.__subscription = None
         self.__subHandler = self.SubscriptionHandler(callback, self._nodes2sub)
 
     def connect(self):
         try:
             self._opcua_lib_client.connect()
+            self.__init_lists()
+
         except ConnectionError:
             print("OPC UA-Client was not able to connect to server!")
 
