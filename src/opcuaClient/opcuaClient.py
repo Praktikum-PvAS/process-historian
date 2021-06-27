@@ -175,6 +175,10 @@ class Client:
                             [(nodes[i].attribute_name, results[i].Value.Value)],  # values
                             results[i].SourceTimestamp)
 
+    def poll_server_status(self):
+        node = self._opcua_lib_client.get_node("ns=0;i=2259")
+        return node.get_value()
+
     def subscribe_all(self):
         """
         Creates subscription to nodes from OPC UA Server.
