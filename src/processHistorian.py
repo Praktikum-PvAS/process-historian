@@ -94,6 +94,10 @@ class ProcessHistorian:
     def heartbeat(self):
         self._opcua_client.poll_server_status()
 
+    def defibrillator(self):
+        self._opcua_client.connect()
+        self._opcua_client.poll_server_status()
+
     def restart_opc(self):
         for thread in self.__threads:
             if "OPC" in thread.getName():
@@ -238,24 +242,25 @@ if __name__ == "__main__":
         print("Waiting for opc connection to be reestablished...")
         while True:
             try:
-                ph.heartbeat()
+                time.sleep(1)
+                ph.defibrillator()
                 break
             except KeyboardInterrupt:
-                break
+                ph.exit()
             except:
                 pass
-        print("Restarting polling threads and subscriptions")
+
 
 
     while True:
         try:
-            waiter.wait()
             while True:
                 ph.heartbeat()
                 time.sleep(1)
         except KeyboardInterrupt:
-            break
+            ph.exit()
         except:
+            wait_till_connection_reestablished()
             print("Restarting polling threads and subscriptions")
             ph.restart_opc()
 
