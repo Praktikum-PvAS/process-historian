@@ -91,6 +91,20 @@ class ProcessHistorian:
         for thread in self.__threads:
             thread.start()
 
+    def heartbeat(self):
+        if self._opcua_client.poll_server_status() != 0:
+            raise ConnectionError("No heartbeat!")
+
+    def defibrillator(self):
+        self._opcua_client.connect()
+        self.heartbeat()
+
+    def restart_opc(self):
+        for thread in self.__threads:
+            if "OPC" in thread.getName():
+                thread.start()
+        self._opcua_client.subscribe_all()
+
     def __create_empty_program_config(self):
         with open(self.__program_conf_loc, "w") as prog_conf:
             yaml_dump({
@@ -223,10 +237,31 @@ class ProcessHistorian:
 
 if __name__ == "__main__":
     ph = ProcessHistorian()
-    waiter = threading.Event()
-    try:
-        waiter.wait()
-    except KeyboardInterrupt:
-        pass
-    finally:
-        ph.exit()
+
+
+    def wait_till_connection_reestablished():
+        print("Waiting for opc connection to be reestablished...")
+        while True:
+            try:
+                time.sleep(1)
+                ph.defibrillator()
+                break
+            except KeyboardInterrupt:
+                ph.exit()
+            except:
+                pass
+
+
+    while True:
+        try:
+            while True:
+                ph.heartbeat()
+                time.sleep(1)
+        except KeyboardInterrupt:
+            ph.exit()
+        except:
+            wait_till_connection_reestablished()
+            print("Restarting polling threads and subscriptions")
+            ph.restart_opc()
+
+    ph.exit()

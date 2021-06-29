@@ -32,15 +32,14 @@ class Client:
         self.__subscription_handles = []
         self.__namespace_adapter = {}
 
-        self.connect()
-        self.__init_lists()
-
         self.__subscription = None
         self.__subHandler = self.SubscriptionHandler(callback, self._nodes2sub)
 
     def connect(self):
         try:
             self._opcua_lib_client.connect()
+            self.__init_lists()
+
         except ConnectionError:
             print("OPC UA-Client was not able to connect to server!")
 
@@ -133,6 +132,10 @@ class Client:
                             [("assembly_type", nodes[i].assembly_type)],  # tags
                             [(nodes[i].attribute_name, results[i].Value.Value)],  # values
                             results[i].SourceTimestamp)
+
+    def poll_server_status(self):
+        node = self._opcua_lib_client.get_node("ns=0;i=2259")
+        return node.get_value()
 
     def subscribe_all(self):
         # create one subscription and let subHandler watch it
