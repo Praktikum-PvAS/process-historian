@@ -237,7 +237,6 @@ class ProcessHistorian:
 
 if __name__ == "__main__":
     ph = ProcessHistorian()
-    waiter = threading.Event()
 
 
     def wait_till_connection_reestablished():
