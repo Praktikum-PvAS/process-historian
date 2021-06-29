@@ -97,7 +97,7 @@ class ProcessHistorian:
 
     def defibrillator(self):
         self._opcua_client.connect()
-        self._opcua_client.poll_server_status()
+        self.heartbeat()
 
     def restart_opc(self):
         for thread in self.__threads:
@@ -239,6 +239,7 @@ if __name__ == "__main__":
     ph = ProcessHistorian()
     waiter = threading.Event()
 
+
     def wait_till_connection_reestablished():
         print("Waiting for opc connection to be reestablished...")
         while True:
@@ -250,7 +251,6 @@ if __name__ == "__main__":
                 ph.exit()
             except:
                 pass
-
 
 
     while True:
