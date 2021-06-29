@@ -1,5 +1,5 @@
 {
-  "host": "http://example.com",
+  "host": "opc.tcp://example.com",
   "actuators": [],
   "sensors": [],
   "services": []

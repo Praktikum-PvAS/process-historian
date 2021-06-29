@@ -1,7 +1,7 @@
 from typing import List
 
 from influxdb_client import InfluxDBClient, Point
-from influxdb_client.client.write_api import SYNCHRONOUS, WriteOptions
+from influxdb_client.client.write_api import WriteOptions, WriteType
 
 
 class InfluxWrapper:  # renamed so not as imported class
@@ -41,8 +41,6 @@ class InfluxWrapper:  # renamed so not as imported class
         self.__influxDBClient = InfluxDBClient(url=self.__url,
                                                token=self.__token,
                                                org=self.__org)
-        self.write_api = self.__influxDBClient.write_api(
-            write_options=SYNCHRONOUS)
 
     def insert(self, point: Point):
         """
@@ -53,7 +51,8 @@ class InfluxWrapper:  # renamed so not as imported class
         if point is None:
             raise ValueError("Point MUST NOT be None!")
         try:
-            with self.__influxDBClient.write_api() as write_client:
+            with self.__influxDBClient.write_api(
+                    write_options=WriteOptions(max_retries=0, write_type=WriteType.synchronous)) as write_client:
                 write_client(bucket=self.__bucket, record=point)
             return 0
         except:
@@ -72,7 +71,7 @@ class InfluxWrapper:  # renamed so not as imported class
             raise ValueError("Point list must not be empty!")
         try:
             with self.__influxDBClient.write_api(write_options=WriteOptions(
-                    batch_size=len(points))) as write_client:
+                    batch_size=len(points), max_retries=0, write_type=WriteType.synchronous)) as write_client:
                 write_client.write(self.__bucket, self.__org, points)
             return 0
         except:
