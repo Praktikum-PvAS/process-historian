@@ -33,8 +33,7 @@ class Buffer:
                values: Union[List[Tuple[str, Any]], None],
                timestamp: Any):
         """"
-        Function which adds a measurement point at the end of the private list
-        buffer.
+        Adds a measurement point to the end of the buffer.
         :param measurement: Kind of measurement.
         :param tags: List of tuples, each containing tag and tag value
         :param values: List of tuples, each containing value name and measured
@@ -69,10 +68,8 @@ class Buffer:
             Tuple[str, Union[List[Tuple[str, str]], None],
                   Union[List[Tuple[str, Any]], None], Any]]):
         """"
-        Function which adds multiple measurement points at the end of the
-        private list buffer.
+        Adds multiple measurement points to the end of the buffer.
         :param raw_point_list: List which contains multiple measurement points.
-        For more information see function self.append().
         """
         point_list = []
         for raw_point in raw_point_list:
@@ -109,7 +106,7 @@ class Buffer:
 
     def write_points(self):
         """
-        Function which writes points into the InfluxDB. If the transmission was
+        Writes buffer into the InfluxDB. If the transmission was
         successful, the points will be deleted from buffer.
         """
         self.__sem.acquire()
@@ -126,7 +123,7 @@ class Buffer:
 
     def __pop_first(self, number_of_elements: int):
         """
-        Function which deletes the first n elements from the buffer.
+        Deletes the first n elements from the buffer.
         :param number_of_elements: Amount of elements to be deleted
         """
         if number_of_elements < 1:
