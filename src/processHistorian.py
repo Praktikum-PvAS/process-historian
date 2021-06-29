@@ -92,7 +92,8 @@ class ProcessHistorian:
             thread.start()
 
     def heartbeat(self):
-        self._opcua_client.poll_server_status()
+        if self._opcua_client.poll_server_status() != 0:
+            raise ConnectionError("No heartbeat!")
 
     def defibrillator(self):
         self._opcua_client.connect()
