@@ -5,6 +5,9 @@ from typing import Any, Callable, List, Tuple, Dict
 
 
 class CustomNode:
+    """
+    Node object to store node information
+    """
     def __init__(self, assembly_type: str, assembly_identifier: str,
                  attribute_name: str,
                  opc_node: opcua.Node):
@@ -15,6 +18,9 @@ class CustomNode:
 
 
 class Client:
+    """
+    OPC Client to connect with an OPC UA server and query data from it
+    """
     def __init__(self, opcua_config: dict,
                  callback: Callable[[str, List[Tuple[str, str]], Any, Any],
                                     None]):
@@ -184,6 +190,9 @@ class Client:
         self.__subscription.unsubscribe(self.__subscription_handles)
 
     class SubscriptionHandler:
+        """
+        Handler to be called if data has changed and sends it to the cloud buffer
+        """
         def __init__(self, data_callback: Callable[
             [str, List[Tuple[str, str]], Any, Any], None],
                      node_dict: Dict[opcua.Node, CustomNode]):
