@@ -6,12 +6,13 @@ from influxdb_client.client.write_api import SYNCHRONOUS, WriteOptions
 
 class InfluxWrapper:  # renamed so not as imported class
     """
-    Class InfluxWrapper enables to connect with the InfluxDB data base.
+    This wrapper class establishes a connection to the InfluxDB.
     """
     def __init__(self, connection_params: dict):
         """
-        Constructor of the class InfluxWrapper opens a connection to the InfluxDB data base.
-        :param connection_params: The necessary connection parameters to connect with the InfluxDB data base.
+        Constructor of the class.
+        :param connection_params: Necessary connection parameters to connect to
+        the InfluxDB.
         """
         if connection_params['host'] is None:
             raise ValueError("variable value of url is none")
@@ -37,16 +38,17 @@ class InfluxWrapper:  # renamed so not as imported class
             raise ValueError("bucket is empty")
         self.__bucket = connection_params["bucket"]
 
-        self.__influxDBClient = InfluxDBClient(url=self.__url, token=self.__token,
+        self.__influxDBClient = InfluxDBClient(url=self.__url,
+                                               token=self.__token,
                                                org=self.__org)
         self.write_api = self.__influxDBClient.write_api(
             write_options=SYNCHRONOUS)
 
     def insert(self, point: Point):
         """
-        The function inserts a data point into the InfluxDB data base.
-        :param point: A point which should be stored in the InfluxDB data base.
-        :return: If the data point could be written, it returns the boolean value TRUE, otherwise FALSE.
+        The function inserts a data point into the InfluxDB.
+        :param point: Point which should be stored in the InfluxDB
+        :return: 0 if write was successful, non 0 if an error occurred
         """
         if point is None:
             raise ValueError("Point MUST NOT be None!")
@@ -60,9 +62,9 @@ class InfluxWrapper:  # renamed so not as imported class
 
     def insert_many(self, points: List[Point]):
         """
-        The function inserts multiple data points into the InfluxDB data base.
-        :param points: List of points which should be stored in the InfluxDB data base.
-        :return: If the data point could be written, it returns the boolean value TRUE, otherwise FALSE.
+        The function inserts multiple data points into the InfluxDB.
+        :param points: List of points which should be written to the InfluxDB.
+        :return: 0 if write was successful, non 0 if an error occurred
         """
         if points is None:
             raise ValueError("Point list must not be None!")
