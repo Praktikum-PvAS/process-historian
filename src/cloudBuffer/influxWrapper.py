@@ -46,9 +46,9 @@ class InfluxWrapper:  # renamed so not as imported class
 
     def insert(self, point: Point):
         """
-        The function inserts a data point into the InfluxDB.
-        :param point: Point which should be stored in the InfluxDB
-        :return: 0 if write was successful, non 0 if an error occurred
+        Inserts a data point into the InfluxDB.
+        :param point: Point to be stored in the InfluxDB
+        :return: 0 if write was successful, non-zero if an error occurred
         """
         if point is None:
             raise ValueError("Point MUST NOT be None!")
@@ -62,9 +62,9 @@ class InfluxWrapper:  # renamed so not as imported class
 
     def insert_many(self, points: List[Point]):
         """
-        The function inserts multiple data points into the InfluxDB.
-        :param points: List of points which should be written to the InfluxDB.
-        :return: 0 if write was successful, non 0 if an error occurred
+        Inserts multiple data points into the InfluxDB.
+        :param points: List of points to be written to the InfluxDB.
+        :return: 0 if write was successful, non-zero if an error occurred
         """
         if points is None:
             raise ValueError("Point list must not be None!")
