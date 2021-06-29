@@ -37,7 +37,7 @@ class Buffer:
         buffer.
         :param measurement: Kind of measurement.
         :param tags: List of tuples, each containing tag and tag value
-        :param value: List of tuples, each containing value name and measured
+        :param values: List of tuples, each containing value name and measured
         value
         :param timestamp: Timestamp of the measurement
         """
@@ -66,7 +66,8 @@ class Buffer:
         self.__sem.release()
 
     def append_many(self, raw_point_list: List[
-            Tuple[str, Union[List[Tuple[str, str]], None], Union[List[Tuple[str, Any]], None], Any]]):
+            Tuple[str, Union[List[Tuple[str, str]], None],
+                  Union[List[Tuple[str, Any]], None], Any]]):
         """"
         Function which adds multiple measurement points at the end of the
         private list buffer.
