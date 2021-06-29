@@ -29,9 +29,9 @@ class Client:
                  callback: Callable[[str, List[Tuple[str, str]], Any, Any],
                                     None]):
         if opcua_config is None:
-            ValueError("opcua_config must not be None")
+            raise ValueError("opcua_config must not be None")
         if not callable(callback):
-            ValueError("callback is not callable")
+            raise ValueError("callback is not callable")
 
         self.__opcua_config = opcua_config
         self.__url = self.__opcua_config["host"]
