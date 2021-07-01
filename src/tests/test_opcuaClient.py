@@ -2,7 +2,8 @@ import unittest
 
 import opcua
 
-from opcuaClient.opcuaClient import CustomNode, Client
+from opcuaClient.opcuaClient import Client
+from opcuaClient.customNode import CustomNode
 
 
 class MyTestCase(unittest.TestCase):
