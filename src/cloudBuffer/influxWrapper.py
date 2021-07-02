@@ -57,6 +57,7 @@ class InfluxWrapper:  # renamed so not as imported class
             return 0
         except:
             # urllib.error.URLError
+            # TODO: specify except more precisely
             return 1
 
     def insert_many(self, points: List[Point]):
@@ -75,4 +76,5 @@ class InfluxWrapper:  # renamed so not as imported class
                 write_client.write(self.__bucket, self.__org, points)
             return 0
         except:
+            # TODO: specify except more precisely
             return 1
