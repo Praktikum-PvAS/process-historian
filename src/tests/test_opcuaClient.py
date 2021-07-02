@@ -23,6 +23,9 @@ class MyTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             test_client = Client({}, [])
 
+# TODO: add connection test
+
+# TODO: add disconnection test
 
 if __name__ == '__main__':
     unittest.main()
