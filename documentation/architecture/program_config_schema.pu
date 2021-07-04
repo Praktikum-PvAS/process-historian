@@ -8,8 +8,7 @@
     },
     "influxdb": {
         "host": "url",
-        "username": "string",
-        "password": "string",
+        "token": "string",
         "organization": "string",
         "bucket": "string"
     },

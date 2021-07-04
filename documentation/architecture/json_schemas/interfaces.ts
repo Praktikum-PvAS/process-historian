@@ -42,16 +42,15 @@ export interface OPCUAConfig {
 }
 
 export interface ProgramConfig {
-    include: ("sensors" | "actuators" | "services")[]
+    include: ("sensors" | "actuators" | "services")[];
     tripleStore: {
         host: string;
-        username: string;
-        password: string;
+        username?: string;
+        password?: string;
     };
     influxdb: {
         host: string;
-        username: string;
-        password: string;
+        token: string;
         organization: string;
         bucket: string;
     };
