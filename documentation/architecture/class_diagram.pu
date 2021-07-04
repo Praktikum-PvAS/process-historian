@@ -1,48 +1,110 @@
 @startuml "Process Historian"
 
-class CloudBuffer.Buffer {
-    +<<Create>> Buffer(connection_parameters: Dict)
-    +append(node_name, value, timestamp)
-    -pop_first(number_of_elements=1)
+class cloudBuffer.Buffer {
+    - __max_buffer_len: int
+    - __buffer: List[influxdb_client.Point]
+    - __sem: threading.Semaphore
+    + <<Create>> Buffer(max_buffer_len: int, connection_parameters: Dict)
+    + append(measurement: str, tags: Union[List[Tuple[str, str]], None],\nvalues: Union[List[Tuple[str, Any]], None], timestamp: Any)
+    + append_many(raw_point_list: List)
+    + write_points()
+    - pop_first(number_of_elements: int)
 }
-class CloudBuffer.InfluxDBClient{
-    -connection_parameters: Dict
-    +<<Create>> InfluxDBClient(connection_parameters: Dict)
-    +insert(datapoint: Dict)
-    +insert_many(datapoints: List<Dict>)
+class cloudBuffer.InfluxWrapper{
+    - connection_parameters: Dict
+    + <<Create>> InfluxWrapper(connection_parameters: Dict)
+    + insert(point: influxdb_client.Point)
+    + insert_many(points: List[influxdb_client.Point])
 }
-CloudBuffer.Buffer --> "1" CloudBuffer.InfluxDBClient
+cloudBuffer.Buffer --> "1" cloudBuffer.InfluxWrapper : - __influx_wrapper
 
-class OPCUAClient.Client {
-    -opcua_config: Dict
-    -opcua_lib_client: opcua.Client
+class opcuaClient.Client {
+    - __opcua_config: Dict
+    - __url: str
+    - __opcua_lib_client: opcua.Client
+    - __callback: Callable
+    - _nodes2poll: Dict
+    - _nodes2sub: Dict
+    - __subscription_handles: List
+    - __namespace_adapter: Dict
+    - __subscription: opcua.Subscription
+    - __subHandler: SubscriptionHandler
     +<<Create>> Client(opcua_config: Dict)
-    +connect()
-    +disconnect()
-    +poll()
-    +subscribe()
+    + connect()
+    + disconnect()
+    + get_intervals()
+    + poll()
+    + subscribe_all()
+    + unsubscribe_all()
+    - __init_lists()
+    - __get_namespace_indexes()
+    - __get_all_namespaces()
+    - __create_node_id(namespace: str, identifier: str)
 }
-class OPCUAClient.SubscriptionHandler {
-    -data_callback: Callable
-    +<<Create>> SubscriptionHandler(data_callback: Callable)
-    +datachange_notification(node: opcua.Node, value, raw_data)
+class opcuaClient.SubscriptionHandler {
+    - __data_callback: Callable
+    - __node_dict: Dict
+    + <<Create>> SubscriptionHandler(data_callback: Callable, node_dict: Dict)
+    + datachange_notification(node: opcua.Node, value, raw_data)
 }
-OPCUAClient.Client +-- OPCUAClient.SubscriptionHandler
+class opcuaClient.CustomNode {
+    + assembly_type: str
+    + assembly_identifier: str
+    + attribute_name: str
+    + node_obj: opcua.Node
+    + <<Create>> CustomNode(assembly_type: str,assembly_identifier: str\nattribute_name: str, opc_node: opcua.Node)
+}
+opcuaClient.Client +-- opcuaClient.SubscriptionHandler
+opcuaClient.Client *-- "*" opcuaClient.CustomNode
 
-class ConfigBuilder.Configurator {
-    +<<Create>> Configurator(connection_parameters: Dict)
+
+class configBuilder.Configurator {
+    - __config_loc: str
+    + <<Create>> Configurator(connection_parameters: Dict,\nincluded_types: list, config_loc: str)
+    + write_config()
+    + write_debug_config()
+    + on_exit()
 }
-class ConfigBuilder.SPARQLClient{
-    -connection_parameters: Dict
-    +<<Create>> SPARQLClient(connection_parameters: Dict)
+class configBuilder.SPARQLClient{
+    - __connection_parameters: Dict
+    - __included_types: List[str]
+    - __sparql: SPARQLWrapper.SPARQLWrapper
+    + <<Create>> SPARQLClient(connection_parameters: Dict,\nincluded_types: List[str])
 }
-ConfigBuilder.Configurator --> "1" ConfigBuilder.SPARQLClient
+configBuilder.Configurator --> "1" configBuilder.SPARQLClient: - __sparql_client
 
 class ProcessHistorian {
-    +<<Create>> ProcessHistorian()
+    - __script_location: str
+    - __config_folder: str
+    - __program_conf_loc: str
+    - __opcua_conf_loc: str
+    - __program_conf: Dict
+    - __opcua_conf: Dict
+    - __threads: List[threading.Thread]
+    + <<Create>> ProcessHistorian()
+    + heartbeat()
+    + defibrillator()
+    + restart_opc()
+    + exit()
+    - __parse_program_conf()
+    - __parse_opcua_conf()
+    - __create_empty_program_config()
 }
-ProcessHistorian "1" *-- "1" CloudBuffer.Buffer
-ProcessHistorian "1" *-- "1" OPCUAClient.Client
-ProcessHistorian "1" *-- "1" ConfigBuilder.Configurator
+ProcessHistorian *-- "1" cloudBuffer.Buffer: - _buffer
+ProcessHistorian *-- "1" opcuaClient.Client: - _opcua_client
+ProcessHistorian *-- "1" configBuilder.Configurator: -_config_builder
+ProcessHistorian +-- ProcessHistorianThread
+ProcessHistorian *-- "*" ProcessHistorianThread: - __work_thread_objs
+
+class ProcessHistorianThread {
+    - __work_function: Callable
+    - __argument: Union<int, None>
+    - __interval: int
+    - __sleeps: boolean
+    - __should_exit: boolean
+    + <<Create>> ProcessHistorianThread(work_function: Callable,\nargument: Union<int, None>, interval: int)
+    + should_exit()
+    + work()
+}
 
 @enduml
