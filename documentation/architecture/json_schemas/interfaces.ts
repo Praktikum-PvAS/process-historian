@@ -1,44 +1,30 @@
 export interface OPCUAConfig {
     host: string;
+    sensors: OPCUAAssemblyType[];
+    actuators: OPCUAAssemblyType[];
+    services: OPCUAAssemblyType[];
+}
 
-    sensors: {
-        id: string;
-        nodeId: string;
-        namespace: string;
-        attributes: {
-            name: string;
-            nodeId: string;
-            namespace: string;
-            mode: "poll" | "subscription";
-            intervall: number;
-        }[];
-    }[];
+interface OPCUAAssemblyType {
+    id: string;
+    attributes: OPCUAAssemblyAttr[];
+}
 
-    actuators: {
-        id: string;
-        nodeId: string;
-        namespace: string;
-        attributes: {
-            name: string;
-            nodeId: string;
-            namespace: string;
-            mode: "poll" | "subscription";
-            intervall: number;
-        }[];
-    }[];
+type OPCUAAssemblyAttr = OPCUAAssemblyAttrPoll | OPCUAAssemblyAttrSub;
 
-    services: {
-        id: string;
-        nodeId: string;
-        namespace: string;
-        attributes: {
-            name: string;
-            nodeId: string;
-            namespace: string;
-            mode: "poll" | "subscription";
-            intervall: number;
-        }[];
-    }[];
+interface OPCUAAssemblyAttrPoll {
+    name: string;
+    node_identifier: string;
+    namespace: string;
+    mode: "poll";
+    interval: number;
+}
+
+interface OPCUAAssemblyAttrSub {
+    name: string;
+    nodeId: string;
+    namespace: string;
+    mode: "subscription";
 }
 
 export interface ProgramConfig {
