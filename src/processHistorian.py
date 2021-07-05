@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Callable, Union
 
 from yaml import safe_load as yaml_load, dump as yaml_dump
+from jsonschema import validate, ValidationError
 
 from configBuilder import Configurator
 from cloudBuffer import Buffer
@@ -152,37 +153,34 @@ class ProcessHistorian:
                   "right permissions and the file exists")
             exit()
 
-        incorrect = False
+        schemata_loc = self.__script_location / "json_schemata"
+        program_schema = schemata_loc / "program_config_schema.json"
 
-        if "buffer" not in self.__program_conf:
-            print("Key \"buffer\" not found in program config.")
-            incorrect = True
-        elif "size" not in self.__program_conf["buffer"]:
-            print("Key \"buffer\" not found in buffer in program config.")
-            incorrect = True
-        elif not isinstance(self.__program_conf["buffer"]["size"], int):
-            print("Value for buffer must be an int! Found " +
-                  str(type(self.__program_conf["buffer"]["size"])))
-            incorrect = True
-        if "include" not in self.__program_conf:
-            print("Key \"include\" not found in program config.")
-            incorrect = True
-        if "influxdb" not in self.__program_conf:
-            print("Key \"influxdb\" not found in program config.")
-            incorrect = True
-        if "tripleStore" not in self.__program_conf:
-            print("Key \"tripleStore\" not found in program config.")
-            incorrect = True
+        try:
+            with open(program_schema) as schema:
+                val_schema = json.load(schema)
+        except (FileExistsError, PermissionError):
+            print("Can't read json validation schema for program_config! " +
+                  "Make sure you have the " +
+                  "right permissions and the file exists")
+            print("Config check is skipped.")
+            return
+        except json.JSONDecodeError:
+            print("JSON validation schema is incorrect.")
+            print("Config check is skipped.")
+            return
 
-        if incorrect:
+        try:
+            validate(self.__program_conf, val_schema)
+            self.heartbeat_interval = self.__program_conf.get(
+                "heartbeat_interval",
+                1000)
+            self.buffer_push_interval = self.__program_conf.get(
+                "buffer",
+                {"push_interval": 1000}).get("push_interval", 1000)
+        except ValidationError:
             print("Your program config seems to be incorrect or incomplete.")
             exit()
-
-        self.heartbeat_interval = self.__program_conf.get("heartbeat_interval",
-                                                          1000)
-        self.buffer_push_interval = self.__program_conf.get(
-            "buffer",
-            {"push_interval": 1000}).get("push_interval", 1000)
 
     def __parse_opcua_conf(self):
         try:
@@ -246,6 +244,7 @@ class ProcessHistorian:
 if __name__ == "__main__":
     ph = ProcessHistorian()
     hb_interval = ph.heartbeat_interval / 1000  # in seconds for time.sleep()
+
 
     def wait_till_connection_reestablished():
         print("Waiting for opc connection to be reestablished...")
