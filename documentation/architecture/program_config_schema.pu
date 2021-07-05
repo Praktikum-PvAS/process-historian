@@ -13,7 +13,9 @@
         "bucket": "string"
     },
     "buffer": {
-        "size": "number"
-    }
+        "size": "number",
+        "push_interval": "number"
+    },
+    "heartbeat_interval": "number"
 }
 @endjson

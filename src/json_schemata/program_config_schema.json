@@ -1,12 +1,22 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "properties": {
+    "heartbeat_interval": {
+      "type": "number",
+      "multipleOf": 1.0,
+      "minimum": 1
+    },
     "buffer": {
       "required": [
         "size"
       ],
       "properties": {
         "size": {
+          "type": "number",
+          "multipleOf": 1.0,
+          "minimum": 1
+        },
+        "push_interval": {
           "type": "number",
           "multipleOf": 1.0,
           "minimum": 1
