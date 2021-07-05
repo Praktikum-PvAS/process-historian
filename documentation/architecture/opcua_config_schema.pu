@@ -9,12 +9,10 @@
           "mode": ["\"poll\"", "\"subscription\""],
           "name": "string",
           "namespace": "string",
-          "nodeId": "string"
+          "node_identifier": "string"
         }
       ],
-      "id": "string",
-      "namespace": "string",
-      "nodeId": "string"
+      "id": "string"
     }
   ],
   "actuators": [
@@ -25,12 +23,10 @@
           "mode": ["\"poll\"", "\"subscription\""],
           "name": "string",
           "namespace": "string",
-          "nodeId": "string"
+          "node_identifier": "string"
         }
       ],
-      "id": "string",
-      "namespace": "string",
-      "nodeId": "string"
+      "id": "string"
     }
   ],
   "services": [
@@ -41,12 +37,10 @@
           "mode": ["\"poll\"", "\"subscription\""],
           "name": "string",
           "namespace": "string",
-          "nodeId": "string"
+          "node_identifier": "string"
         }
       ],
-      "id": "string",
-      "namespace": "string",
-      "nodeId": "string"
+      "id": "string"
     }
   ]
 }
