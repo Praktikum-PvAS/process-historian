@@ -206,8 +206,6 @@ class ProcessHistorian:
             return
         except json.JSONDecodeError:
             print("JSON validation schema for opcua config is incorrect.")
-            print("The reason is below:")
-            print()
             print("Config check is skipped.")
             return
 
@@ -215,6 +213,8 @@ class ProcessHistorian:
             validate(self.__opcua_conf, schema)
         except ValidationError as e:
             print("Your program config seems to be incorrect or incomplete.")
+            print("The reason is below:")
+            print()
             print(e)
             exit()
 
