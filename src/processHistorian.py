@@ -79,7 +79,7 @@ class ProcessHistorian:
         # Seventh step: Create timed thread for buffer push
         # No arguments for the push, only write_points
         push_obj = self.ProcessHistorianThread(self._buffer.write_points,
-                                               None, 1000)
+                                               None, self.buffer_push_interval)
         self.__work_thread_objs.append(push_obj)
         self.__threads.append(threading.Thread(
             name="ProcessHistorian - CloudBuffer Push",
@@ -123,8 +123,10 @@ class ProcessHistorian:
                     "bucket": ""
                 },
                 "buffer": {
-                    "size": 1000000
-                }
+                    "size": 1000000,
+                    "push_interval": 1000
+                },
+                "heartbeat_interval": 1000
             }, prog_conf)
 
     def __parse_program_conf(self):
@@ -175,6 +177,12 @@ class ProcessHistorian:
         if incorrect:
             print("Your program config seems to be incorrect or incomplete.")
             exit()
+
+        self.heartbeat_interval = self.__program_conf.get("heartbeat_interval",
+                                                          1000)
+        self.buffer_push_interval = self.__program_conf.get(
+            "buffer",
+            {"push_interval": 1000}).get("push_interval", 1000)
 
     def __parse_opcua_conf(self):
         try:
@@ -237,7 +245,7 @@ class ProcessHistorian:
 
 if __name__ == "__main__":
     ph = ProcessHistorian()
-
+    hb_interval = ph.heartbeat_interval / 1000  # in seconds for time.sleep()
 
     def wait_till_connection_reestablished():
         print("Waiting for opc connection to be reestablished...")
@@ -256,7 +264,7 @@ if __name__ == "__main__":
         try:
             while True:
                 ph.heartbeat()
-                time.sleep(1)
+                time.sleep(hb_interval)
         except KeyboardInterrupt:
             ph.exit()
         except:
