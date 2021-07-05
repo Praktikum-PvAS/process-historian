@@ -176,9 +176,8 @@ class ProcessHistorian:
             self.heartbeat_interval = self.__program_conf.get(
                 "heartbeat_interval",
                 1000)
-            self.buffer_push_interval = self.__program_conf.get(
-                "buffer",
-                {"push_interval": 1000}).get("push_interval", 1000)
+            self.buffer_push_interval = self.__program_conf["buffer"]\
+                .get("push_interval", 1000)
         except ValidationError as e:
             print("Your program config seems to be incorrect or incomplete.")
             print("The reason is below:")
