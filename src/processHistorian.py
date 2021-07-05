@@ -20,6 +20,7 @@ class ProcessHistorian:
         self.__config_folder = self.__script_location.parent / "config"
         self.__program_conf_loc = self.__config_folder / "program_config.yaml"
         self.__opcua_conf_loc = self.__config_folder / "opcua_config.json"
+        self.__schemata_loc = self.__script_location / "json_schemata"
         self.__program_conf = {}
         self.__opcua_conf = {}
         self.__work_thread_objs = []
@@ -153,12 +154,12 @@ class ProcessHistorian:
                   "right permissions and the file exists")
             exit()
 
-        schemata_loc = self.__script_location / "json_schemata"
-        program_schema = schemata_loc / "program_config_schema.json"
+        self.__schemata_loc = self.__script_location / "json_schemata"
+        program_schema = self.__schemata_loc / "program_config_schema.json"
 
         try:
-            with open(program_schema) as schema:
-                val_schema = json.load(schema)
+            with open(program_schema) as fschema:
+                schema = json.load(fschema)
         except (FileExistsError, PermissionError):
             print("Can't read json validation schema for program_config! " +
                   "Make sure you have the " +
@@ -166,20 +167,23 @@ class ProcessHistorian:
             print("Config check is skipped.")
             return
         except json.JSONDecodeError:
-            print("JSON validation schema is incorrect.")
+            print("JSON validation schema for program config is incorrect.")
             print("Config check is skipped.")
             return
 
         try:
-            validate(self.__program_conf, val_schema)
+            validate(self.__program_conf, schema)
             self.heartbeat_interval = self.__program_conf.get(
                 "heartbeat_interval",
                 1000)
             self.buffer_push_interval = self.__program_conf.get(
                 "buffer",
                 {"push_interval": 1000}).get("push_interval", 1000)
-        except ValidationError:
+        except ValidationError as e:
             print("Your program config seems to be incorrect or incomplete.")
+            print("The reason is below:")
+            print()
+            print(e)
             exit()
 
     def __parse_opcua_conf(self):
@@ -191,9 +195,28 @@ class ProcessHistorian:
                   "right permissions and the file exists")
             exit()
 
-        if "host" not in self.__opcua_conf:
-            print("Key \"host\" not found in opcua config.")
-            print("Your opcua config seems to be incorrect or incomplete.")
+        opcua_schema = self.__schemata_loc / "opcua_config_schema.json"
+        try:
+            with open(opcua_schema) as fschema:
+                schema = json.load(fschema)
+        except (FileExistsError, PermissionError):
+            print("Can't read json validation schema for opcua_config! " +
+                  "Make sure you have the " +
+                  "right permissions and the file exists")
+            print("Config check is skipped.")
+            return
+        except json.JSONDecodeError:
+            print("JSON validation schema for opcua config is incorrect.")
+            print("The reason is below:")
+            print()
+            print("Config check is skipped.")
+            return
+
+        try:
+            validate(self.__opcua_conf, schema)
+        except ValidationError as e:
+            print("Your program config seems to be incorrect or incomplete.")
+            print(e)
             exit()
 
     def exit(self):
