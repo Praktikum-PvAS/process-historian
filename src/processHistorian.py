@@ -282,6 +282,7 @@ if __name__ == "__main__":
                 break
             except KeyboardInterrupt:
                 ph.exit()
+                exit()
             except:
                 pass
 
@@ -293,9 +294,8 @@ if __name__ == "__main__":
                 time.sleep(hb_interval)
         except KeyboardInterrupt:
             ph.exit()
+            exit()
         except:
             wait_till_connection_reestablished()
             print("Restarting polling threads and subscriptions")
             ph.restart_opc()
-
-    ph.exit()
