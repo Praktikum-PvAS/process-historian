@@ -1,5 +1,6 @@
 buffer:
   size: 1000000
+  push_interval: 1000
 include:
 - sensors
 - actuators
@@ -13,3 +14,4 @@ tripleStore:
   host: http://example.com
   password: ''
   username: ''
+heartbeat_interval: 1000
