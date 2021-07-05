@@ -1,5 +1,10 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "required": [
+    "influxdb",
+    "tripleStore",
+    "buffer"
+  ],
   "properties": {
     "heartbeat_interval": {
       "type": "number",
@@ -7,9 +12,7 @@
       "minimum": 1
     },
     "buffer": {
-      "required": [
-        "size"
-      ],
+      "required": ["size"],
       "properties": {
         "size": {
           "type": "number",
@@ -46,16 +49,20 @@
       "properties": {
         "host": {
           "type": "string",
-          "format": "uri"
+          "format": "uri",
+          "minLength": 1
         },
         "token": {
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         },
         "bucket": {
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         },
         "organization": {
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         }
       },
       "type": "object"
@@ -67,7 +74,8 @@
       "properties": {
         "host": {
           "type": "string",
-          "format": "uri"
+          "format": "uri",
+          "minLength": 1
         },
         "password": {
           "type": "string"
