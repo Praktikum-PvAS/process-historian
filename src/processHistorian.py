@@ -128,7 +128,7 @@ class ProcessHistorian:
                     "size": 1000000,
                     "push_interval": 1000
                 },
-                "heartbeat_interval": 1000
+                "__heartbeat_interval": 1000
             }, prog_conf)
 
     def __parse_program_conf(self):
@@ -173,8 +173,8 @@ class ProcessHistorian:
 
         try:
             validate(self.__program_conf, schema)
-            self.heartbeat_interval = self.__program_conf.get(
-                "heartbeat_interval",
+            self.__heartbeat_interval = self.__program_conf.get(
+                "__heartbeat_interval",
                 1000)
             self.buffer_push_interval = self.__program_conf["buffer"]\
                 .get("push_interval", 1000)
@@ -235,6 +235,10 @@ class ProcessHistorian:
         self._buffer.write_points()
         print("Done! Goodbye!")
 
+    @property
+    def heartbeat_interval_seconds(self):
+        return self.__heartbeat_interval / 1000
+
     class ProcessHistorianThread:
         def __init__(self, work_function: Callable[[Union[int, None]], None],
                      argument: Union[int, None], interval: int):
@@ -265,7 +269,7 @@ class ProcessHistorian:
 
 if __name__ == "__main__":
     ph = ProcessHistorian()
-    hb_interval = ph.heartbeat_interval / 1000  # in seconds for time.sleep()
+    hb_interval = ph.heartbeat_interval_seconds  # in seconds for time.sleep()
 
 
     def wait_till_connection_reestablished():
