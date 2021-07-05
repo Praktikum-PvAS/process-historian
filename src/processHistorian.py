@@ -277,7 +277,7 @@ if __name__ == "__main__":
         print("Waiting for opc connection to be reestablished...")
         while True:
             try:
-                time.sleep(1)
+                time.sleep(hb_interval)
                 ph.defibrillator()
                 break
             except KeyboardInterrupt:
