@@ -81,7 +81,8 @@ class ProcessHistorian:
         # Seventh step: Create timed thread for buffer push
         # No arguments for the push, only write_points
         push_obj = self.ProcessHistorianThread(self._buffer.write_points,
-                                               None, self.buffer_push_interval)
+                                               None,
+                                               self.__buffer_push_interval)
         self.__work_thread_objs.append(push_obj)
         self.__threads.append(threading.Thread(
             name="ProcessHistorian - CloudBuffer Push",
@@ -176,7 +177,7 @@ class ProcessHistorian:
             self.__heartbeat_interval = self.__program_conf.get(
                 "__heartbeat_interval",
                 1000)
-            self.buffer_push_interval = self.__program_conf["buffer"]\
+            self.__buffer_push_interval = self.__program_conf["buffer"]\
                 .get("push_interval", 1000)
         except ValidationError as e:
             print("Your program config seems to be incorrect or incomplete.")
