@@ -48,7 +48,7 @@ class Client:
         try:
             self.unsubscribe_all()
             self._opcua_lib_client.disconnect()
-        except ConnectionError:
+        except (ConnectionError, AttributeError):
             print("OPC UA-Client was not able to disconnect from server!")
 
     def __init_lists(self):
@@ -133,7 +133,7 @@ class Client:
         :return: all intervals for polling
         """
         # return all existing polling intervals from the polling dictionary
-        return self._nodes2poll.keys()
+        return list(self._nodes2poll.keys())
 
     def poll(self, interval: int):
         """
