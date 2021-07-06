@@ -88,7 +88,7 @@ class Client:
                                                   attribute["node_identifier"]))
                         node = CustomNode(node_type, self.__opcua_config[node_type][i]["id"],
                                           attribute["name"], node_obj)
-                        self._nodes2poll[node_obj] = node
+                        self._nodes2sub[node_obj] = node
 
     def __get_namespace_indexes(self):
         """
