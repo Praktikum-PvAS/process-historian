@@ -43,9 +43,7 @@ from event_logger import log_event
 @pytest.fixture()
 # TODO adjust config
 def my_config():
-    cfg_file = '../../config/opcua_config.json'
-    with open(cfg_file) as config_file:
-        cfg = yaml.safe_load(config_file)
+    cfg = '../../config/opcua_config.json'
     return cfg
 
 
