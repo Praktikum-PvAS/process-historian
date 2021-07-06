@@ -68,7 +68,7 @@ class InfluxWrapper:  # renamed so not as imported class
         """
         if points is None:
             raise ValueError("Point list must not be None!")
-        if points is []:
+        if len(points) == 0:
             raise ValueError("Point list must not be empty!")
         try:
             with self.__influxDBClient.write_api(write_options=WriteOptions(

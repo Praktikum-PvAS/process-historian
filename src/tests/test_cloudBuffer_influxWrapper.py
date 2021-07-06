@@ -18,7 +18,6 @@ class MyTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             my_influx_wrapper.insert_many(None)
 
-    # TODO ValueError not raised
     def test_insert_many_2(self):
         my_connection_params = {
             "host": "localhost",
