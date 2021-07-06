@@ -28,67 +28,60 @@
 #    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #    SOFTWARE.
 #######################################################################################
-
-
-import yaml
+import json
 import time
-import threading
+import logging
 from opcua import Server
-from event_logger import log_event
 
 
 def run_simulation_server(steps):
     """
-    This support function creates a simple OPC UA server with node listed in the config file
+    This support function creates a simple OPC UA server with node listed in
+    the config file
     :param steps: Lifecycle of the server
-    :return:
     """
 
-    with open('config_test.yml') as config_file:
-        cfg = yaml.safe_load(config_file)
+    with open("opcua_config.json") as config_file:
+        cfg = json.load(config_file)
 
     # setup the server
     server = Server()
-    server.set_endpoint(cfg['opcua']['url'])
+    server.set_endpoint(cfg["host"])
 
     # setup the namespace
-    uri = "http://examples.freeopcua.github.io"
-    idx = server.register_namespace(uri)
+    ns_uri = "http://examples.freeopcua.github.io"
+    idx = server.register_namespace(ns_uri)
 
     # get objects node
     objects = server.get_objects_node()
 
     # server start
     server.start()
-    log_event(cfg, 'OPCUA TEST SERVER', '', 'INFO', 'OPC UA server started')
+    logging.log(logging.DEBUG, "OPC UA simulation server started")
 
     # populating the address space
-    myobj = objects.add_object(idx, "TestDataAssembly")
+    my_obj = objects.add_object(idx, "TestDataAssembly")
 
     nodes = []
-    metrics = cfg['metrics']
-    for metric in metrics:
-        metric_id = metric['metric_id']
-        meas = metric['measurement']
-        tag = metric['tagname']
-        var = metric['variable']
-        ns = metric['nodeNamespace']
-        id = metric['nodeId']
-        method = metric['method']
-        time_interval = metric['interval']
-        node_str = 'ns=' + str(ns) + '; i=' + str(id)
-        nodes.append(myobj.add_variable(node_str, var, -1))
+    for at in ["sensors", "actuators", "services"]:
+        for assembly in range(len(cfg[at])):
+            for attr in range(len(cfg[at][assembly]["attributes"])):
+                name = cfg[at][assembly]["attributes"][attr]["name"]
+                ns = idx
+                nid = cfg[at][assembly]["attributes"][attr]["node_identifier"]
+                nid_string = f"ns={ns};{nid}"
+                nodes.append(my_obj.add_variable(nid_string, name, -1))
 
     # update variable
-    time.sleep(1)
+    time.sleep(0.1)
     for it in range(steps):
         for node in nodes:
             node.set_value(node.get_value() + 1)
-            time.sleep(0.5)
-    time.sleep(2)
+            time.sleep(1)
+    time.sleep(0.5)
     server.stop()
-    log_event(cfg, 'OPCUA TEST SERVER', '', 'INFO', 'OPC UA server stopped')
+    logging.log(logging.DEBUG, "OPC UA Simulation server stopped")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run_simulation_server(3600)

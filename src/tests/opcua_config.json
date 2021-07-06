@@ -7,7 +7,7 @@
         {
           "interval": 1000,
           "mode": "poll",
-          "name": "V",
+          "name": "value_1",
           "namespace": "http://examples.freeopcua.github.io",
           "node_identifier": "i=1012"
         }
@@ -19,9 +19,16 @@
         {
           "interval": 1000,
           "mode": "poll",
-          "name": "VSclMax",
+          "name": "value_2",
           "namespace": "http://examples.freeopcua.github.io",
           "node_identifier": "i=1010"
+        },
+        {
+          "interval": 1000,
+          "mode": "subscribe",
+          "name": "value_3",
+          "namespace": "http://examples.freeopcua.github.io",
+          "node_identifier": "i=1011"
         }
       ]
     }
