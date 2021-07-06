@@ -36,14 +36,12 @@ import threading
 from test_simulation_server import run_simulation_server
 from cloudBuffer.buffer import Buffer
 from opcuaClient.opcuaClient import Client
-# TODO which package is that?
 from event_logger import log_event
 
 
 @pytest.fixture()
-# TODO adjust config
 def my_config():
-    cfg = '../../config/opcua_config.json'
+    cfg = './opcua_config.json'
     return cfg
 
 
@@ -91,7 +89,7 @@ def connect_offline_disconnect_online(my_config):
         nonlocal i
         i += 1
 
-    my_config['opcua']['number_of_reconnections'] = -1
+    # my_config['opcua']['number_of_reconnections'] = -1
     ua_listener = Client(my_config, callback)
     time.sleep(3)
     ua_listener.connect()
@@ -129,7 +127,6 @@ def test_reconnection_new_server_unlimited_retries(my_config):
         nonlocal i
         i += 1
 
-    # TODO add config dictionary for Client
     # my_config['opcua']['number_of_reconnections'] = -1
     server_thread = threading.Thread(target=run_simulation_server, args=[20])
     server_thread.start()
@@ -170,6 +167,7 @@ def test_continuous_reading(my_config):
     server_thread.join()
     time.sleep(5)
 
+    """
     # TODO adapt code
     list_of_metrics = [metric['metric_id'] for metric in my_config['metrics']]
     metric_values = [[] for _ in range(len(list_of_metrics))]
@@ -185,6 +183,11 @@ def test_continuous_reading(my_config):
                 increments_equal_one = False
                 break
     assert increments_equal_one == True
+    """
+    intervall = 1000
+    storage = Client.poll(intervall)
+    assert False
+
 
 # TODO: check if test is necessary
 def test_continous_reading_negative_case(my_config):
