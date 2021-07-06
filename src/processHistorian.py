@@ -14,7 +14,29 @@ from opcuaClient import Client as OPCClient
 
 
 class ProcessHistorian:
+    """
+    Main class. Connects the configBuilder, opcuaClient and cloudBuffer
+    packages.
+    """
+
     def __init__(self):
+        """
+        Constructor
+
+        The constructor sets up everything so the program will work. It does
+        that with the following steps:
+
+        1. Check the program configuration and parse it.
+        2. Create a config builder and fetch the data from the TripleStore.
+        2.5 Delete the config builder.
+        3. Check and parse the config written by the config builder.
+        4. Create a buffer.
+        5. Create a OPC UA client and connect it.
+        6. Create all necessary work threads for polling.
+        7. Create a thread for pushing the data from buffer to the InfluxDB
+        8. Start all the threads and subscribe all necessary nodes on the
+        OPC UA Server.
+        """
         self.__script_location = Path(os.path.dirname(
             os.path.realpath(__file__)))
         self.__config_folder = self.__script_location.parent / "config"
@@ -76,7 +98,6 @@ class ProcessHistorian:
             self.__threads.append(threading.Thread(
                 name=f"ProcessHistorian - OPC UA Poll - {interval}ms",
                 target=poll_obj.work))
-        self._opcua_client.subscribe_all()
 
         # Seventh step: Create timed thread for buffer push
         # No arguments for the push, only write_points
@@ -91,24 +112,42 @@ class ProcessHistorian:
         print("Work threads:")
         print(self.__threads)
 
+        # Eighth step: Subscribe all data and start all threads
+        self._opcua_client.subscribe_all()
         for thread in self.__threads:
             thread.start()
 
     def heartbeat(self):
+        """
+        Heartbeat function to check if the OPC UA Client is still alive.
+        :raise: Any error if not alive because the opcua library raises
+        different errors.
+        """
         if self._opcua_client.poll_server_status() != 0:
             raise ConnectionError("No heartbeat!")
 
     def defibrillator(self):
+        """
+        Reconnects the OPC UA Client
+        :raise: Any error if server is not available because the opcua library
+        raises different errors.
+        """
         self._opcua_client.connect()
         self.heartbeat()
 
     def restart_opc(self):
+        """
+        Restarts all polling threads and resubscribes to all nodes.
+        """
         for thread in self.__threads:
             if "OPC" in thread.getName():
                 thread.start()
         self._opcua_client.subscribe_all()
 
     def __create_empty_program_config(self):
+        """
+        Creates an empty config with a few default values.
+        """
         with open(self.__program_conf_loc, "w") as prog_conf:
             yaml_dump({
                 "include": [
@@ -133,6 +172,10 @@ class ProcessHistorian:
             }, prog_conf)
 
     def __parse_program_conf(self):
+        """
+        Parses the program configuration. Also checks if it uses the correct
+        JSON schema.
+        """
         if not os.path.isfile(self.__program_conf_loc):
             print("No program_config.yaml found.")
             try:
@@ -187,6 +230,10 @@ class ProcessHistorian:
             exit()
 
     def __parse_opcua_conf(self):
+        """
+        Parses the OPC UA configuration. Also checks if it uses the correct
+        JSON schema.
+        """
         try:
             with open(self.__opcua_conf_loc, "r") as opcua_conf:
                 self.__opcua_conf = json.load(opcua_conf)
@@ -220,6 +267,10 @@ class ProcessHistorian:
             exit()
 
     def exit(self):
+        """
+        Safely disconnect all connections and terminate all threads in the
+        correct order and push the last values in buffer so no data is lost.
+        """
         print("Exiting the ProcessHistorian...")
         print("Waiting for all worker threads to finish...")
         self._opcua_client.unsubscribe_all()
@@ -241,8 +292,20 @@ class ProcessHistorian:
         return self.__heartbeat_interval / 1000
 
     class ProcessHistorianThread:
+        """
+        Object used as context in a background thread. Has the ability to call
+        jobs in intervals and also to exit only when not currently working so
+        network communication won't be ended abruptly.
+        """
         def __init__(self, work_function: Callable[[Union[int, None]], None],
                      argument: Union[int, None], interval: int):
+            """
+            Constructor
+            :param work_function: Function that will be called in intervals
+            :param argument: Argument for the work_function
+            :param interval: Interval in milliseconds in which the
+            work_function will be called
+            """
             self.__work_function = work_function
             self.__argument = argument
             self.__interval = interval
@@ -250,12 +313,20 @@ class ProcessHistorian:
             self.__should_exit = False
 
         def should_exit(self):
+            """
+            Sets the exit flag. If the thread currently is sleeping (idle) it
+            will be halted immediately.
+            """
             if self.__sleeps:
                 exit()
             else:
                 self.__should_exit = True
 
         def work(self):
+            """
+            Actual function that will run in another thread. It will loop and
+            call the work_function in the specified interval.
+            """
             while not self.__should_exit:
                 if self.__argument:
                     self.__work_function(self.__argument)
@@ -269,11 +340,19 @@ class ProcessHistorian:
 
 
 if __name__ == "__main__":
+    """
+    Main function
+    Creates the ProcessHistorian and checks with the heartbeat function if the
+    connection to the OPC UA server is still alive.
+    """
     ph = ProcessHistorian()
     hb_interval = ph.heartbeat_interval_seconds  # in seconds for time.sleep()
 
 
     def wait_till_connection_reestablished():
+        """
+        Helper function that waits for the OPC UA
+        """
         print("Waiting for opc connection to be reestablished...")
         while True:
             try:
