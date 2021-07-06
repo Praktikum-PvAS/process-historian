@@ -31,6 +31,8 @@
 import json
 import time
 import logging
+from random import random
+
 from opcua import Server
 
 
@@ -76,7 +78,7 @@ def run_simulation_server(steps):
     time.sleep(0.1)
     for it in range(steps):
         for node in nodes:
-            node.set_value(node.get_value() + 1)
+            node.set_value(it)
             time.sleep(1)
     time.sleep(0.5)
     server.stop()
