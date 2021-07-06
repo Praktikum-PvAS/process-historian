@@ -32,15 +32,16 @@ import json
 import time
 import logging
 from random import random
-
+from threading import Event
 from opcua import Server
 
 
-def run_simulation_server(steps):
+def run_simulation_server(steps: int, ready_event: Event):
     """
     This support function creates a simple OPC UA server with node listed in
     the config file
     :param steps: Lifecycle of the server
+    :param ready_event: threading.Event that fires when the server is ready
     """
 
     with open("opcua_config.json") as config_file:
@@ -59,6 +60,7 @@ def run_simulation_server(steps):
 
     # server start
     server.start()
+
     logging.log(logging.DEBUG, "OPC UA simulation server started")
 
     # populating the address space
@@ -74,6 +76,7 @@ def run_simulation_server(steps):
                 nid_string = f"ns={ns};{nid}"
                 nodes.append(my_obj.add_variable(nid_string, name, -1))
 
+    ready_event.set()
     # update variable
     time.sleep(0.1)
     for it in range(steps):
@@ -86,4 +89,4 @@ def run_simulation_server(steps):
 
 
 if __name__ == "__main__":
-    run_simulation_server(3600)
+    run_simulation_server(3600, Event())
