@@ -10,6 +10,7 @@ class Client:
     """
     OPC Client to connect with an OPC UA server and query data from it
     """
+
     def __init__(self, opcua_config: dict,
                  callback: Callable[[str, List[Tuple[str, str]], Any, Any],
                                     None]):
@@ -186,6 +187,7 @@ class Client:
         """
         Handler to be called if data has changed and sends it to the cloud buffer
         """
+
         def __init__(self, data_callback: Callable[
             [str, List[Tuple[str, str]], Any, Any], None],
                      node_dict: Dict[opcua.Node, CustomNode]):

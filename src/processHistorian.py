@@ -220,7 +220,7 @@ class ProcessHistorian:
             self.__heartbeat_interval = self.__program_conf.get(
                 "__heartbeat_interval",
                 1000)
-            self.__buffer_push_interval = self.__program_conf["buffer"]\
+            self.__buffer_push_interval = self.__program_conf["buffer"] \
                 .get("push_interval", 1000)
         except ValidationError as e:
             print("Your program config seems to be incorrect or incomplete.")
@@ -297,6 +297,7 @@ class ProcessHistorian:
         jobs in intervals and also to exit only when not currently working so
         network communication won't be ended abruptly.
         """
+
         def __init__(self, work_function: Callable[[Union[int, None]], None],
                      argument: Union[int, None], interval: int):
             """
