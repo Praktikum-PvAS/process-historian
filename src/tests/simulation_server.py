@@ -79,7 +79,7 @@ def run_simulation_server(steps):
     for it in range(steps):
         for node in nodes:
             node.set_value(it)
-            time.sleep(1)
+        time.sleep(1)
     time.sleep(0.5)
     server.stop()
     logging.log(logging.DEBUG, "OPC UA Simulation server stopped")
