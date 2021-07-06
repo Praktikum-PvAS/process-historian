@@ -25,7 +25,7 @@
         },
         {
           "interval": 1000,
-          "mode": "subscribe",
+          "mode": "subscription",
           "name": "value_3",
           "namespace": "http://examples.freeopcua.github.io",
           "node_identifier": "i=1011"
