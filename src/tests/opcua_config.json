@@ -1,13 +1,13 @@
 {
-  "host": "opc.tcp://example.com",
+  "host": "opc.tcp://127.0.0.1:53530/OPCUA/SimulationServer",
   "actuators": [
     {
       "id": "test_id",
       "attributes": [
         {
-          "intervall": 1000,
+          "interval": 1000,
           "mode": "poll",
-          "name": "V",
+          "name": "value_1",
           "namespace": "http://examples.freeopcua.github.io",
           "node_identifier": "i=1012"
         }
@@ -17,11 +17,18 @@
       "id": "test_id_2",
       "attributes": [
         {
-          "intervall": 1000,
+          "interval": 1000,
           "mode": "poll",
-          "name": "VSclMax",
+          "name": "value_2",
           "namespace": "http://examples.freeopcua.github.io",
           "node_identifier": "i=1010"
+        },
+        {
+          "interval": 1000,
+          "mode": "subscribe",
+          "name": "value_3",
+          "namespace": "http://examples.freeopcua.github.io",
+          "node_identifier": "i=1011"
         }
       ]
     }
