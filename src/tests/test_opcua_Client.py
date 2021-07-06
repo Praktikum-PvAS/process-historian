@@ -1,4 +1,5 @@
 import threading
+import time
 import unittest
 from simulation_server import run_simulation_server
 from opcuaClient.opcuaClient import Client
@@ -15,54 +16,78 @@ class OPCUATest(unittest.TestCase):
     def callback(self, a, b, c, d):
         self.appended_points = self.appended_points + 1
 
+    def start_sim_server(self, steps: int):
+        ready = threading.Event()
+        self.server_thread = threading.Thread(target=run_simulation_server,
+                                              args=[steps, ready])
+        self.server_thread.start()
+        ready.wait(30)  # Waits until server is ready, timeout in seconds
+
+    def wait_for_sim_server(self):
+        if self.server_thread and self.server_thread.is_alive():
+            self.server_thread.join()
+
     def test_construct(self):
-        # Use "none" as config
-        # Use an invalid config
-        # Use "none" as callable
-        # Use an int as callable
-        # ^ All of these should raise ValueError
-        # self.assertRaises(ValueError, lambda: Client(.....))
-        #
-        # Create a client with valid attributes
-        self.fail("Needs implementation")
+        with self.assertRaises(ValueError):
+            client = Client(None, self.callback)
+        with self.assertRaises(KeyError):
+            client = Client({}, self.callback)
+        with self.assertRaises(ValueError):
+            client = Client(self.config, None)
+        with self.assertRaises(ValueError):
+            client = Client(self.config, 1)
+        client = Client(self.config, self.callback)
 
     def test_connect_disconnect(self):
-        # Test self.opcua.connect() (raises Exception)
-        # Test self.opcua.disconnect() (raises Exception)
-        # Start server
-        # Test self.opcua.disconnect() (raises Exception)
-        # Test self.opcua.connect()
-        # Test self.opcua.connect() (don't know what happens here)
-        # Test self.opcua.disconnect()
-        # Wait for server to finish
-        self.fail("Needs implementation")
+        self.opcua.connect()
+        self.opcua.disconnect()
+        self.start_sim_server(5)
+        try:
+            self.opcua.disconnect()
+            self.opcua.connect()
+            self.opcua.connect()
+            self.opcua.disconnect()
+        finally:
+            self.wait_for_sim_server()
 
     def test_get_intervals(self):
-        # Start server
-        # Connect
-        # Test self.opcua.get_intervals()
-        self.fail("Needs implementation")
+        self.start_sim_server(2)
+        try:
+            self.opcua.connect()
+            self.assertEqual([1000], self.opcua.get_intervals())
+        finally:
+            self.wait_for_sim_server()
 
     def test_poll(self):
-        server_thread = threading.Thread(target=run_simulation_server,
-                                         args=[2])
-        server_thread.start()
-        self.opcua.connect()
-        self.opcua.poll(1000)
-        self.opcua.disconnect()
-        self.assertEqual(self.appended_points, 2)
-        server_thread.join()
+        self.start_sim_server(2)
+        try:
+            self.opcua.connect()
+            self.opcua.poll(1000)
+            self.opcua.disconnect()
+            self.assertEqual(self.appended_points, 2)
+        finally:
+            self.wait_for_sim_server()
 
     def test_poll_server_status(self):
-        # Test self.opcua.poll_server_status()
-        self.fail("Needs implementation")
+        self.start_sim_server(2)
+        try:
+            self.opcua.connect()
+            self.assertEqual(0, self.opcua.poll_server_status())
+        finally:
+            self.opcua.disconnect()
+            self.wait_for_sim_server()
 
     def test_subscribe_all(self):
-        # Start server with 1 or 2 steps
-        # subscribe_all()
-        # Wait for server to finish
-        # Check self.appended_points
-        self.fail("Needs implementation")
+        self.start_sim_server(2)
+        try:
+            self.opcua.connect()
+            self.opcua.subscribe_all()
+            time.sleep(2.2)
+        finally:
+            self.opcua.disconnect()
+            self.wait_for_sim_server()
+        # expected: first value + 2 further values from the server
+        self.assertEqual(3, self.appended_points)
 
 
 if __name__ == '__main__':

@@ -28,10 +28,13 @@
 #    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #    SOFTWARE.
 #######################################################################################
-
+import time
 import unittest
 import threading
 import json
+
+import influxdb_client
+
 from simulation_server import run_simulation_server
 from cloudBuffer.buffer import Buffer
 from opcuaClient.opcuaClient import Client
@@ -49,30 +52,45 @@ class OPCUAIntegrationTest(unittest.TestCase):
         })
         self.opcua = Client(self.config, self.buffer.append)
 
+    def start_sim_server(self, steps: int):
+        ready = threading.Event()
+        self.server_thread = threading.Thread(target=run_simulation_server,
+                                              args=[steps, ready])
+        self.server_thread.start()
+        ready.wait(30)  # Waits until server is ready, timeout in seconds
+
+    def wait_for_sim_server(self):
+        if self.server_thread and self.server_thread.is_alive():
+            self.server_thread.join()
+
     def test_integration_poll(self):
-        # Use self.buffer._Buffer__buffer to get the buffer
-        # Check buffer length = 0
-        # Start server
-        # Connect
-        # Poll one time
-        # Check for buffer length = 2
-        # Check if buffer elements are points
-        # You _can_ check if name, tags etc in the points are correct but it's
-        # not necessary
-        # Wait for server to stop
-        self.fail("Needs implementation")
+        self.assertEqual(0, len(self.buffer._Buffer__buffer))
+        self.start_sim_server(5)
+        try:
+            self.opcua.connect()
+            self.opcua.poll(1000)
+            self.assertEqual(2, len(self.buffer._Buffer__buffer))
+            self.assertIsInstance(self.buffer._Buffer__buffer[0], influxdb_client.Point)
+            self.assertIsInstance(self.buffer._Buffer__buffer[1], influxdb_client.Point)
+        finally:
+            self.opcua.disconnect()
+            self.wait_for_sim_server()
 
     def test_integration_subscribe(self):
         # Use self.buffer._Buffer__buffer to get the buffer
         # Check buffer length = 0
+        self.assertEqual(0, len(self.buffer._Buffer__buffer))
         # Start server
-        # Connect
-        # Subscribe
-        # Wait a second
-        # Disconnect
-        # Check for buffer length = 1
-        # Check if buffer elements are points
-        # You _can_ check if name, tags etc in the points are correct but it's
-        # not necessary
-        # Wait for server to stop
-        self.fail("Needs implementation")
+        self.start_sim_server(2)
+        try:
+            self.opcua.connect()
+            self.opcua.subscribe_all()
+            time.sleep(2.2)
+            self.opcua.disconnect()
+            # expected: first value + 2 further values from the server
+            self.assertEqual(3, len(self.buffer._Buffer__buffer))
+            self.assertIsInstance(self.buffer._Buffer__buffer[0], influxdb_client.Point)
+            self.assertIsInstance(self.buffer._Buffer__buffer[1], influxdb_client.Point)
+            self.assertIsInstance(self.buffer._Buffer__buffer[2], influxdb_client.Point)
+        finally:
+            self.wait_for_sim_server()
