@@ -38,7 +38,7 @@ class Client:
             self._opcua_lib_client.connect()
             self.__init_lists()
 
-        except ConnectionError:
+        except:
             print("OPC UA-Client was not able to connect to server!")
 
     def disconnect(self):
