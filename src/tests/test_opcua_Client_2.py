@@ -29,12 +29,13 @@ class MyTestCase(unittest.TestCase):
             print("Your opcua config seems to be incorrect or incomplete.")
             exit()
 
+    # TODO: start server in separate thread?
     def test_reading(self):
-        # self.server.start()  # Oder eben in einem extra thread machen
+        # self.server.start()  # or in separate thread
         server_thread = threading.Thread(target=run_simulation_server, args=[20])
         server_thread.start()
         self.opcua.connect()
-        self.opcua.poll(1000)  # oder was auch immer in der config steht
+        self.opcua.poll(1000)  # value from config
         self.opcua.disconnect()
         server_thread.join()
         # self.server.stop()
