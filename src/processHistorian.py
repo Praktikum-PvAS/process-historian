@@ -34,8 +34,6 @@ class ProcessHistorian:
         5. Create a OPC UA client and connect it.
         6. Create all necessary work threads for polling.
         7. Create a thread for pushing the data from buffer to the InfluxDB
-        8. Start all the threads and subscribe all necessary nodes on the
-        OPC UA Server.
         """
         self.__script_location = Path(os.path.dirname(
             os.path.realpath(__file__)))
@@ -111,11 +109,6 @@ class ProcessHistorian:
 
         print("Work threads:")
         print(self.__threads)
-
-        # Eighth step: Subscribe all data and start all threads
-        self._opcua_client.subscribe_all()
-        for thread in self.__threads:
-            thread.start()
 
     def heartbeat(self):
         """
