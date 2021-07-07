@@ -87,17 +87,7 @@ class ProcessHistorian:
 
         # Sixth step: Create timed threads to poll the data and
         # subscribe datachange
-        intervals = self._opcua_client.get_intervals()
-        for interval in intervals:
-            # Interval also is the argument for the work function
-            poll_obj = self.ProcessHistorianThread(self._opcua_client.poll,
-                                                   interval, interval)
-            self.__opc_thread_objs.append(poll_obj)
-            self.__opc_threads.append(threading.Thread(
-                name=f"ProcessHistorian - OPC UA Poll - {interval}ms",
-                target=poll_obj.work))
-        for thread in self.__opc_threads:
-            thread.start()
+        self.restart_opc()
 
         # Seventh step: Create timed thread for buffer push
         # No arguments for the push, only write_points
@@ -108,9 +98,6 @@ class ProcessHistorian:
             name="ProcessHistorian - CloudBuffer Push",
             target=self.__push_thread_obj.work)
         self.__push_thread.start()
-
-        print("OPC poll threads:")
-        print(self.__opc_threads)
 
     def wait_for_new_opc_connection(self):
         """
@@ -153,13 +140,27 @@ class ProcessHistorian:
         for worker in self.__opc_thread_objs:
             worker.should_exit()
         for thread in self.__opc_threads:
-            try:
-                thread.join()
-            except RuntimeError:
-                pass
+            thread.join()
+
+        self.__opc_threads=[]
+        self.__opc_thread_objs=[]
+
+        intervals = self._opcua_client.get_intervals()
+        for interval in intervals:
+            # Interval also is the argument for the work function
+            poll_obj = self.ProcessHistorianThread(self._opcua_client.poll,
+                                                       interval, interval)
+            self.__opc_thread_objs.append(poll_obj)
+            self.__opc_threads.append(threading.Thread(
+                name=f"ProcessHistorian - OPC UA Poll - {interval}ms",
+                target=poll_obj.work))
+
         for thread in self.__opc_threads:
             thread.start()
         self._opcua_client.subscribe_all()
+
+        print("OPC poll threads:")
+        print(self.__opc_threads)
 
     def __create_empty_program_config(self):
         """
