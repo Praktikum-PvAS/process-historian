@@ -148,6 +148,13 @@ class ProcessHistorian:
         """
         Restarts all polling threads and resubscribes to all nodes.
         """
+        for worker in self.__opc_thread_objs:
+            worker.should_exit()
+        for thread in self.__opc_threads:
+            try:
+                thread.join()
+            except RuntimeError:
+                pass
         for thread in self.__opc_threads:
             thread.start()
         self._opcua_client.subscribe_all()
