@@ -40,7 +40,7 @@ class Client:
             self.__init_lists()
 
         except:
-            print("OPC UA-Client was not able to connect to server!")
+            pass
 
     def disconnect(self):
         """
