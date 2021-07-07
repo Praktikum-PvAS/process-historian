@@ -110,14 +110,14 @@ class ProcessHistorian:
         print("Work threads:")
         print(self.__threads)
 
-    def wait_till_connection_reestablished(self):
+    def wait_for_new_opc_connection(self):
         """
         Helper function that waits for the OPC UA
         """
-        print("Waiting for opc connection to be reestablished...")
+        print("Waiting for opc connection to be (re)established...")
         while True:
             try:
-                time.sleep(hb_interval)
+                time.sleep(self.heartbeat_interval_seconds)
                 self.defibrillator()
                 break
             except KeyboardInterrupt:
@@ -367,6 +367,6 @@ if __name__ == "__main__":
             ph.exit()
             exit()
         except:
-            ph.wait_till_connection_reestablished()
+            ph.wait_for_new_opc_connection()
             print("Restarting polling threads and subscriptions")
             ph.restart_opc()
