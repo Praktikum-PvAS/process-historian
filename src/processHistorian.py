@@ -43,7 +43,7 @@ class ProcessHistorian:
         self.__schemata_loc = self.__script_location / "json_schemata"
         self.__program_conf = {}
         self.__opcua_conf = {}
-        self.__work_thread_objs = []
+        self.__opc_thread_objs = []
         self.__opc_threads = []
 
         # First step: Make sure the program config is correct and parse it
@@ -92,20 +92,19 @@ class ProcessHistorian:
             # Interval also is the argument for the work function
             poll_obj = self.ProcessHistorianThread(self._opcua_client.poll,
                                                    interval, interval)
-            self.__work_thread_objs.append(poll_obj)
+            self.__opc_thread_objs.append(poll_obj)
             self.__opc_threads.append(threading.Thread(
                 name=f"ProcessHistorian - OPC UA Poll - {interval}ms",
                 target=poll_obj.work))
 
         # Seventh step: Create timed thread for buffer push
         # No arguments for the push, only write_points
-        push_obj = self.ProcessHistorianThread(self._buffer.write_points,
-                                               None,
-                                               self.__buffer_push_interval)
-        self.__work_thread_objs.append(push_obj)
+        self.__push_thread_obj = self.ProcessHistorianThread(self._buffer.write_points,
+                                                             None,
+                                                             self.__buffer_push_interval)
         self.__push_thread = threading.Thread(
             name="ProcessHistorian - CloudBuffer Push",
-            target=push_obj.work)
+            target=self.__push_thread_obj.work)
         self.__push_thread.start()
 
         print("OPC poll threads:")
@@ -284,7 +283,8 @@ class ProcessHistorian:
         print("Waiting for all worker threads to finish...")
         self._opcua_client.unsubscribe_all()
         # Tell all threads they should stop
-        for work_obj in self.__work_thread_objs:
+        self.__push_thread_obj.should_exit()
+        for work_obj in self.__opc_thread_objs:
             work_obj.should_exit()
         # Wait for them to be really stopped
         for thread in self.__opc_threads:
