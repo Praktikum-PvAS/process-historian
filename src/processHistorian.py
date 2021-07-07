@@ -119,7 +119,7 @@ class ProcessHistorian:
         while True:
             try:
                 time.sleep(self.heartbeat_interval_seconds)
-                self.defibrillator()
+                self.opc_defibrillator()
                 break
             except KeyboardInterrupt:
                 self.exit()
@@ -127,7 +127,7 @@ class ProcessHistorian:
             except:
                 pass
 
-    def heartbeat(self):
+    def listen_for_opc_heartbeat(self):
         """
         Heartbeat function to check if the OPC UA Client is still alive.
         :raise: Any error if not alive because the opcua library raises
@@ -136,14 +136,14 @@ class ProcessHistorian:
         if self._opcua_client.poll_server_status() != 0:
             raise ConnectionError("No heartbeat!")
 
-    def defibrillator(self):
+    def opc_defibrillator(self):
         """
         Reconnects the OPC UA Client
         :raise: Any error if server is not available because the opcua library
         raises different errors.
         """
         self._opcua_client.connect()
-        self.heartbeat()
+        self.listen_for_opc_heartbeat()
 
     def restart_opc(self):
         """
@@ -362,7 +362,7 @@ if __name__ == "__main__":
     while True:
         try:
             while True:
-                ph.heartbeat()
+                ph.listen_for_opc_heartbeat()
                 time.sleep(hb_interval)
         except KeyboardInterrupt:
             ph.exit()
