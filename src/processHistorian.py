@@ -106,6 +106,7 @@ class ProcessHistorian:
         self.__threads.append(threading.Thread(
             name="ProcessHistorian - CloudBuffer Push",
             target=push_obj.work))
+        self.__threads[-1].start()
 
         print("Work threads:")
         print(self.__threads)
