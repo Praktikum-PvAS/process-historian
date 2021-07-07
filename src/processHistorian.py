@@ -96,6 +96,8 @@ class ProcessHistorian:
             self.__opc_threads.append(threading.Thread(
                 name=f"ProcessHistorian - OPC UA Poll - {interval}ms",
                 target=poll_obj.work))
+        for thread in self.__opc_threads:
+            thread.start()
 
         # Seventh step: Create timed thread for buffer push
         # No arguments for the push, only write_points
