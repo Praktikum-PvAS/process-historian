@@ -44,7 +44,7 @@ class ProcessHistorian:
         self.__program_conf = {}
         self.__opcua_conf = {}
         self.__work_thread_objs = []
-        self.__threads = []
+        self.__opc_threads = []
 
         # First step: Make sure the program config is correct and parse it
         if not os.path.isdir(self.__config_folder):
@@ -93,7 +93,7 @@ class ProcessHistorian:
             poll_obj = self.ProcessHistorianThread(self._opcua_client.poll,
                                                    interval, interval)
             self.__work_thread_objs.append(poll_obj)
-            self.__threads.append(threading.Thread(
+            self.__opc_threads.append(threading.Thread(
                 name=f"ProcessHistorian - OPC UA Poll - {interval}ms",
                 target=poll_obj.work))
 
@@ -103,13 +103,13 @@ class ProcessHistorian:
                                                None,
                                                self.__buffer_push_interval)
         self.__work_thread_objs.append(push_obj)
-        self.__threads.append(threading.Thread(
+        self.__push_thread = threading.Thread(
             name="ProcessHistorian - CloudBuffer Push",
-            target=push_obj.work))
-        self.__threads[-1].start()
+            target=push_obj.work)
+        self.__push_thread.start()
 
-        print("Work threads:")
-        print(self.__threads)
+        print("OPC poll threads:")
+        print(self.__opc_threads)
 
     def wait_for_new_opc_connection(self):
         """
@@ -149,9 +149,8 @@ class ProcessHistorian:
         """
         Restarts all polling threads and resubscribes to all nodes.
         """
-        for thread in self.__threads:
-            if "OPC" in thread.getName():
-                thread.start()
+        for thread in self.__opc_threads:
+            thread.start()
         self._opcua_client.subscribe_all()
 
     def __create_empty_program_config(self):
@@ -288,8 +287,9 @@ class ProcessHistorian:
         for work_obj in self.__work_thread_objs:
             work_obj.should_exit()
         # Wait for them to be really stopped
-        for thread in self.__threads:
+        for thread in self.__opc_threads:
             thread.join()
+        self.__push_thread.join()
         print("Disconnecting from OPC UA Server...")
         self._opcua_client.disconnect()
         # One last push of the values
