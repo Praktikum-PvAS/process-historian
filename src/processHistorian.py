@@ -83,7 +83,6 @@ class ProcessHistorian:
 
         # Fifth step: Create the OPC UA client
         self._opcua_client = OPCClient(self.__opcua_conf, self._buffer.append)
-        self._opcua_client.connect()
 
         # Sixth step: Create timed threads to poll the data and
         # subscribe datachange
