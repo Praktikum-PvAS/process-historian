@@ -4,6 +4,7 @@ from cloudBuffer.influxWrapper import InfluxWrapper
 
 
 class MyTestCase(unittest.TestCase):
+    # TODO: Add tests for invalid connections parameters
     def test_insert_many(self):
         my_connection_params = {
             "host": "localhost",
