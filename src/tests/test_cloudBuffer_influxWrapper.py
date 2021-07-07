@@ -8,8 +8,6 @@ class MyTestCase(unittest.TestCase):
     def test_insert_many(self):
         my_connection_params = {
             "host": "localhost",
-            "username": "root",
-            "password": "root",
             "organization": "TUD",
             "bucket": "A",
             "port": 8086,
@@ -22,8 +20,6 @@ class MyTestCase(unittest.TestCase):
     def test_insert_many_2(self):
         my_connection_params = {
             "host": "localhost",
-            "username": "root",
-            "password": "root",
             "organization": "TUD",
             "bucket": "A",
             "port": 8086,
@@ -37,8 +33,6 @@ class MyTestCase(unittest.TestCase):
     def test_insert(self):
         my_connection_params = {
             "host": "localhost",
-            "username": "root",
-            "password": "root",
             "organization": "TUD",
             "bucket": "A",
             "port": 8086,
