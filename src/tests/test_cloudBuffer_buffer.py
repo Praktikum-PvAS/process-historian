@@ -12,8 +12,6 @@ class MyTestCase(unittest.TestCase):
         # possible Timestamps
         my_connection_params = {
             "host": "localhost",
-            "username": "root",
-            "password": "root",
             "organization": "TUD",
             "bucket": "my_bucket",
             "port": 8086,
@@ -32,8 +30,6 @@ class MyTestCase(unittest.TestCase):
     def test_append_invalid_node_name_insert(self):
         my_connection_params = {
             "host": "localhost",
-            "username": "root",
-            "password": "root",
             "organization": "TUD",
             "bucket": "my_bucket",
             "port": 8086,
@@ -62,8 +58,6 @@ class MyTestCase(unittest.TestCase):
     def test_append_invalid_value_insert(self):
         my_connection_params = {
             "host": "localhost",
-            "username": "root",
-            "password": "root",
             "organization": "TUD",
             "bucket": "my_bucket",
             "port": 8086,
@@ -76,8 +70,6 @@ class MyTestCase(unittest.TestCase):
     def test_append_invalid_timestamp_insert(self):
         my_connection_params = {
             "host": "localhost",
-            "username": "root",
-            "password": "root",
             "organization": "TUD",
             "bucket": "my_bucket",
             "port": 8086,
