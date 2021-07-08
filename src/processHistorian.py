@@ -89,7 +89,19 @@ class ProcessHistorian:
 
         # Sixth step: Create timed threads to poll the data and
         # subscribe datachange
-        self.restart_opc()
+        intervals = self._opcua_client.get_intervals()
+        for interval in intervals:
+            # Interval also is the argument for the work function
+            poll_obj = self.ProcessHistorianThread(self._opcua_client.poll,
+                                                   interval, interval)
+            self.__opc_thread_objs.append(poll_obj)
+            self.__opc_threads.append(threading.Thread(
+                name=f"ProcessHistorian - OPC UA Poll - {interval}ms",
+                target=poll_obj.work))
+
+        for thread in self.__opc_threads:
+            thread.start()
+        self._opcua_client.subscribe_all()
 
         # Seventh step: Create timed thread for buffer push
         # No arguments for the push, only write_points
@@ -135,34 +147,11 @@ class ProcessHistorian:
         self._opcua_client.connect()
         self.listen_for_opc_heartbeat()
 
-    def restart_opc(self):
+    def resubscribe_opc(self):
         """
         Restarts all polling threads and resubscribes to all nodes.
         """
-        for worker in self.__opc_thread_objs:
-            worker.should_exit()
-        for thread in self.__opc_threads:
-            thread.join()
-
-        self.__opc_threads=[]
-        self.__opc_thread_objs=[]
-
-        intervals = self._opcua_client.get_intervals()
-        for interval in intervals:
-            # Interval also is the argument for the work function
-            poll_obj = self.ProcessHistorianThread(self._opcua_client.poll,
-                                                       interval, interval)
-            self.__opc_thread_objs.append(poll_obj)
-            self.__opc_threads.append(threading.Thread(
-                name=f"ProcessHistorian - OPC UA Poll - {interval}ms",
-                target=poll_obj.work))
-
-        for thread in self.__opc_threads:
-            thread.start()
         self._opcua_client.subscribe_all()
-
-        print("OPC poll threads:")
-        print(self.__opc_threads)
 
     def __create_empty_program_config(self):
         """
@@ -382,5 +371,5 @@ if __name__ == "__main__":
             exit()
         except:
             ph.wait_for_new_opc_connection()
-            print("Restarting polling threads and subscriptions")
-            ph.restart_opc()
+            print("Resubscribing to opc...")
+            ph.resubscribe_opc()

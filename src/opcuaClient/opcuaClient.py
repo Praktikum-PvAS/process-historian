@@ -22,7 +22,7 @@ class Client:
                      List[Tuple[str, str]],
                      List[Tuple[str, str]],
                      Any]]],
-                    None]):
+                                   None]):
         if opcua_config is None:
             raise ValueError("opcua_config must not be None")
         if not callable(cb):
@@ -168,7 +168,7 @@ class Client:
 
         results = []
         for i in range(len(p_results)):
-            if p_results[i].StatusCode != opcua.ua.StatusCodes.Good:
+            if p_results[i].StatusCode is not opcua.ua.StatusCodes.Good:
                 continue
 
             timestamp = p_results[i].SourceTimestamp
