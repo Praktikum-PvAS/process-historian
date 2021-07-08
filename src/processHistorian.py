@@ -151,7 +151,7 @@ class ProcessHistorian:
 
     def resubscribe_opc(self):
         """
-        Restarts all polling threads and resubscribes to all nodes.
+        Resubscribes to opc nodes.
         """
         self._opcua_client.subscribe_all()
 
