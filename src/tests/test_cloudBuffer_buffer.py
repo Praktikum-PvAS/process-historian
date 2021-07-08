@@ -5,10 +5,6 @@ from influxdb_client import Point
 from cloudBuffer.buffer import Buffer
 
 
-# TODO Necessary to insert a test function for each case? (None, int, Str, ...)?
-# TODO What to add to avoid bare except?
-
-
 class MyTestCase(unittest.TestCase):
     def test_append_valid_insert(self):
         # try catch
