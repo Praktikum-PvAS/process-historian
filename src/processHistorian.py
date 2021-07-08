@@ -34,8 +34,7 @@ class ProcessHistorian:
         5. Create a OPC UA client and connect it.
         6. Create all necessary work threads for polling.
         7. Create a thread for pushing the data from buffer to the InfluxDB
-        8. Start all the threads and subscribe all necessary nodes on the
-        OPC UA Server.
+        8. Start all the threads and subscribe to necessary nodes on the OPC UA Server.
         """
         self.__script_location = Path(os.path.dirname(
             os.path.realpath(__file__)))
@@ -45,8 +44,8 @@ class ProcessHistorian:
         self.__schemata_loc = self.__script_location / "json_schemata"
         self.__program_conf = {}
         self.__opcua_conf = {}
-        self.__work_thread_objs = []
-        self.__threads = []
+        self.__opc_thread_objs = []
+        self.__opc_threads = []
 
         # First step: Make sure the program config is correct and parse it
         if not os.path.isdir(self.__config_folder):
@@ -84,8 +83,10 @@ class ProcessHistorian:
                               self.__program_conf["influxdb"])
 
         # Fifth step: Create the OPC UA client
-        self._opcua_client = OPCClient(self.__opcua_conf, self._buffer.append)
-        self._opcua_client.connect()
+        self._opcua_client = OPCClient(self.__opcua_conf,
+                                       self._buffer.append,
+                                       self._buffer.append_many)
+        self.wait_for_new_opc_connection()
 
         # Sixth step: Create timed threads to poll the data and
         # subscribe datachange
@@ -94,30 +95,43 @@ class ProcessHistorian:
             # Interval also is the argument for the work function
             poll_obj = self.ProcessHistorianThread(self._opcua_client.poll,
                                                    interval, interval)
-            self.__work_thread_objs.append(poll_obj)
-            self.__threads.append(threading.Thread(
+            self.__opc_thread_objs.append(poll_obj)
+            self.__opc_threads.append(threading.Thread(
                 name=f"ProcessHistorian - OPC UA Poll - {interval}ms",
                 target=poll_obj.work))
 
+        # Eighth step: Subscribe and start all threads
+        for thread in self.__opc_threads:
+            thread.start()
+        self._opcua_client.subscribe_all()
+
         # Seventh step: Create timed thread for buffer push
         # No arguments for the push, only write_points
-        push_obj = self.ProcessHistorianThread(self._buffer.write_points,
-                                               None,
-                                               self.__buffer_push_interval)
-        self.__work_thread_objs.append(push_obj)
-        self.__threads.append(threading.Thread(
+        self.__push_thread_obj = self.ProcessHistorianThread(self._buffer.write_points,
+                                                             None,
+                                                             self.__buffer_push_interval)
+        self.__push_thread = threading.Thread(
             name="ProcessHistorian - CloudBuffer Push",
-            target=push_obj.work))
+            target=self.__push_thread_obj.work)
+        self.__push_thread.start()
 
-        print("Work threads:")
-        print(self.__threads)
+    def wait_for_new_opc_connection(self):
+        """
+        Helper function that waits for the OPC UA
+        """
+        print("Waiting for opc connection to be (re)established...")
+        while True:
+            try:
+                time.sleep(self.heartbeat_interval_seconds)
+                self.opc_defibrillator()
+                break
+            except KeyboardInterrupt:
+                self.exit()
+                exit()
+            except:
+                pass
 
-        # Eighth step: Subscribe all data and start all threads
-        self._opcua_client.subscribe_all()
-        for thread in self.__threads:
-            thread.start()
-
-    def heartbeat(self):
+    def listen_for_opc_heartbeat(self):
         """
         Heartbeat function to check if the OPC UA Client is still alive.
         :raise: Any error if not alive because the opcua library raises
@@ -126,22 +140,19 @@ class ProcessHistorian:
         if self._opcua_client.poll_server_status() != 0:
             raise ConnectionError("No heartbeat!")
 
-    def defibrillator(self):
+    def opc_defibrillator(self):
         """
         Reconnects the OPC UA Client
         :raise: Any error if server is not available because the opcua library
         raises different errors.
         """
         self._opcua_client.connect()
-        self.heartbeat()
+        self.listen_for_opc_heartbeat()
 
-    def restart_opc(self):
+    def resubscribe_opc(self):
         """
-        Restarts all polling threads and resubscribes to all nodes.
+        Resubscribes to opc nodes.
         """
-        for thread in self.__threads:
-            if "OPC" in thread.getName():
-                thread.start()
         self._opcua_client.subscribe_all()
 
     def __create_empty_program_config(self):
@@ -220,7 +231,7 @@ class ProcessHistorian:
             self.__heartbeat_interval = self.__program_conf.get(
                 "__heartbeat_interval",
                 1000)
-            self.__buffer_push_interval = self.__program_conf["buffer"]\
+            self.__buffer_push_interval = self.__program_conf["buffer"] \
                 .get("push_interval", 1000)
         except ValidationError as e:
             print("Your program config seems to be incorrect or incomplete.")
@@ -275,10 +286,13 @@ class ProcessHistorian:
         print("Waiting for all worker threads to finish...")
         self._opcua_client.unsubscribe_all()
         # Tell all threads they should stop
-        for work_obj in self.__work_thread_objs:
+        if hasattr(self, "__push_thread"):
+            self.__push_thread_obj.should_exit()
+            self.__push_thread.join()
+        for work_obj in self.__opc_thread_objs:
             work_obj.should_exit()
         # Wait for them to be really stopped
-        for thread in self.__threads:
+        for thread in self.__opc_threads:
             thread.join()
         print("Disconnecting from OPC UA Server...")
         self._opcua_client.disconnect()
@@ -297,6 +311,7 @@ class ProcessHistorian:
         jobs in intervals and also to exit only when not currently working so
         network communication won't be ended abruptly.
         """
+
         def __init__(self, work_function: Callable[[Union[int, None]], None],
                      argument: Union[int, None], interval: int):
             """
@@ -348,33 +363,15 @@ if __name__ == "__main__":
     ph = ProcessHistorian()
     hb_interval = ph.heartbeat_interval_seconds  # in seconds for time.sleep()
 
-
-    def wait_till_connection_reestablished():
-        """
-        Helper function that waits for the OPC UA
-        """
-        print("Waiting for opc connection to be reestablished...")
-        while True:
-            try:
-                time.sleep(hb_interval)
-                ph.defibrillator()
-                break
-            except KeyboardInterrupt:
-                ph.exit()
-                exit()
-            except:
-                pass
-
-
     while True:
         try:
             while True:
-                ph.heartbeat()
+                ph.listen_for_opc_heartbeat()
                 time.sleep(hb_interval)
         except KeyboardInterrupt:
             ph.exit()
             exit()
         except:
-            wait_till_connection_reestablished()
-            print("Restarting polling threads and subscriptions")
-            ph.restart_opc()
+            ph.wait_for_new_opc_connection()
+            print("Resubscribing to opc...")
+            ph.resubscribe_opc()
