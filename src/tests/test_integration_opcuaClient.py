@@ -42,6 +42,9 @@ from opcuaClient.opcuaClient import Client
 
 class OPCUAIntegrationTest(unittest.TestCase):
     def setUp(self):
+        """
+        Initialise the OPC Ua Client and a Buffer for each test.
+        """
         with open("./opcua_config.json", "r") as opcua_conf:
             self.config = json.load(opcua_conf)
         self.buffer = Buffer(1000, {
@@ -53,6 +56,10 @@ class OPCUAIntegrationTest(unittest.TestCase):
         self.opcua = Client(self.config, self.buffer.append)
 
     def start_sim_server(self, steps: int):
+        """
+        Starts the simulation server with a specific number of steps.
+        :param steps: number of steps
+        """
         ready = threading.Event()
         self.server_thread = threading.Thread(target=run_simulation_server,
                                               args=[steps, ready])
@@ -60,10 +67,16 @@ class OPCUAIntegrationTest(unittest.TestCase):
         ready.wait(30)  # Waits until server is ready, timeout in seconds
 
     def wait_for_sim_server(self):
+        """
+        Joins the thread and waits until it is terminated.
+        """
         if self.server_thread and self.server_thread.is_alive():
             self.server_thread.join()
 
     def test_integration_poll(self):
+        """
+        Checks whether the poll function is executable and if the expected number of points is present in the buffer.
+        """
         self.assertEqual(0, len(self.buffer._Buffer__buffer))
         self.start_sim_server(5)
         try:
@@ -77,10 +90,10 @@ class OPCUAIntegrationTest(unittest.TestCase):
             self.wait_for_sim_server()
 
     def test_integration_subscribe(self):
-        # Use self.buffer._Buffer__buffer to get the buffer
-        # Check buffer length = 0
+        """
+        Checks if node subscribing is possible and if the expected number of points is present in the buffer.
+        """
         self.assertEqual(0, len(self.buffer._Buffer__buffer))
-        # Start server
         self.start_sim_server(2)
         try:
             self.opcua.connect()
