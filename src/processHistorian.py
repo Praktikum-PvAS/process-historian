@@ -82,7 +82,9 @@ class ProcessHistorian:
                               self.__program_conf["influxdb"])
 
         # Fifth step: Create the OPC UA client
-        self._opcua_client = OPCClient(self.__opcua_conf, self._buffer.append)
+        self._opcua_client = OPCClient(self.__opcua_conf,
+                                       self._buffer.append,
+                                       self._buffer.append_many)
         self.wait_for_new_opc_connection()
 
         # Sixth step: Create timed threads to poll the data and

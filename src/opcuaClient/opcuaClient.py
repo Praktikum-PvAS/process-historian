@@ -12,24 +12,37 @@ class Client:
     """
 
     def __init__(self, opcua_config: dict,
-                 callback: Callable[[str, List[Tuple[str, str]], Any, Any],
-                                    None]):
+                 cb: Callable[[str,
+                               List[Tuple[str, str]],
+                               List[Tuple[str, str]],
+                               Any],
+                              None],
+                 cb_many: Callable[[List[Tuple[
+                     str,
+                     List[Tuple[str, str]],
+                     List[Tuple[str, str]],
+                     Any]]],
+                    None]):
         if opcua_config is None:
             raise ValueError("opcua_config must not be None")
-        if not callable(callback):
+        if not callable(cb):
             raise ValueError("callback is not callable")
+        if not callable(cb_many):
+            raise ValueError("callback_many is not callable")
 
         self.__opcua_config = opcua_config
         self.__url = self.__opcua_config["host"]
         self._opcua_lib_client = opcua.Client(self.__url)
-        self.__callback = callback
+        self.__callback = cb
+        self.__callback_many = cb_many
         self._nodes2poll = {}  # dictionary with [interval] = list<nodes>
         self._nodes2sub = {}
         self.__subscription_handles = []
         self.__namespace_adapter = {}
 
         self.__subscription = None
-        self.__subHandler = self.SubscriptionHandler(callback, self._nodes2sub)
+        self.__subHandler = self.SubscriptionHandler(self.__callback,
+                                                     self._nodes2sub)
 
     def connect(self):
         """
@@ -146,19 +159,30 @@ class Client:
         # get node ids
         nodeids = [custom_node.node_obj.nodeid for custom_node in nodes]
 
-        results = self._opcua_lib_client.uaclient \
-            .get_attributes(nodeids, AttributeIds.Value)
+        try:
+            p_results = self._opcua_lib_client.uaclient \
+                .get_attributes(nodeids, AttributeIds.Value)
+        except:
+            print("OPC UA Server cannot be reached.")
+            return
 
-        for result in results:
-            if result.SourceTimestamp is None:
-                result.SourceTimestamp = datetime.now().isoformat()
+        results = []
+        for i in range(len(p_results)):
+            if p_results[i].StatusCode != opcua.ua.StatusCodes.Good:
+                continue
 
-        # returns the value to a callback function
-        for i in range(len(results)):
-            self.__callback(nodes[i].assembly_identifier,  # measurement
-                            [("assembly_type", nodes[i].assembly_type)],  # tags
-                            [(nodes[i].attribute_name, results[i].Value.Value)],  # values
-                            results[i].SourceTimestamp)
+            timestamp = p_results[i].SourceTimestamp
+            if timestamp is None:
+                timestamp = datetime.now().isoformat()
+
+            result = (nodes[i].assembly_identifier,
+                      [("assembly_type", nodes[i].assembly_type)],
+                      [(nodes[i].attribute_name, p_results[i].Value.Value)],
+                      timestamp)
+
+            results.append(result)
+
+        self.__callback_many(results)
 
     def poll_server_status(self):
         node = self._opcua_lib_client.get_node("ns=0;i=2259")
@@ -196,7 +220,7 @@ class Client:
 
         def datachange_notification(self, node: opcua.Node, value, raw_data):
             """
-            Function called if OPC UA Server has datachange on subscribed nodes.
+            Called if OPC UA Server has datachange on subscribed nodes.
             Processes data for Callback.
             :param node: node object of node with datachange
             :param value: new value of given node
