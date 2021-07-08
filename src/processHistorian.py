@@ -293,13 +293,14 @@ class ProcessHistorian:
         print("Waiting for all worker threads to finish...")
         self._opcua_client.unsubscribe_all()
         # Tell all threads they should stop
-        self.__push_thread_obj.should_exit()
+        if hasattr(self, "__push_thread"):
+            self.__push_thread_obj.should_exit()
+            self.__push_thread.join()
         for work_obj in self.__opc_thread_objs:
             work_obj.should_exit()
         # Wait for them to be really stopped
         for thread in self.__opc_threads:
             thread.join()
-        self.__push_thread.join()
         print("Disconnecting from OPC UA Server...")
         self._opcua_client.disconnect()
         # One last push of the values
