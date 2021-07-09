@@ -50,7 +50,8 @@ class OPCUAIntegrationTest(unittest.TestCase):
             "organization": "organization",
             "token": "token"
         })
-        self.opcua = Client(self.config, self.buffer.append)
+        self.opcua = Client(self.config, self.buffer.append,
+                            self.buffer.append_many)
 
     def start_sim_server(self, steps: int):
         ready = threading.Event()
