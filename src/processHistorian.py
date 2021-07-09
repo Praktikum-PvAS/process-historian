@@ -121,6 +121,7 @@ class ProcessHistorian:
         """
         Helper function that waits for the OPC UA
         """
+        self._opcua_client.disconnect(log=False)
         print("Waiting for opc connection to be (re)established...")
         while True:
             try:
@@ -297,9 +298,10 @@ class ProcessHistorian:
         for thread in self.__opc_threads:
             thread.join()
         print("Disconnecting from OPC UA Server...")
+        self._opcua_client.unsubscribe_all()
         self._opcua_client.disconnect()
         # One last push of the values
-        print("Push remaining values from buffer...")
+        print("Push remaining values (if any) from buffer...")
         status = self._buffer.write_points()
         while status:
             print("Buffer cannot be sent.")
@@ -359,7 +361,6 @@ class ProcessHistorian:
 
                 # Uses the timeout instead of wait
                 self.__should_exit.wait(self.__interval / 1000)  # in seconds
-            exit()
 
 
 if __name__ == "__main__":
