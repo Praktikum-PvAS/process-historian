@@ -286,7 +286,6 @@ class ProcessHistorian:
         """
         print("Exiting the ProcessHistorian...")
         print("Waiting for all worker threads to finish...")
-        #self._opcua_client.unsubscribe_all()
         # Tell all threads they should stop
         if self.__push_thread_obj:
             self.__push_thread_obj.should_exit()
