@@ -11,10 +11,13 @@ class OPCUATest(unittest.TestCase):
         self.appended_points = 0
         with open("./opcua_config.json", "r") as opcua_conf:
             self.config = json.load(opcua_conf)
-        self.opcua = Client(self.config, self.callback)
+        self.opcua = Client(self.config, self.callback, self.callback_many)
 
     def callback(self, a, b, c, d):
         self.appended_points = self.appended_points + 1
+
+    def callback_many(self, a):
+        self.appended_points = self.appended_points + len(a)
 
     def start_sim_server(self, steps: int):
         ready = threading.Event()
@@ -29,14 +32,18 @@ class OPCUATest(unittest.TestCase):
 
     def test_construct(self):
         with self.assertRaises(ValueError):
-            client = Client(None, self.callback)
+            client = Client(None, self.callback, self.callback_many)
         with self.assertRaises(KeyError):
-            client = Client({}, self.callback)
+            client = Client({}, self.callback,  self.callback_many)
         with self.assertRaises(ValueError):
-            client = Client(self.config, None)
+            client = Client(self.config, None,  self.callback_many)
         with self.assertRaises(ValueError):
-            client = Client(self.config, 1)
-        client = Client(self.config, self.callback)
+            client = Client(self.config, 1,  self.callback_many)
+        with self.assertRaises(ValueError):
+            client = Client(self.config, self.callback, None)
+        with self.assertRaises(ValueError):
+            client = Client(self.config, self.callback, 1)
+        client = Client(self.config, self.callback,  self.callback_many)
 
     def test_connect_disconnect(self):
         self.opcua.connect()
@@ -84,6 +91,7 @@ class OPCUATest(unittest.TestCase):
             self.opcua.subscribe_all()
             time.sleep(2.2)
         finally:
+            self.opcua.unsubscribe_all()
             self.opcua.disconnect()
             self.wait_for_sim_server()
         # expected: first value + 2 further values from the server
