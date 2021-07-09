@@ -93,6 +93,8 @@ class Buffer:
                 point.field(value[0], value[1])
             point.time(raw_point[3])
 
+            point_list.append(point)
+
         # If more points are polled than max_buffer_length we need to trim
         if len(point_list) > self.__max_buffer_len:
             point_list = point_list[-self.__max_buffer_len:]
