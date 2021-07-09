@@ -44,6 +44,8 @@ class ProcessHistorian:
         self.__schemata_loc = self.__script_location / "json_schemata"
         self.__program_conf = {}
         self.__opcua_conf = {}
+        self.__push_thread_obj = None
+        self.__push_thread = None
         self.__opc_thread_objs = []
         self.__opc_threads = []
 
@@ -299,8 +301,17 @@ class ProcessHistorian:
         self._opcua_client.disconnect()
         # One last push of the values
         print("Push remaining values from buffer...")
-        self._buffer.write_points()
-        print("Done! Goodbye!")
+        status = self._buffer.write_points()
+        while status:
+            print("Buffer cannot be sent.")
+            choice = input("Try again?  (Y/n): ")
+            while choice.lower() != "n" and choice.lower() != "y":
+                choice = input("Wrong input! " +
+                               "Try to push buffer again? (Y/n): ")
+            if choice.lower() == "n":
+                break
+            status = self._buffer.write_points()
+        print("Exit complete! Goodbye!")
 
     @property
     def heartbeat_interval_seconds(self):
