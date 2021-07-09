@@ -312,6 +312,7 @@ class ProcessHistorian:
                 break
             status = self._buffer.write_points()
         print("Exit complete! Goodbye!")
+        exit()
 
     @property
     def heartbeat_interval_seconds(self):

@@ -61,9 +61,13 @@ class Client:
         """
         try:
             self.unsubscribe_all()
+        except (ConnectionError, AttributeError):
+            print("OPC UA-Client was not able to unsubscribe!")
+        
+        try:
             self._opcua_lib_client.disconnect()
         except (ConnectionError, AttributeError):
-            print("OPC UA-Client was not able to disconnect from server!")
+            print("OPC UA-Client was not able to disconnect!")
 
     def __init_lists(self):
         """
