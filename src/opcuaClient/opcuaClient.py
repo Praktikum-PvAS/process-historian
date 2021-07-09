@@ -168,7 +168,7 @@ class Client:
 
         results = []
         for i in range(len(p_results)):
-            if p_results[i].StatusCode is not opcua.ua.StatusCodes.Good:
+            if not p_results[i].StatusCode.is_good():
                 continue
 
             timestamp = p_results[i].SourceTimestamp
