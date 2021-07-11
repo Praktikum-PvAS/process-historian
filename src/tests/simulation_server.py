@@ -33,6 +33,8 @@ import time
 import logging
 from random import random
 from threading import Event
+
+import opcua.ua
 from opcua import Server
 
 
@@ -50,6 +52,7 @@ def run_simulation_server(steps: int, ready_event: Event):
     # setup the server
     server = Server()
     server.set_endpoint(cfg["host"])
+    server.set_security_policy([opcua.ua.SecurityPolicyType.NoSecurity])
 
     # setup the namespace
     ns_uri = "http://examples.freeopcua.github.io"
