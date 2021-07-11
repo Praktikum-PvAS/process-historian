@@ -309,7 +309,7 @@ class ProcessHistorian:
             while choice.lower() != "n" and \
                     choice.lower() != "y" and \
                     choice != "":
-                choice = input("Wrong input! " +
+                choice = input("Invalid input! " +
                                "Try to push buffer again? (Y/n): ")
             if choice.lower() == "n":
                 break
