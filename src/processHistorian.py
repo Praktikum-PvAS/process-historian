@@ -52,21 +52,7 @@ class ProcessHistorian:
         self.__opc_threads = []
 
         # First step: Make sure the program config is correct and parse it
-        if not os.path.isdir(self.__config_folder):
-            print("The config folder wasn't found.")
-            try:
-                os.mkdir(self.__config_folder)
-                self.__create_empty_program_config()
-                print("A config folder with an empty program configuration " +
-                      "was created.")
-            except (FileExistsError, PermissionError):
-                print("Can't create a config folder. Make sure you have the " +
-                      "right permissions and no other file named \"config\" " +
-                      "exists in the program folder.")
-            finally:
-                exit(1)
-
-        self.__parse_program_conf()
+        self.__load_program_config()
 
         # Second step: Config builder to build the OPC UA Config file
         self._config_builder = Configurator(self.__program_conf["tripleStore"],
@@ -161,11 +147,41 @@ class ProcessHistorian:
         """
         self._opcua_client.subscribe_all()
 
-    def __create_empty_program_config(self):
+    def __load_program_config(self):
+        if not os.path.isdir(self.__config_folder):
+            print("The config folder wasn't found.")
+            try:
+                os.mkdir(self.__config_folder)
+                ProcessHistorian.create_empty_program_config(self.__program_conf_loc)
+                print("A config folder with an empty program configuration " +
+                      "was created.")
+            except (FileExistsError, PermissionError):
+                print("Can't create a config folder. Make sure you have the " +
+                      "right permissions and no other file named \"config\" " +
+                      "exists in the program folder.")
+            finally:
+                exit(1)
+        if not os.path.isfile(self.__program_conf_loc):
+            print("No program_config.yaml found.")
+            try:
+                ProcessHistorian.create_empty_program_config(self.__program_conf_loc)
+                print("An empty program configuration " +
+                      "was created.")
+            except (FileExistsError, PermissionError):
+                print("Can't create a empty program configuration. Make " +
+                      "sure you have the right permissions and no other " +
+                      "folder named \"program_config.yaml\" exists in the " +
+                      "config folder.")
+            finally:
+                exit(1)
+        self.__parse_program_conf()
+
+    @staticmethod
+    def create_empty_program_config(location: Path):
         """
         Creates an empty config with a few default values.
         """
-        with open(self.__program_conf_loc, "w") as prog_conf:
+        with open(location, "w") as prog_conf:
             yaml_dump({
                 "include": [
                     "sensors", "actuators", "services"
@@ -193,20 +209,6 @@ class ProcessHistorian:
         Parses the program configuration. Also checks if it uses the correct
         JSON schema.
         """
-        if not os.path.isfile(self.__program_conf_loc):
-            print("No program_config.yaml found.")
-            try:
-                self.__create_empty_program_config()
-                print("An empty program configuration " +
-                      "was created.")
-            except (FileExistsError, PermissionError):
-                print("Can't create a empty program configuration. Make " +
-                      "sure you have the right permissions and no other " +
-                      "folder named \"program_config.yaml\" exists in the " +
-                      "config folder.")
-            finally:
-                exit(1)
-
         try:
             with open(self.__program_conf_loc) as prog_conf:
                 self.__program_conf = yaml_load(prog_conf)
