@@ -350,7 +350,7 @@ class ProcessHistorian:
 
         def should_exit(self):
             """
-            Sets the exit flag. If the thread currently is sleeping (idle) it
+            Sets the exit flag. If the thread currently is waiting it
             will be halted immediately.
             """
             self.__should_exit.set()

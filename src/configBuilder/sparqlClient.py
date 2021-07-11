@@ -47,7 +47,7 @@ class SPARQLClient:
         # TODO
         pass
 
-    def get_all_nodes(self) -> dict:
+    def get_all_nodes(self) -> Dict:
         """
         Currently does nothing. Should fetch all necessary data from the
         TripleStore and make an organized dict out of it.
