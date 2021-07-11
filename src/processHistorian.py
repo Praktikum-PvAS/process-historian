@@ -4,7 +4,7 @@ import threading
 import time
 from pathlib import Path
 import argparse
-from typing import Callable, Optional, Any
+from typing import Callable, Optional, Any, Union
 
 from yaml import safe_load as yaml_load, dump as yaml_dump
 from jsonschema import validate, ValidationError
@@ -179,7 +179,7 @@ class ProcessHistorian:
         self.__parse_program_conf()
 
     @staticmethod
-    def create_empty_program_config(location: Path):
+    def create_empty_program_config(location: Union[str, Path]):
         """
         Creates an empty config with a few default values.
         """
@@ -287,7 +287,7 @@ class ProcessHistorian:
             print(e)
             exit()
 
-    def exit(self, silent_exit_mode=None):
+    def exit(self, silent_exit_mode: Optional[str] = None):
         """
         Safely disconnect all connections and terminate all threads in the
         correct order and push the last values in buffer so no data is lost.
