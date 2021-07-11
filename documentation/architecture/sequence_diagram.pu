@@ -47,18 +47,15 @@ activate PollThread
 PollThread -> OPCUAClient.Client : poll data
 activate OPCUAClient.Client
 OPCUAClient.Client -> OPCUAClient.Client : poll data
-OPCUAClient.Client -> ProcessHistorian : send data
-activate ProcessHistorian
-ProcessHistorian -> CloudBuffer.Buffer : add data
+OPCUAClient.Client ->  CloudBuffer.Buffer : add data
 activate CloudBuffer.Buffer
 deactivate CloudBuffer.Buffer
-deactivate ProcessHistorian
 deactivate OPCUAClient.Client
 deactivate PollThread
 
 PushThread -> PushThread : timer event
 activate PushThread
-PushThread -> CloudBuffer.Buffer : push data
+PushThread -> CloudBuffer.Buffer : call push function
 activate CloudBuffer.Buffer
 CloudBuffer.Buffer -> CloudBuffer.InfluxDBClient : send data
 deactivate CloudBuffer.Buffer
@@ -70,17 +67,14 @@ deactivate PushThread
 OPCUAClient.SubscriptionHandler -> OPCUAClient.SubscriptionHandler : data incoming
 activate OPCUAClient.SubscriptionHandler
 OPCUAClient.SubscriptionHandler -> OPCUAClient.SubscriptionHandler : get data
-OPCUAClient.SubscriptionHandler -> ProcessHistorian : send data
-activate ProcessHistorian
-deactivate OPCUAClient.SubscriptionHandler
-ProcessHistorian -> CloudBuffer.Buffer : add data
+OPCUAClient.SubscriptionHandler -> CloudBuffer.Buffer : add data
 activate CloudBuffer.Buffer
 deactivate CloudBuffer.Buffer
-deactivate ProcessHistorian
+deactivate OPCUAClient.SubscriptionHandler
 
 PushThread -> PushThread : timer event
 activate PushThread
-PushThread -> CloudBuffer.Buffer : push data
+PushThread -> CloudBuffer.Buffer : call push function
 activate CloudBuffer.Buffer
 CloudBuffer.Buffer -> CloudBuffer.InfluxDBClient : send data
 deactivate CloudBuffer.Buffer
