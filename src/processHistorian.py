@@ -3,7 +3,8 @@ import os
 import threading
 import time
 from pathlib import Path
-from typing import Callable, Optional, Any
+import argparse
+from typing import Callable, Optional, Any, Union
 
 from yaml import safe_load as yaml_load, dump as yaml_dump
 from jsonschema import validate, ValidationError
@@ -51,21 +52,7 @@ class ProcessHistorian:
         self.__opc_threads = []
 
         # First step: Make sure the program config is correct and parse it
-        if not os.path.isdir(self.__config_folder):
-            print("The config folder wasn't found.")
-            try:
-                os.mkdir(self.__config_folder)
-                self.__create_empty_program_config()
-                print("A config folder with an empty program configuration " +
-                      "was created.")
-            except (FileExistsError, PermissionError):
-                print("Can't create a config folder. Make sure you have the " +
-                      "right permissions and no other file named \"config\" " +
-                      "exists in the program folder.")
-            finally:
-                exit(1)
-
-        self.__parse_program_conf()
+        self.__load_program_config()
 
         # Second step: Config builder to build the OPC UA Config file
         self._config_builder = Configurator(self.__program_conf["tripleStore"],
@@ -160,11 +147,43 @@ class ProcessHistorian:
         """
         self._opcua_client.subscribe_all()
 
-    def __create_empty_program_config(self):
+    def __load_program_config(self):
+        if not os.path.isdir(self.__config_folder):
+            print("The config folder wasn't found.")
+            try:
+                os.mkdir(self.__config_folder)
+                ProcessHistorian.create_empty_program_config(
+                    self.__program_conf_loc)
+                print("A config folder with an empty program configuration " +
+                      "was created.")
+            except (FileExistsError, PermissionError):
+                print("Can't create a config folder. Make sure you have the " +
+                      "right permissions and no other file named \"config\" " +
+                      "exists in the program folder.")
+            finally:
+                exit(1)
+        if not os.path.isfile(self.__program_conf_loc):
+            print("No program_config.yaml found.")
+            try:
+                ProcessHistorian.create_empty_program_config(
+                    self.__program_conf_loc)
+                print("An empty program configuration " +
+                      "was created.")
+            except (FileExistsError, PermissionError):
+                print("Can't create a empty program configuration. Make " +
+                      "sure you have the right permissions and no other " +
+                      "folder named \"program_config.yaml\" exists in the " +
+                      "config folder.")
+            finally:
+                exit(1)
+        self.__parse_program_conf()
+
+    @staticmethod
+    def create_empty_program_config(location: Union[str, Path]):
         """
         Creates an empty config with a few default values.
         """
-        with open(self.__program_conf_loc, "w") as prog_conf:
+        with open(location, "w") as prog_conf:
             yaml_dump({
                 "include": [
                     "sensors", "actuators", "services"
@@ -192,20 +211,6 @@ class ProcessHistorian:
         Parses the program configuration. Also checks if it uses the correct
         JSON schema.
         """
-        if not os.path.isfile(self.__program_conf_loc):
-            print("No program_config.yaml found.")
-            try:
-                self.__create_empty_program_config()
-                print("An empty program configuration " +
-                      "was created.")
-            except (FileExistsError, PermissionError):
-                print("Can't create a empty program configuration. Make " +
-                      "sure you have the right permissions and no other " +
-                      "folder named \"program_config.yaml\" exists in the " +
-                      "config folder.")
-            finally:
-                exit(1)
-
         try:
             with open(self.__program_conf_loc) as prog_conf:
                 self.__program_conf = yaml_load(prog_conf)
@@ -282,10 +287,15 @@ class ProcessHistorian:
             print(e)
             exit()
 
-    def exit(self):
+    def exit(self, silent_exit_mode: Optional[str] = None):
         """
         Safely disconnect all connections and terminate all threads in the
         correct order and push the last values in buffer so no data is lost.
+
+        :param silent_exit_mode: Either None, "exit" or "retry". If not
+        None user won't be prompted if buffer can't be sent entirely.
+        "retry" will retry every heartbeat interval, "exit" will exit
+        the program.
         """
         print("Exiting the ProcessHistorian...")
         print("Waiting for all worker threads to finish...")
@@ -306,16 +316,23 @@ class ProcessHistorian:
         print("Push remaining values (if any) from buffer...")
         status = self._buffer.write_points()
         while status:
-            print("Buffer cannot be sent.")
-            choice = input("Try again?  (Y/n): ")
-            while choice.lower() != "n" and \
-                    choice.lower() != "y" and \
-                    choice != "":
-                choice = input("Invalid input! " +
-                               "Try to push buffer again? (Y/n): ")
-            if choice.lower() == "n":
+            print("Buffer could be sent.")
+            if not silent_exit_mode:
+                choice = input("Try again?  (Y/n): ")
+                while choice.lower() != "n" and \
+                        choice.lower() != "y" and \
+                        choice != "":
+                    choice = input("Invalid input! " +
+                                   "Try to push buffer again? (Y/n): ")
+                if choice.lower() == "n":
+                    break
+            elif silent_exit_mode == "retry":
+                time.sleep(self.heartbeat_interval_seconds)
+                print("Retrying...")
+            else:
                 break
             status = self._buffer.write_points()
+
         print("Exit complete! Goodbye!")
         exit()
 
@@ -376,6 +393,75 @@ if __name__ == "__main__":
     Creates the ProcessHistorian and checks with the heartbeat function if the
     connection to the OPC UA server is still alive.
     """
+    parser = argparse.ArgumentParser(
+        description="Finds relevant opc ua nodes using Triplestore "
+                    "and archives their values in an InfluxDB")
+    parser.add_argument(
+        '-f',
+        '--faststart',
+        help="""start Process Historian without generating a new config for 
+        opc ua""",
+        action='store_true')
+    parser.add_argument(
+        '--reset-intervals',
+        help="""reset poll intervals for known objects on opc ua config
+        generation to the configured value""",
+        action='store_true')
+    parser.add_argument(
+        '--default-opc-mode',
+        choices=["subscribe", "poll"],
+        help="""when adding a node to opc ua config default to 
+        subscription or polling""")
+    parser.add_argument(
+        '--reset-opc-mode',
+        action='store_true',
+        help="""reset opc ua modes for known objects on opc ua config 
+        generation to polling with configured interval. May be used 
+        with --default-opc-mode to reset to subscriptions""")
+    parser.add_argument(
+        '-n',
+        '--new-config',
+        help="force generation of a new sample program config",
+        action='store_true')
+    parser.add_argument(
+        '--silent-exit-mode',
+        choices=["retry", "exit"],
+        help="""if the buffer can't be sent to the InfluxDB on exit, don't 
+        ask but either retry every push interval or exit""")
+    args = parser.parse_args()
+
+    if args.reset_intervals:
+        print("Warning: The opc ua config builder is not yet implemented! "
+              "--reset-intervals does not work.")
+    if args.default_opc_mode:
+        print("Warning: The opc ua config builder is not yet implemented! "
+              "--default-opc-mode does not work.")
+    if args.reset_opc_mode:
+        print("Warning: The opc ua config builder is not yet implemented! "
+              "--reset-opc-mode does not work.")
+
+    if args.new_config:
+        script_location = Path(os.path.dirname(os.path.realpath(__file__)))
+        config_folder = script_location.parent / "config"
+        program_conf_loc = config_folder / "program_config.yaml"
+        try:
+            os.remove(program_conf_loc)
+        except OSError:
+            pass
+        try:
+            ProcessHistorian.create_empty_program_config(program_conf_loc)
+        except PermissionError:
+            print("Insufficient permissions for writing new config file at " +
+                  str(program_conf_loc))
+            print("A new program config could not have been written.")
+            exit(1)
+        print("New empty program config created at " + str(program_conf_loc))
+        exit(0)
+
+    if not args.faststart:
+        print("Warning: The opc ua config builder is not yet implemented! "
+              "--faststart is implied.")
+
     ph = ProcessHistorian()
     hb_interval = ph.heartbeat_interval_seconds  # in seconds for time.sleep()
 
@@ -385,7 +471,7 @@ if __name__ == "__main__":
                 ph.listen_for_opc_heartbeat()
                 time.sleep(hb_interval)
         except KeyboardInterrupt:
-            ph.exit()
+            ph.exit(silent_exit_mode=args.silent_exit_mode)
             exit()
         except:
             ph.wait_for_new_opc_connection()
