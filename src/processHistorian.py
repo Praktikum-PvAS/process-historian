@@ -391,6 +391,16 @@ if __name__ == "__main__":
                                         InfluxDB on exit, don't ask but either retry every push interval or exit""")
     args = parser.parse_args()
 
+    if args.reset_intervals:
+        print("Warning: The opc ua config builder is not yet implemented! --reset-intervals does not work.")
+    if args.default_opc_mode:
+        print("Warning: The opc ua config builder is not yet implemented! --default-opc-mode does not work.")
+    if args.reset_opc_mode:
+        print("Warning: The opc ua config builder is not yet implemented! --reset-opc-mode does not work.")
+
+    if not args.faststart:
+        print("Warning: The opc ua config builder is not yet implemented! --faststart is implied.")
+
     ph = ProcessHistorian()
     hb_interval = ph.heartbeat_interval_seconds  # in seconds for time.sleep()
 
