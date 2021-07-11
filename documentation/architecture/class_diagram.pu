@@ -93,14 +93,15 @@ class ProcessHistorian {
     - __push_thread: threading.Thread
     - __opc_threads: List[threading.thread]
     + <<Create>> ProcessHistorian()
+    + {static} create_empty_program_config(location: Union[str, pathlib.Path])
     + wait_for_new_opc_connection()
     + listen_for_opc_heartbeat()
     + opc_defibrillator()
     + resubscribe_opc()
-    + exit()
+    + exit(silent_exit_mode: Optional[str])
+    - __load_program_config()
     - __parse_program_conf()
     - __parse_opcua_conf()
-    - __create_empty_program_config()
 }
 ProcessHistorian *-- "1" cloudBuffer.Buffer: # _buffer
 ProcessHistorian *-- "1" opcuaClient.Client: # _opcua_client
