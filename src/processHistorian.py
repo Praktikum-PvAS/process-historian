@@ -285,7 +285,7 @@ class ProcessHistorian:
             print(e)
             exit()
 
-    def exit(self):
+    def exit(self, silent_exit_mode=None):
         """
         Safely disconnect all connections and terminate all threads in the
         correct order and push the last values in buffer so no data is lost.
@@ -309,16 +309,24 @@ class ProcessHistorian:
         print("Push remaining values (if any) from buffer...")
         status = self._buffer.write_points()
         while status:
-            print("Buffer cannot be sent.")
-            choice = input("Try again?  (Y/n): ")
-            while choice.lower() != "n" and \
-                    choice.lower() != "y" and \
-                    choice != "":
-                choice = input("Invalid input! " +
-                               "Try to push buffer again? (Y/n): ")
-            if choice.lower() == "n":
+            print("Buffer could be sent.")
+            if not silent_exit_mode:
+                choice = input("Try again?  (Y/n): ")
+                while choice.lower() != "n" and \
+                        choice.lower() != "y" and \
+                        choice != "":
+                    choice = input("Invalid input! " +
+                                   "Try to push buffer again? (Y/n): ")
+                if choice.lower() == "n":
+                    break
+                status = self._buffer.write_points()
+            elif silent_exit_mode == "retry":
+                time.sleep(self.heartbeat_interval_seconds)
+                print("Retrying...")
+            else:
                 break
             status = self._buffer.write_points()
+
         print("Exit complete! Goodbye!")
         exit()
 
@@ -434,7 +442,7 @@ if __name__ == "__main__":
                 ph.listen_for_opc_heartbeat()
                 time.sleep(hb_interval)
         except KeyboardInterrupt:
-            ph.exit()
+            ph.exit(silent_exit_mode=args.silent_exit_mode)
             exit()
         except:
             ph.wait_for_new_opc_connection()
