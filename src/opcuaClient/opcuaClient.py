@@ -127,7 +127,7 @@ class Client:
         for ns in namespaces:
             self.__namespace_adapter[ns] = ns_array.index(ns)
 
-    def __get_all_namespaces(self):
+    def __get_all_namespaces(self) -> List[str]:
         """
         Creates list with all given namespaces of nodes
         :return: List of all namespaces
@@ -146,7 +146,7 @@ class Client:
 
         return namespaces
 
-    def __create_node_id(self, namespace, identifier):
+    def __create_node_id(self, namespace: str, identifier: str) -> str:
         """
         Creates the nodeID string for given namespace and identifier.
         :param namespace: index of namespace
@@ -199,7 +199,7 @@ class Client:
 
         self.__callback_many(results)
 
-    def poll_server_status(self):
+    def poll_server_status(self) -> int:
         node = self._opcua_lib_client.get_node("ns=0;i=2259")
         return node.get_value()
 
