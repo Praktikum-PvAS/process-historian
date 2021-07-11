@@ -326,7 +326,6 @@ class ProcessHistorian:
                                    "Try to push buffer again? (Y/n): ")
                 if choice.lower() == "n":
                     break
-                status = self._buffer.write_points()
             elif silent_exit_mode == "retry":
                 time.sleep(self.heartbeat_interval_seconds)
                 print("Retrying...")
