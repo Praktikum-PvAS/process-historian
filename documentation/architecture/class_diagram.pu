@@ -5,13 +5,17 @@ class cloudBuffer.Buffer {
     - __buffer: List[influxdb_client.Point]
     - __sem: threading.Semaphore
     + <<Create>> Buffer(max_buffer_len: int, connection_parameters: Dict)
-    + append(measurement: str, tags: Union[List[Tuple[str, str]], None],\nvalues: Union[List[Tuple[str, Any]], None], timestamp: Any)
+    + append(measurement: str, tags: Optional[List[Tuple[str, str]]],\nvalues: Optional[List[Tuple[str, Any]]],timestamp: Any)
     + append_many(raw_point_list: List)
     + write_points()
     - pop_first(number_of_elements: int)
 }
 class cloudBuffer.InfluxWrapper{
-    - connection_parameters: Dict
+    - __url: str
+    - __token: str
+    - __bucket: str
+    - __org: str
+    - __influxDBClient: influxdb_client.InfluxDBClient
     + <<Create>> InfluxWrapper(connection_parameters: Dict)
     + insert(point: influxdb_client.Point)
     + insert_many(points: List[influxdb_client.Point])
@@ -23,17 +27,18 @@ class opcuaClient.Client {
     - __url: str
     - __opcua_lib_client: opcua.Client
     - __callback: Callable
-    - _nodes2poll: Dict
-    - _nodes2sub: Dict
+    - __callback_many: Callable
+    # _nodes2poll: Dict
+    # _nodes2sub: Dict
     - __subscription_handles: List
     - __namespace_adapter: Dict
     - __subscription: opcua.Subscription
     - __subHandler: SubscriptionHandler
     +<<Create>> Client(opcua_config: Dict)
     + connect()
-    + disconnect()
+    + disconnect(log: bool = True)
     + get_intervals()
-    + poll()
+    + poll(interval: int)
     + subscribe_all()
     + unsubscribe_all()
     - __init_lists()
@@ -60,9 +65,9 @@ opcuaClient.Client *-- "*" opcuaClient.CustomNode
 
 class configBuilder.Configurator {
     - __config_loc: str
-    + <<Create>> Configurator(connection_parameters: Dict,\nincluded_types: list, config_loc: str)
+    + <<Create>> Configurator(connection_parameters: Dict,\nincluded_types: List[str], config_loc: str)
     + write_config()
-    + write_debug_config()
+    + write_debug_config(exists: bool)
     + on_exit()
 }
 class configBuilder.SPARQLClient{
@@ -70,39 +75,49 @@ class configBuilder.SPARQLClient{
     - __included_types: List[str]
     - __sparql: SPARQLWrapper.SPARQLWrapper
     + <<Create>> SPARQLClient(connection_parameters: Dict,\nincluded_types: List[str])
+    + connect()
+    + disconnect()
+    + get_all_nodes()
 }
 configBuilder.Configurator --> "1" configBuilder.SPARQLClient: - __sparql_client
 
 class ProcessHistorian {
+    + heartbeat_interval_seconds
     - __script_location: str
     - __config_folder: str
     - __program_conf_loc: str
     - __opcua_conf_loc: str
+    - __schemata_loc: str
     - __program_conf: Dict
     - __opcua_conf: Dict
-    - __threads: List[threading.Thread]
+    - __heartbeat_interval: int
+    - __buffer_push_interval: int
+    - __push_thread: threading.Thread
+    - __opc_threads: List[threading.thread]
     + <<Create>> ProcessHistorian()
-    + heartbeat()
-    + defibrillator()
-    + restart_opc()
-    + exit()
+    + {static} create_empty_program_config(location: Union[str, pathlib.Path])
+    + wait_for_new_opc_connection()
+    + listen_for_opc_heartbeat()
+    + opc_defibrillator()
+    + resubscribe_opc()
+    + exit(silent_exit_mode: Optional[str])
+    - __load_program_config()
     - __parse_program_conf()
     - __parse_opcua_conf()
-    - __create_empty_program_config()
 }
-ProcessHistorian *-- "1" cloudBuffer.Buffer: - _buffer
-ProcessHistorian *-- "1" opcuaClient.Client: - _opcua_client
-ProcessHistorian *-- "1" configBuilder.Configurator: -_config_builder
+ProcessHistorian *-- "1" cloudBuffer.Buffer: # _buffer
+ProcessHistorian *-- "1" opcuaClient.Client: # _opcua_client
+ProcessHistorian *-- "1" configBuilder.Configurator: # _config_builder
 ProcessHistorian +-- ProcessHistorianThread
-ProcessHistorian *-- "*" ProcessHistorianThread: - __work_thread_objs
+ProcessHistorian *-- "1" ProcessHistorianThread: - __push_thread_obj
+ProcessHistorian *-- "*" ProcessHistorianThread: - __opc_thread_objs
 
 class ProcessHistorianThread {
     - __work_function: Callable
-    - __argument: Union<int, None>
+    - __argument: Optional[Any]
     - __interval: int
-    - __sleeps: boolean
-    - __should_exit: boolean
-    + <<Create>> ProcessHistorianThread(work_function: Callable,\nargument: Union<int, None>, interval: int)
+    - __should_exit: threading.Event
+    + <<Create>> ProcessHistorianThread(work_function: Callable,\nargument: Optional[Any], interval: int)
     + should_exit()
     + work()
 }
