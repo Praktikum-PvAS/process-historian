@@ -23,6 +23,12 @@ class Client:
                      List[Tuple[str, str]],
                      Any]]],
                                    None]):
+        """
+        Constructor
+        :param opcua_config: Config with nodes and OPC UA Host
+        :param cb: Callback for a single value
+        :param cb_many: Callback for multiple values
+        """
         if opcua_config is None:
             raise ValueError("opcua_config must not be None")
         if not callable(cb):
