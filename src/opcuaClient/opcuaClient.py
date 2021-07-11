@@ -54,7 +54,7 @@ class Client:
         except:
             pass
 
-    def disconnect(self, log=True):
+    def disconnect(self, log: bool = True):
         """
         Cancel subscriptions and disconnect from OPC UA Server
         """
@@ -149,7 +149,7 @@ class Client:
         """
         return f"ns={self.__namespace_adapter[namespace]};{identifier}"
 
-    def get_intervals(self):
+    def get_intervals(self) -> List[int]:
         """
         Gets all of the keys (interval) of list nodes2poll.
         :return: all intervals for polling
