@@ -52,6 +52,7 @@ A container can be started by using:
 ```bash
 $ docker run --rm -v "$(pwd)"/config:/usr/app/config process-historian
 ```
+You have to run this command in the project root or change `"$(pwd)"/config` to an absolute path to the config folder.
 Be sure to mount the config folder else the program won't work. \
 If you want to start the container in detached mode, use:
 ```bash
