@@ -1,6 +1,9 @@
 import threading
 import time
 import unittest
+from pathlib import Path
+import os.path
+
 from simulation_server import run_simulation_server
 from opcuaClient.opcuaClient import Client
 import json
@@ -9,7 +12,9 @@ import json
 class OPCUATest(unittest.TestCase):
     def setUp(self):
         self.appended_points = 0
-        with open("./opcua_config.json", "r") as opcua_conf:
+        cfg_f = Path(os.path.dirname(
+            os.path.realpath(__file__))) / "opcua_config.json"
+        with open(cfg_f, "r") as opcua_conf:
             self.config = json.load(opcua_conf)
         self.opcua = Client(self.config, self.callback, self.callback_many)
 

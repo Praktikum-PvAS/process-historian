@@ -32,6 +32,8 @@ import time
 import unittest
 import threading
 import json
+import os.path
+from pathlib import Path
 
 import influxdb_client
 
@@ -42,7 +44,9 @@ from opcuaClient.opcuaClient import Client
 
 class OPCUAIntegrationTest(unittest.TestCase):
     def setUp(self):
-        with open("./opcua_config.json", "r") as opcua_conf:
+        cfg_f = Path(os.path.dirname(
+            os.path.realpath(__file__))) / "opcua_config.json"
+        with open(cfg_f, "r") as opcua_conf:
             self.config = json.load(opcua_conf)
         self.buffer = Buffer(1000, {
             "bucket": "bucket",
