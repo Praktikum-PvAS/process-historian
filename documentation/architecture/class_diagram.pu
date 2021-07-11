@@ -90,6 +90,8 @@ class ProcessHistorian {
     - __schemata_loc: str
     - __program_conf: Dict
     - __opcua_conf: Dict
+    - __heartbeat_interval: int
+    - __buffer_push_interval: int
     - __push_thread: threading.Thread
     - __opc_threads: List[threading.thread]
     + <<Create>> ProcessHistorian()
