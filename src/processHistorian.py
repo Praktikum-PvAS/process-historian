@@ -3,7 +3,7 @@ import os
 import threading
 import time
 from pathlib import Path
-from typing import Callable, Union
+from typing import Callable, Optional, Any
 
 from yaml import safe_load as yaml_load, dump as yaml_dump
 from jsonschema import validate, ValidationError
@@ -330,8 +330,11 @@ class ProcessHistorian:
         network communication won't be ended abruptly.
         """
 
-        def __init__(self, work_function: Callable[[Union[int, None]], None],
-                     argument: Union[int, None], interval: int):
+        def __init__(
+                self,
+                work_function: Callable,
+                argument: Optional[Any],
+                interval: int):
             """
             Constructor
             :param work_function: Function that will be called in intervals

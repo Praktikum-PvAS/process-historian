@@ -1,4 +1,4 @@
-from typing import Any, List, Tuple, Union, Dict
+from typing import Any, List, Tuple, Dict, Optional
 
 from influxdb_client import Point
 from .influxWrapper import InfluxWrapper
@@ -29,8 +29,8 @@ class Buffer:
         self.__sem = threading.Semaphore()
 
     def append(self, measurement: str,
-               tags: Union[List[Tuple[str, str]], None],
-               values: Union[List[Tuple[str, Any]], None],
+               tags: Optional[List[Tuple[str, str]]],
+               values: Optional[List[Tuple[str, Any]]],
                timestamp: Any):
         """"
         Adds a measurement point to the end of the buffer.
@@ -65,8 +65,8 @@ class Buffer:
         self.__sem.release()
 
     def append_many(self, raw_point_list: List[
-            Tuple[str, Union[List[Tuple[str, str]], None],
-                  Union[List[Tuple[str, Any]], None], Any]]):
+            Tuple[str, Optional[List[Tuple[str, str]]],
+                  Optional[List[Tuple[str, Any]]], Any]]):
         """"
         Adds multiple measurement points to the end of the buffer.
         :param raw_point_list: List which contains multiple measurement points.
