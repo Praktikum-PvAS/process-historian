@@ -1,6 +1,8 @@
 @startuml "Sequence Diagram"
 skinparam style strictuml
 participant ProcessHistorian
+participant "OPC UA\nPoll Thread" as PollThread
+participant "CloudBuffer\nPush Thread" as PushThread
 == Initialization ==
 activate ProcessHistorian
 ProcessHistorian -> "[ConfigBuilder]\nConfigurator" as ConfigBuilder.Configurator ** : create
@@ -33,26 +35,34 @@ deactivate ProcessHistorian
 CloudBuffer.Buffer -> "[CloudBuffer]\nInfluxDBClient" as CloudBuffer.InfluxDBClient ** : create
 deactivate CloudBuffer.Buffer
 activate ProcessHistorian
-ProcessHistorian -> ProcessHistorian : create worker\nthreads
+ProcessHistorian -> PollThread ** : create worker\nthreads
+ProcessHistorian -> PushThread ** : create worker\nthread
 deactivate ProcessHistorian
 ...
 
 == Polling ==
 
-OPCUAClient.Client -> OPCUAClient.Client : timer event
+PollThread -> PollThread : timer event
+activate PollThread
+PollThread -> OPCUAClient.Client : poll data
 activate OPCUAClient.Client
 OPCUAClient.Client -> OPCUAClient.Client : poll data
 OPCUAClient.Client -> ProcessHistorian : send data
 activate ProcessHistorian
-deactivate OPCUAClient.Client
 ProcessHistorian -> CloudBuffer.Buffer : add data
 activate CloudBuffer.Buffer
 deactivate CloudBuffer.Buffer
 deactivate ProcessHistorian
-CloudBuffer.Buffer -> CloudBuffer.Buffer : timer event
+deactivate OPCUAClient.Client
+deactivate PollThread
+
+PushThread -> PushThread : timer event
+activate PushThread
+PushThread -> CloudBuffer.Buffer : push data
 activate CloudBuffer.Buffer
 CloudBuffer.Buffer -> CloudBuffer.InfluxDBClient : send data
 deactivate CloudBuffer.Buffer
+deactivate PushThread
 ...
 
 == Subscription ==
@@ -67,9 +77,13 @@ ProcessHistorian -> CloudBuffer.Buffer : add data
 activate CloudBuffer.Buffer
 deactivate CloudBuffer.Buffer
 deactivate ProcessHistorian
-CloudBuffer.Buffer -> CloudBuffer.Buffer : timer event
+
+PushThread -> PushThread : timer event
+activate PushThread
+PushThread -> CloudBuffer.Buffer : push data
 activate CloudBuffer.Buffer
 CloudBuffer.Buffer -> CloudBuffer.InfluxDBClient : send data
 deactivate CloudBuffer.Buffer
+deactivate PushThread
 ...
 @enduml
