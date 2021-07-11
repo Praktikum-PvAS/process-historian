@@ -56,8 +56,8 @@ class Client:
 
     def disconnect(self, log=True):
         """
-        Cancel all subscription and disconnect from OPC UA Server
-        """        
+        Cancel subscriptions and disconnect from OPC UA Server
+        """
         try:
             self._opcua_lib_client.disconnect()
         except:

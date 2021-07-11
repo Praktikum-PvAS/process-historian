@@ -306,7 +306,9 @@ class ProcessHistorian:
         while status:
             print("Buffer cannot be sent.")
             choice = input("Try again?  (Y/n): ")
-            while choice.lower() != "n" and choice.lower() != "y":
+            while choice.lower() != "n" and \
+                    choice.lower() != "y" and \
+                    choice != "":
                 choice = input("Wrong input! " +
                                "Try to push buffer again? (Y/n): ")
             if choice.lower() == "n":
