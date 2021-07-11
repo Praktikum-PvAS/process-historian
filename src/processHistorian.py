@@ -289,6 +289,10 @@ class ProcessHistorian:
         """
         Safely disconnect all connections and terminate all threads in the
         correct order and push the last values in buffer so no data is lost.
+
+        :param silent_exit_mode: Either None, "exit" or "retry". If not None user won't be prompted if buffer can't
+                                 be sent entirely. "retry" will retry every heartbeat interval, "exit" will exit the
+                                 program.
         """
         print("Exiting the ProcessHistorian...")
         print("Waiting for all worker threads to finish...")
