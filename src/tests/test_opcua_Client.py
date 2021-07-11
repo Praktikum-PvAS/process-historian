@@ -39,16 +39,16 @@ class OPCUATest(unittest.TestCase):
         with self.assertRaises(ValueError):
             client = Client(None, self.callback, self.callback_many)
         with self.assertRaises(KeyError):
-            client = Client({}, self.callback,  self.callback_many)
+            client = Client({}, self.callback, self.callback_many)
         with self.assertRaises(ValueError):
-            client = Client(self.config, None,  self.callback_many)
+            client = Client(self.config, None, self.callback_many)
         with self.assertRaises(ValueError):
-            client = Client(self.config, 1,  self.callback_many)
+            client = Client(self.config, 1, self.callback_many)
         with self.assertRaises(ValueError):
             client = Client(self.config, self.callback, None)
         with self.assertRaises(ValueError):
             client = Client(self.config, self.callback, 1)
-        client = Client(self.config, self.callback,  self.callback_many)
+        client = Client(self.config, self.callback, self.callback_many)
 
     def test_connect_disconnect(self):
         self.opcua.connect()

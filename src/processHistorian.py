@@ -34,7 +34,8 @@ class ProcessHistorian:
         5. Create a OPC UA client and connect it.
         6. Create all necessary work threads for polling.
         7. Create a thread for pushing the data from buffer to the InfluxDB
-        8. Start all the threads and subscribe to necessary nodes on the OPC UA Server.
+        8. Start all the threads and subscribe to necessary nodes on the OPC UA
+           Server.
         """
         self.__script_location = Path(os.path.dirname(
             os.path.realpath(__file__)))
@@ -109,9 +110,10 @@ class ProcessHistorian:
 
         # Seventh step: Create timed thread for buffer push
         # No arguments for the push, only write_points
-        self.__push_thread_obj = self.ProcessHistorianThread(self._buffer.write_points,
-                                                             None,
-                                                             self.__buffer_push_interval)
+        self.__push_thread_obj = self.ProcessHistorianThread(
+            self._buffer.write_points,
+            None,
+            self.__buffer_push_interval)
         self.__push_thread = threading.Thread(
             name="ProcessHistorian - CloudBuffer Push",
             target=self.__push_thread_obj.work)

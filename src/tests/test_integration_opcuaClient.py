@@ -75,8 +75,10 @@ class OPCUAIntegrationTest(unittest.TestCase):
             self.opcua.connect()
             self.opcua.poll(1000)
             self.assertEqual(2, len(self.buffer._Buffer__buffer))
-            self.assertIsInstance(self.buffer._Buffer__buffer[0], influxdb_client.Point)
-            self.assertIsInstance(self.buffer._Buffer__buffer[1], influxdb_client.Point)
+            self.assertIsInstance(self.buffer._Buffer__buffer[0],
+                                  influxdb_client.Point)
+            self.assertIsInstance(self.buffer._Buffer__buffer[1],
+                                  influxdb_client.Point)
         finally:
             self.opcua.disconnect()
             self.wait_for_sim_server()
@@ -94,8 +96,11 @@ class OPCUAIntegrationTest(unittest.TestCase):
             self.opcua.disconnect()
             # expected: first value + 2 further values from the server
             self.assertEqual(3, len(self.buffer._Buffer__buffer))
-            self.assertIsInstance(self.buffer._Buffer__buffer[0], influxdb_client.Point)
-            self.assertIsInstance(self.buffer._Buffer__buffer[1], influxdb_client.Point)
-            self.assertIsInstance(self.buffer._Buffer__buffer[2], influxdb_client.Point)
+            self.assertIsInstance(self.buffer._Buffer__buffer[0],
+                                  influxdb_client.Point)
+            self.assertIsInstance(self.buffer._Buffer__buffer[1],
+                                  influxdb_client.Point)
+            self.assertIsInstance(self.buffer._Buffer__buffer[2],
+                                  influxdb_client.Point)
         finally:
             self.wait_for_sim_server()
