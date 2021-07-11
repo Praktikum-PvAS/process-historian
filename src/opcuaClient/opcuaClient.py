@@ -51,19 +51,18 @@ class Client:
         try:
             self._opcua_lib_client.connect()
             self.__init_lists()
-
         except:
             pass
 
-    def disconnect(self):
+    def disconnect(self, log=True):
         """
-        Cancel all subscription and disconnect from OPC UA Server
+        Cancel subscriptions and disconnect from OPC UA Server
         """
         try:
-            self.unsubscribe_all()
             self._opcua_lib_client.disconnect()
-        except (ConnectionError, AttributeError):
-            print("OPC UA-Client was not able to disconnect from server!")
+        except:
+            if log:
+                print("OPC UA-Client was not able to disconnect!")
 
     def __init_lists(self):
         """
@@ -204,8 +203,11 @@ class Client:
         """
         Cancels subscriptions of nodes from OPC UA Server.
         """
-        if self.__subscription_handles:
-            self.__subscription.unsubscribe(self.__subscription_handles)
+        try:
+            if self.__subscription_handles:
+                self.__subscription.unsubscribe(self.__subscription_handles)
+        except:
+            print("OPC UA-Client was not able to unsubscribe!")
 
     class SubscriptionHandler:
         """

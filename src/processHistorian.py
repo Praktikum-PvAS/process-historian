@@ -44,6 +44,8 @@ class ProcessHistorian:
         self.__schemata_loc = self.__script_location / "json_schemata"
         self.__program_conf = {}
         self.__opcua_conf = {}
+        self.__push_thread_obj = None
+        self.__push_thread = None
         self.__opc_thread_objs = []
         self.__opc_threads = []
 
@@ -119,6 +121,7 @@ class ProcessHistorian:
         """
         Helper function that waits for the OPC UA
         """
+        self._opcua_client.disconnect(log=False)
         print("Waiting for opc connection to be (re)established...")
         while True:
             try:
@@ -284,22 +287,35 @@ class ProcessHistorian:
         """
         print("Exiting the ProcessHistorian...")
         print("Waiting for all worker threads to finish...")
-        self._opcua_client.unsubscribe_all()
         # Tell all threads they should stop
-        if hasattr(self, "__push_thread"):
+        if self.__push_thread_obj:
             self.__push_thread_obj.should_exit()
-            self.__push_thread.join()
         for work_obj in self.__opc_thread_objs:
             work_obj.should_exit()
         # Wait for them to be really stopped
+        if self.__push_thread:
+            self.__push_thread.join()
         for thread in self.__opc_threads:
             thread.join()
         print("Disconnecting from OPC UA Server...")
+        self._opcua_client.unsubscribe_all()
         self._opcua_client.disconnect()
         # One last push of the values
-        print("Push remaining values from buffer...")
-        self._buffer.write_points()
-        print("Done! Goodbye!")
+        print("Push remaining values (if any) from buffer...")
+        status = self._buffer.write_points()
+        while status:
+            print("Buffer cannot be sent.")
+            choice = input("Try again?  (Y/n): ")
+            while choice.lower() != "n" and \
+                    choice.lower() != "y" and \
+                    choice != "":
+                choice = input("Invalid input! " +
+                               "Try to push buffer again? (Y/n): ")
+            if choice.lower() == "n":
+                break
+            status = self._buffer.write_points()
+        print("Exit complete! Goodbye!")
+        exit()
 
     @property
     def heartbeat_interval_seconds(self):
@@ -324,34 +340,29 @@ class ProcessHistorian:
             self.__work_function = work_function
             self.__argument = argument
             self.__interval = interval
-            self.__sleeps = False
-            self.__should_exit = False
+            self.__should_exit = threading.Event()
+            self.__should_exit.clear()
 
         def should_exit(self):
             """
             Sets the exit flag. If the thread currently is sleeping (idle) it
             will be halted immediately.
             """
-            if self.__sleeps:
-                exit()
-            else:
-                self.__should_exit = True
+            self.__should_exit.set()
 
         def work(self):
             """
             Actual function that will run in another thread. It will loop and
             call the work_function in the specified interval.
             """
-            while not self.__should_exit:
+            while not self.__should_exit.is_set():
                 if self.__argument:
                     self.__work_function(self.__argument)
                 else:
                     self.__work_function()
-                self.__sleeps = True
-                if self.__should_exit:
-                    exit()
-                time.sleep(self.__interval / 1000)  # time.sleep is in seconds
-                self.__sleeps = False
+
+                # Uses the timeout instead of wait
+                self.__should_exit.wait(self.__interval / 1000)  # in seconds
 
 
 if __name__ == "__main__":

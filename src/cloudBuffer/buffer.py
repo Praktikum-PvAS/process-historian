@@ -106,10 +106,11 @@ class Buffer:
         self.__buffer = self.__buffer + point_list
         self.__sem.release()
 
-    def write_points(self):
+    def write_points(self) -> int:
         """
         Writes buffer into the InfluxDB. If the transmission was
         successful, the points will be deleted from buffer.
+        :return: 0 if write was successful, non-zero if an error occurred
         """
         self.__sem.acquire()
         if len(self.__buffer) > 1000:
@@ -117,11 +118,16 @@ class Buffer:
             status = self.__influx_wrapper.insert_many(buffer_part)
             if not status:  # successful
                 self.__pop_first(len(buffer_part))
-        else:
+        elif len(self.__buffer) > 0:
             status = self.__influx_wrapper.insert_many(self.__buffer)
             if not status:  # successful
                 self.__buffer = []
+        else:
+            # When buffer is empty the "write" should be success without doing
+            # anything
+            status = 0
         self.__sem.release()
+        return status
 
     def __pop_first(self, number_of_elements: int):
         """
