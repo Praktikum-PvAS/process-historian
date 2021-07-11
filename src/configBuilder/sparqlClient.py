@@ -1,3 +1,5 @@
+from typing import Dict, List
+
 from SPARQLWrapper import SPARQLWrapper
 
 
@@ -6,7 +8,7 @@ class SPARQLClient:
     Client to make SPARQL requests to the TripleStore
     """
 
-    def __init__(self, connection_params: dict, included_types: list):
+    def __init__(self, connection_params: Dict, included_types: List):
         """
         Constructor
         :param connection_params: Connection params to the TripleStore

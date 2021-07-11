@@ -1,4 +1,5 @@
 import json
+from typing import Dict, List
 
 from .sparqlClient import SPARQLClient
 
@@ -9,7 +10,7 @@ class Configurator:
     OPC UA config
     """
 
-    def __init__(self, connection_params: dict, included_types: list,
+    def __init__(self, connection_params: Dict, included_types: List,
                  config_loc: str):
         """
         Constructor

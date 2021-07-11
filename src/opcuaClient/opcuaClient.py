@@ -11,7 +11,7 @@ class Client:
     OPC Client to connect with an OPC UA server and query data from it
     """
 
-    def __init__(self, opcua_config: dict,
+    def __init__(self, opcua_config: Dict,
                  cb: Callable[[str,
                                List[Tuple[str, str]],
                                List[Tuple[str, str]],
@@ -115,7 +115,7 @@ class Client:
     def __get_all_namespaces(self):
         """
         Creates list with all given namespaces of nodes
-        :return: list of all namespaces
+        :return: List of all namespaces
         """
         namespaces = []
 

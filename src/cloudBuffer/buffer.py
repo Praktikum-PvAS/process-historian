@@ -1,4 +1,4 @@
-from typing import Any, List, Tuple, Union
+from typing import Any, List, Tuple, Union, Dict
 
 from influxdb_client import Point
 from .influxWrapper import InfluxWrapper
@@ -11,7 +11,7 @@ class Buffer:
     A buffer that stores data points and writes those to a InfluxDB.
     """
 
-    def __init__(self, max_buffer_len: int, connection_params: dict):
+    def __init__(self, max_buffer_len: int, connection_params: Dict):
         """
         Constructor of the class.
         :param max_buffer_len: Maximum amount of points which can be stored in

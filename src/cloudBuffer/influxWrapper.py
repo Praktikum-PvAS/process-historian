@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 
 from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import WriteOptions, WriteType
@@ -8,7 +8,7 @@ class InfluxWrapper:  # renamed so not as imported class
     """
     This wrapper class establishes a connection to the InfluxDB.
     """
-    def __init__(self, connection_params: dict):
+    def __init__(self, connection_params: Dict):
         """
         Constructor of the class.
         :param connection_params: Necessary connection parameters to connect to
