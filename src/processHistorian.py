@@ -4,6 +4,7 @@ import threading
 import time
 from pathlib import Path
 from typing import Callable, Union
+import argparse
 
 from yaml import safe_load as yaml_load, dump as yaml_dump
 from jsonschema import validate, ValidationError
@@ -371,6 +372,25 @@ if __name__ == "__main__":
     Creates the ProcessHistorian and checks with the heartbeat function if the
     connection to the OPC UA server is still alive.
     """
+    parser = argparse.ArgumentParser(description="Finds relevant opc ua nodes using Triplestore " +
+                                                 "and archives their values in an InfluxDB")
+    parser.add_argument('-f', '--faststart', help="start Process Historian without generating a new config for opc ua",
+                        action='store_true')
+    parser.add_argument('--reset-intervals', help="""reset poll intervals for known objects on opc ua config
+                                                     generation to the configured value""",
+                        action='store_true')
+    parser.add_argument('--default-opc-mode', choices=["subscribe", "poll"], help="""when adding a node to opc ua config
+                                                                                    default to subscription or polling
+                                                                                    """)
+    parser.add_argument('--reset-opc-mode', action='store_true', help="""reset opc ua modes for known objects 
+                                                    on opc ua config generation to polling with configured interval.
+                                                    May be used with --default-opc-mode to reset to subscriptions""", )
+    parser.add_argument('-n', '--new-config', help="force generation of a new sample program config",
+                        action='store_true')
+    parser.add_argument('--silent-exit-mode', choices=["retry", "exit"], help="""if the buffer can't be sent to the
+                                        InfluxDB on exit, don't ask but either retry every push interval or exit""")
+    args = parser.parse_args()
+
     ph = ProcessHistorian()
     hb_interval = ph.heartbeat_interval_seconds  # in seconds for time.sleep()
 
