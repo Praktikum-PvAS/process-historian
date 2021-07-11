@@ -17,7 +17,7 @@ Every time you edit the config after the first start, you have to restart the Pr
 #### Buffer parameters
 | Parameter     | Type   | Required     | Description |
 | ------------- | ------ | ------------ | ----------- |
-| size          | number | **Required** | Maximum buffer size. After running full every new data point replaces the oldest. |
+| size          | number | **Required** | Maximum buffer size. After running full every new data point replaces the oldest. -1 ignores buffer length. |
 | push_interval | number | **Optional** | Interval in milliseconds when the current buffer is pushed to the InfluxDB. Defaults to 1000.|
 
 #### InfluxDB parameters
