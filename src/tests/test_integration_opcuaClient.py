@@ -32,6 +32,8 @@ import time
 import unittest
 import threading
 import json
+import os.path
+from pathlib import Path
 
 import influxdb_client
 
@@ -42,7 +44,9 @@ from opcuaClient.opcuaClient import Client
 
 class OPCUAIntegrationTest(unittest.TestCase):
     def setUp(self):
-        with open("./opcua_config.json", "r") as opcua_conf:
+        cfg_f = Path(os.path.dirname(
+            os.path.realpath(__file__))) / "opcua_config.json"
+        with open(cfg_f, "r") as opcua_conf:
             self.config = json.load(opcua_conf)
         self.buffer = Buffer(1000, {
             "bucket": "bucket",
@@ -71,8 +75,10 @@ class OPCUAIntegrationTest(unittest.TestCase):
             self.opcua.connect()
             self.opcua.poll(1000)
             self.assertEqual(2, len(self.buffer._Buffer__buffer))
-            self.assertIsInstance(self.buffer._Buffer__buffer[0], influxdb_client.Point)
-            self.assertIsInstance(self.buffer._Buffer__buffer[1], influxdb_client.Point)
+            self.assertIsInstance(self.buffer._Buffer__buffer[0],
+                                  influxdb_client.Point)
+            self.assertIsInstance(self.buffer._Buffer__buffer[1],
+                                  influxdb_client.Point)
         finally:
             self.opcua.disconnect()
             self.wait_for_sim_server()
@@ -90,8 +96,11 @@ class OPCUAIntegrationTest(unittest.TestCase):
             self.opcua.disconnect()
             # expected: first value + 2 further values from the server
             self.assertEqual(3, len(self.buffer._Buffer__buffer))
-            self.assertIsInstance(self.buffer._Buffer__buffer[0], influxdb_client.Point)
-            self.assertIsInstance(self.buffer._Buffer__buffer[1], influxdb_client.Point)
-            self.assertIsInstance(self.buffer._Buffer__buffer[2], influxdb_client.Point)
+            self.assertIsInstance(self.buffer._Buffer__buffer[0],
+                                  influxdb_client.Point)
+            self.assertIsInstance(self.buffer._Buffer__buffer[1],
+                                  influxdb_client.Point)
+            self.assertIsInstance(self.buffer._Buffer__buffer[2],
+                                  influxdb_client.Point)
         finally:
             self.wait_for_sim_server()

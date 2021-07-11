@@ -66,7 +66,8 @@ class Client:
 
     def __init_lists(self):
         """
-        Creates a list of nodes to poll or subscribe with corresponding time interval for polling.
+        Creates a list of nodes to poll or subscribe with corresponding time
+        interval for polling.
         """
         self.__get_namespace_indexes()
 
@@ -84,11 +85,15 @@ class Client:
                         interval = attribute["interval"]
                         # create a opcua node object
                         node_obj = self._opcua_lib_client.get_node(
-                            self.__create_node_id(attribute["namespace"],
-                                                  attribute["node_identifier"]))
+                            self.__create_node_id(
+                                attribute["namespace"],
+                                attribute["node_identifier"]))
                         # create a CustomNode to store more information
-                        node = CustomNode(node_type, self.__opcua_config[node_type][i]["id"],
-                                          attribute["name"], node_obj)
+                        node = CustomNode(
+                            node_type,
+                            self.__opcua_config[node_type][i]["id"],
+                            attribute["name"],
+                            node_obj)
                         # append the node and interval to the list in the
                         # dictionary
                         temp_list = self._nodes2poll.get(interval, [])
@@ -97,10 +102,14 @@ class Client:
                         self._nodes2poll[interval] = temp_list
                     elif attribute["mode"] == "subscription":
                         node_obj = self._opcua_lib_client.get_node(
-                            self.__create_node_id(attribute["namespace"],
-                                                  attribute["node_identifier"]))
-                        node = CustomNode(node_type, self.__opcua_config[node_type][i]["id"],
-                                          attribute["name"], node_obj)
+                            self.__create_node_id(
+                                attribute["namespace"],
+                                attribute["node_identifier"]))
+                        node = CustomNode(
+                            node_type,
+                            self.__opcua_config[node_type][i]["id"],
+                            attribute["name"],
+                            node_obj)
                         self._nodes2sub[node_obj] = node
 
     def __get_namespace_indexes(self):
@@ -151,8 +160,9 @@ class Client:
     def poll(self, interval: int):
         """
         Polls data from OPC UA Server for all nodes with the given interval
-        :param interval: interval corresponding to the polling nodes
-        :return: callback of nodes with polled values and timestamp for cloudBuffer
+        :param interval: Interval corresponding to the polling nodes
+        :return: Callback of nodes with polled values and timestamp for
+        cloudBuffer
         """
         nodes = self._nodes2poll[interval]
         # get node ids
@@ -196,7 +206,8 @@ class Client:
             .create_subscription(100, self.__subHandler)
         # subscribe to node
         if self._nodes2sub:
-            handles = self.__subscription.subscribe_data_change(self._nodes2sub)
+            handles = self.__subscription.subscribe_data_change(
+                self._nodes2sub)
             self.__subscription_handles = handles
 
     def unsubscribe_all(self):
@@ -211,7 +222,8 @@ class Client:
 
     class SubscriptionHandler:
         """
-        Handler to be called if data has changed and sends it to the cloud buffer
+        Handler to be called if data has changed and sends it to the cloud
+        buffer
         """
 
         def __init__(self, data_callback: Callable[
@@ -232,7 +244,8 @@ class Client:
             # Save data with callback
             timestamp = raw_data.monitored_item.Value.SourceTimestamp
             c_node = self.__node_dict[node]
-            self.__data_callback(c_node.assembly_identifier,  # measurement
-                                 [("assembly_type", c_node.assembly_type)],  # tags
-                                 [(c_node.attribute_name, value)],  # values
+            # Arguments: measurement, tags, values, timestamp
+            self.__data_callback(c_node.assembly_identifier,
+                                 [("assembly_type", c_node.assembly_type)],
+                                 [(c_node.attribute_name, value)],
                                  timestamp)

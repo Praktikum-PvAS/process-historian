@@ -1,6 +1,9 @@
 import threading
 import time
 import unittest
+from pathlib import Path
+import os.path
+
 from simulation_server import run_simulation_server
 from opcuaClient.opcuaClient import Client
 import json
@@ -9,7 +12,9 @@ import json
 class OPCUATest(unittest.TestCase):
     def setUp(self):
         self.appended_points = 0
-        with open("./opcua_config.json", "r") as opcua_conf:
+        cfg_f = Path(os.path.dirname(
+            os.path.realpath(__file__))) / "opcua_config.json"
+        with open(cfg_f, "r") as opcua_conf:
             self.config = json.load(opcua_conf)
         self.opcua = Client(self.config, self.callback, self.callback_many)
 
@@ -34,16 +39,16 @@ class OPCUATest(unittest.TestCase):
         with self.assertRaises(ValueError):
             client = Client(None, self.callback, self.callback_many)
         with self.assertRaises(KeyError):
-            client = Client({}, self.callback,  self.callback_many)
+            client = Client({}, self.callback, self.callback_many)
         with self.assertRaises(ValueError):
-            client = Client(self.config, None,  self.callback_many)
+            client = Client(self.config, None, self.callback_many)
         with self.assertRaises(ValueError):
-            client = Client(self.config, 1,  self.callback_many)
+            client = Client(self.config, 1, self.callback_many)
         with self.assertRaises(ValueError):
             client = Client(self.config, self.callback, None)
         with self.assertRaises(ValueError):
             client = Client(self.config, self.callback, 1)
-        client = Client(self.config, self.callback,  self.callback_many)
+        client = Client(self.config, self.callback, self.callback_many)
 
     def test_connect_disconnect(self):
         self.opcua.connect()

@@ -31,6 +31,8 @@
 import json
 import time
 import logging
+from pathlib import Path
+import os.path
 from random import random
 from threading import Event
 
@@ -46,7 +48,9 @@ def run_simulation_server(steps: int, ready_event: Event):
     :param ready_event: threading.Event that fires when the server is ready
     """
 
-    with open("opcua_config.json") as config_file:
+    cfg_f = Path(os.path.dirname(
+        os.path.realpath(__file__))) / "opcua_config.json"
+    with open(cfg_f) as config_file:
         cfg = json.load(config_file)
 
     # setup the server
