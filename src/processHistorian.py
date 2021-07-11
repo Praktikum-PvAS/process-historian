@@ -405,6 +405,23 @@ if __name__ == "__main__":
     if args.reset_opc_mode:
         print("Warning: The opc ua config builder is not yet implemented! --reset-opc-mode does not work.")
 
+    if args.new_config:
+        script_location = Path(os.path.dirname(os.path.realpath(__file__)))
+        config_folder = script_location.parent / "config"
+        program_conf_loc = config_folder / "program_config.yaml"
+        try:
+            os.remove(program_conf_loc)
+        except OSError:
+            pass
+        try:
+            ProcessHistorian.create_empty_program_config(program_conf_loc)
+        except PermissionError:
+            print("Insufficient permissions for writing new config file at " + str(program_conf_loc))
+            print("A new program config could not have been written.")
+            exit(1)
+        print("New empty program config created at " + str(program_conf_loc))
+        exit(0)
+
     if not args.faststart:
         print("Warning: The opc ua config builder is not yet implemented! --faststart is implied.")
 
