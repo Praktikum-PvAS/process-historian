@@ -48,24 +48,25 @@ $ docker-compose build
 ```
 
 #### Run the image
+_For a description which arguments can be used see [here](#cli-arguments)._ \
 A container can be started by using:
 ```bash
-$ docker run --rm -v "$(pwd)"/config:/usr/app/config process-historian
+$ docker run --rm -v "$(pwd)"/config:/usr/app/config process-historian [arguments]
 ```
 You have to run this command in the project root or change `"$(pwd)"/config` to an absolute path to the config folder.
 Be sure to mount the config folder else the program won't work. \
-If you want to start the container in detached mode, use:
+If you want to start the container in a detached mode, use:
 ```bash
-$ docker run --rm -d -v "$(pwd)"/config:/usr/app/config process-historian
+$ docker run --rm -d -v "$(pwd)"/config:/usr/app/config process-historian [arguments]
 ```
 
 Docker-compose can be used here too:
 ```bash
-$ docker-compose up
+$ docker-compose up [arguments]
 ```
 Or, if you want to start the container in detached mode use:
 ```bash
-$ docker-compose up -d
+$ docker-compose up -d [arguments]
 ```
 
 ### Without using docker
@@ -82,11 +83,23 @@ $ pip3 install -r requirements.txt
 On Windows the command is called `pip` (without the `3`).
 
 #### Running the application
+_For a description which arguments can be used see [here](#cli-arguments)._ \
 If you installed the requirements in a virtual environment, you must activate it before starting the application.
 ```bash
 $ python3 src/processHistorian.py
 ```
 On Windows the command is called `python` (without the `3`).
+
+### CLI-Arguments
+| Argument             | Abbreviation | Possible Values | Description |
+| -------------------- | ------------ | --------------- | ----------- |
+| `--help`             | `-h`         | | Shows the help |
+| `--faststart`        | `-f`         | | **Currently always used.** Starts the ProcessHistorian without using the TripleStore to update or generate the OPC UA config. |
+| `--reset-intervals`  |              | | **Currently not implemented.** Reset poll intervals for known objects on opc ua config generation to the configured value. |
+| `--default-opc-mode` |              | `subscribe` or `poll` | **Currently not implemented.** When adding a node to opc ua config default to subscription or polling. |
+| `--reset-opc-mode`   |              | | **Currently not implemented.** Reset opc ua modes for known objects on opc ua config generation to polling with configured interval. May be used with `--default-opc-mode` to reset to subscriptions. |
+| `--new-config`       | `-n`         | | Force generation of a new sample program config.
+| `--silent-exit-mode` |              | `retry` or `exit` | If the buffer can't be sent to the InfluxDB on exit, don't ask but either retry every push interval or exit. |
 
 ## Running tests
 Tests are written in the python unittest library
