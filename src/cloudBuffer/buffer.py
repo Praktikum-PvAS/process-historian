@@ -19,7 +19,7 @@ class Buffer:
         :param connection_params: Necessary connection parameters to connect to
         the InfluxDB.
         """
-        if max_buffer_len < 1:
+        if max_buffer_len < 1 and max_buffer_len != -1:
             raise ValueError("Maximum buffer length must be at least 1!")
         if connection_params is None:
             raise ValueError("Connection parameters must not be None!")
@@ -59,15 +59,16 @@ class Buffer:
         point.time(timestamp)
 
         self.__sem.acquire()
-        if len(self.__buffer) >= self.__max_buffer_len:
-            self.__pop_first(1)
+        if self.__max_buffer_len != -1:
+            if len(self.__buffer) >= self.__max_buffer_len:
+                self.__pop_first(1)
         self.__buffer.append(point)
         self.__sem.release()
 
     def append_many(self, raw_point_list: List[
-            Tuple[str, Optional[List[Tuple[str, str]]],
-                  Optional[List[Tuple[str, Any]]], Any]]):
-        """"
+        Tuple[str, Optional[List[Tuple[str, str]]],
+              Optional[List[Tuple[str, Any]]], Any]]):
+        """
         Adds multiple measurement points to the end of the buffer.
         :param raw_point_list: List which contains multiple measurement points.
         """
@@ -96,13 +97,16 @@ class Buffer:
             point_list.append(point)
 
         # If more points are polled than max_buffer_length we need to trim
-        if len(point_list) > self.__max_buffer_len:
-            point_list = point_list[-self.__max_buffer_len:]
+        if self.__max_buffer_len != -1:
+            if len(point_list) > self.__max_buffer_len:
+                point_list = point_list[-self.__max_buffer_len:]
 
         self.__sem.acquire()
-        if len(self.__buffer) + len(point_list) > self.__max_buffer_len:
-            self.__pop_first(
-                len(self.__buffer) + len(point_list) - self.__max_buffer_len)
+        if self.__max_buffer_len != -1:
+            if len(self.__buffer) + len(point_list) > self.__max_buffer_len:
+                self.__pop_first(
+                    len(self.__buffer) + len(point_list) -
+                    self.__max_buffer_len)
         self.__buffer = self.__buffer + point_list
         self.__sem.release()
 

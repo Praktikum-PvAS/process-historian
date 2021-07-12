@@ -17,7 +17,8 @@
         "size": {
           "type": "number",
           "multipleOf": 1.0,
-          "minimum": 1
+          "minimum": -1,
+          "not":{"enum":[0]}
         },
         "push_interval": {
           "type": "number",
