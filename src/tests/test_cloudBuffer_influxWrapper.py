@@ -3,7 +3,7 @@ import unittest
 from cloudBuffer.influxWrapper import InfluxWrapper
 
 
-class MyTestCase(unittest.TestCase):
+class InfluxWrapperTest(unittest.TestCase):
 
     def setUp(self):
         """

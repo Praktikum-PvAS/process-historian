@@ -1,11 +1,9 @@
 import unittest
 
-from influxdb_client import Point
-
 from cloudBuffer.buffer import Buffer
 
 
-class MyTestCase(unittest.TestCase):
+class CloudBufferTest(unittest.TestCase):
     def setUp(self):
         """
         setUp method
