@@ -61,11 +61,11 @@ class Client:
             status = self.poll_server_status()
             if status:
                 raise ConnectionError
-        except:
+        except Exception:
             try:
                 self._opcua_lib_client.connect()
                 self.__init_lists()
-            except:
+            except Exception:
                 pass
         else:
             raise ConnectionError
@@ -76,7 +76,7 @@ class Client:
         """
         try:
             self._opcua_lib_client.disconnect()
-        except:
+        except Exception:
             if log:
                 self.__logger.warning(
                     "OPC UA-Client was not able to disconnect!")
@@ -188,7 +188,7 @@ class Client:
         try:
             p_results = self._opcua_lib_client.uaclient \
                 .get_attributes(nodeids, AttributeIds.Value)
-        except:
+        except Exception:
             self.__logger.warning("OPC UA Server cannot be reached.")
             return
 
@@ -234,7 +234,7 @@ class Client:
         try:
             if self.__subscription_handles:
                 self.__subscription.unsubscribe(self.__subscription_handles)
-        except:
+        except Exception:
             self.__logger.warning("OPC UA-Client was not able to unsubscribe!")
 
     class SubscriptionHandler:

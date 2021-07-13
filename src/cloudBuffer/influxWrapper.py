@@ -60,9 +60,7 @@ class InfluxWrapper:  # renamed so not as imported class
                         write_type=WriteType.synchronous)) as write_client:
                 write_client(bucket=self.__bucket, record=point)
             return 0
-        except:
-            # urllib.error.URLError
-            # TODO: specify except more precisely
+        except Exception:
             return 1
 
     def insert_many(self, points: List[Point]):
@@ -82,6 +80,5 @@ class InfluxWrapper:  # renamed so not as imported class
                     write_type=WriteType.synchronous)) as write_client:
                 write_client.write(self.__bucket, self.__org, points)
             return 0
-        except:
-            # TODO: specify except more precisely
+        except Exception:
             return 1

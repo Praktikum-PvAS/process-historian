@@ -123,7 +123,7 @@ class ProcessHistorian:
             except KeyboardInterrupt:
                 self.exit()
                 exit()
-            except:
+            except Exception:
                 pass
 
     def listen_for_opc_heartbeat(self):
@@ -490,7 +490,7 @@ if __name__ == "__main__":
         except KeyboardInterrupt:
             ph.exit(silent_exit_mode=args.silent_exit_mode)
             exit()
-        except:
+        except Exception:
             ph.wait_for_new_opc_connection()
             logger.info("Resubscribing to opc...")
             ph.resubscribe_opc()
