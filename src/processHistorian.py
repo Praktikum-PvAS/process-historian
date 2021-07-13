@@ -437,12 +437,12 @@ if __name__ == "__main__":
         help="""if the buffer can't be sent to the InfluxDB on exit, don't 
         ask but either retry every push interval or exit""")
     parser.add_argument(
-        '--loglevel',
+        '--log-level',
         choices=["critical", "error", "warning", "info", "debug"],
         help="""set the loglevel. Defaults to "warning" if not set"""
     )
     args = parser.parse_args()
-    logging.basicConfig(level=args.loglevel.upper())
+    logging.basicConfig(level=args.log_level.upper())
     logger = logging.getLogger("Process Historian")
 
     if args.reset_intervals:
