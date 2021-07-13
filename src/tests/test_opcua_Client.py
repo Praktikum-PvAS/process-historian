@@ -117,8 +117,7 @@ class OPCUATest(unittest.TestCase):
 
     def test_poll(self):
         """
-        Tests if the poll function is executable and if it is executed
-         as often as expected.
+        Tests the poll function
         """
         self.start_sim_server(2)
         try:
@@ -131,7 +130,8 @@ class OPCUATest(unittest.TestCase):
 
     def test_poll_server_status(self):
         """
-        Tests whether the server status can be queried and its correctness.
+        Tests whether the server status can be queried and if
+        the server is operating normally
         """
         self.start_sim_server(2)
         try:
@@ -143,8 +143,9 @@ class OPCUATest(unittest.TestCase):
 
     def test_subscribe_all(self):
         """
-        Tests whether the client can subscribe to all nodes and the
-        number of value changes is detected correctly.
+        Tests whether the client can subscribe to all configured
+        nodes and the number of datachange-events in the given
+        interval is correct
         """
         self.start_sim_server(2)
         try:
