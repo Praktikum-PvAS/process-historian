@@ -78,7 +78,7 @@ class Client:
             self._opcua_lib_client.disconnect()
         except:
             if log:
-                self.__logger.error(
+                self.__logger.warning(
                     "OPC UA-Client was not able to disconnect!")
 
     def __init_lists(self):
