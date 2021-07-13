@@ -55,10 +55,17 @@ class Client:
         Setup connection to the OPC UA Server
         """
         try:
-            self._opcua_lib_client.connect()
-            self.__init_lists()
+            status = self.poll_server_status()
+            if status:
+                raise ConnectionError
         except:
-            pass
+            try:
+                self._opcua_lib_client.connect()
+                self.__init_lists()
+            except:
+                pass
+        else:
+            raise ConnectionError
 
     def disconnect(self, log: bool = True):
         """
