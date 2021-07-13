@@ -8,6 +8,7 @@ class InfluxWrapper:  # renamed so not as imported class
     """
     This wrapper class establishes a connection to the InfluxDB.
     """
+
     def __init__(self, connection_params: Dict):
         """
         Constructor of the class.
