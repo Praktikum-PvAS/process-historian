@@ -468,8 +468,8 @@ if __name__ == "__main__":
             ProcessHistorian.create_empty_program_config(program_conf_loc)
         except PermissionError:
             logger.critical("Insufficient permissions "
-                         "for writing new config file at " +
-                         str(program_conf_loc))
+                            "for writing new config file at " +
+                            str(program_conf_loc))
             logger.critical("A new program config could not be written.")
             exit(1)
         logger.info("New empty program config created at " +
