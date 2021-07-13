@@ -34,8 +34,6 @@ class CloudBufferTest(unittest.TestCase):
         """
         Test the append method with valid parameters
         """
-        # https://github.com/influxdata/influxdb-client-python/blob/0c1d1d9ff92dd2b3b4a9b6aa1e8f5b1c02fd48ab/influxdb_client/client/write/point.py#L80
-        # possible Timestamps
         self.test_buffer.append("node_name", [("tag_a", "tag")],
                                 [("value", 1)], "2009-11-10T23:00:00.123456Z")
         self.assertEqual(len(self.test_buffer._Buffer__buffer), 1)
