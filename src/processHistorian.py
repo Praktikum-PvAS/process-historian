@@ -221,7 +221,7 @@ class ProcessHistorian:
                 self.__program_conf = yaml_load(prog_conf)
         except (FileExistsError, PermissionError):
             self.__logger.critical(
-                "Can't read program_config! Make sure you have the " +
+                "Can't read program_config! Make sure you have the "
                 "right permissions and the file exists")
             exit(1)
 
@@ -233,8 +233,8 @@ class ProcessHistorian:
                 schema = json.load(fschema)
         except (FileExistsError, PermissionError):
             self.__logger.error(
-                "Can't read json validation schema for program_config! " +
-                "Make sure you have the " +
+                "Can't read json validation schema for program_config! "
+                "Make sure you have the "
                 "right permissions and the file exists")
             self.__logger.warning("Config check is skipped.")
             return
@@ -266,7 +266,7 @@ class ProcessHistorian:
                 self.__opcua_conf = json.load(opcua_conf)
         except (FileExistsError, PermissionError):
             self.__logger.critical(
-                "Can't read opcua config! Make sure you have the " +
+                "Can't read opcua config! Make sure you have the "
                 "right permissions and the file exists")
             exit(1)
 
@@ -276,8 +276,8 @@ class ProcessHistorian:
                 schema = json.load(fschema)
         except (FileExistsError, PermissionError):
             self.__logger.error(
-                "Can't read json validation schema for opcua_config! " +
-                "Make sure you have the " +
+                "Can't read json validation schema for opcua_config! "
+                "Make sure you have the "
                 "right permissions and the file exists")
             self.__logger.warning("Config check is skipped.")
             return
@@ -328,7 +328,7 @@ class ProcessHistorian:
                 while choice.lower() != "n" and \
                         choice.lower() != "y" and \
                         choice != "":
-                    choice = input("Invalid input! " +
+                    choice = input("Invalid input! "
                                    "Try to push buffer again? (Y/n): ")
                 if choice.lower() == "n":
                     break
