@@ -21,6 +21,13 @@ deactivate ConfigBuilder.Configurator
 activate ProcessHistorian
 ProcessHistorian -> ConfigBuilder.Configurator !! : delete
 
+ProcessHistorian -> "[CloudBuffer]\nBuffer" as CloudBuffer.Buffer ** : create
+activate CloudBuffer.Buffer
+deactivate ProcessHistorian
+CloudBuffer.Buffer -> "[CloudBuffer]\nInfluxDBClient" as CloudBuffer.InfluxDBClient ** : create
+deactivate CloudBuffer.Buffer
+
+activate ProcessHistorian
 ProcessHistorian -> "[OPCUAClient]\nClient" as OPCUAClient.Client ** : create
 activate OPCUAClient.Client
 deactivate ProcessHistorian
@@ -28,12 +35,6 @@ OPCUAClient.Client -> OPCUAClient.Client : parse config
 OPCUAClient.Client -> "[OPCUAClient]\nSubscriptionHandler" as OPCUAClient.SubscriptionHandler ** : create
 deactivate OPCUAClient.Client
 
-activate ProcessHistorian
-ProcessHistorian -> "[CloudBuffer]\nBuffer" as CloudBuffer.Buffer ** : create
-activate CloudBuffer.Buffer
-deactivate ProcessHistorian
-CloudBuffer.Buffer -> "[CloudBuffer]\nInfluxDBClient" as CloudBuffer.InfluxDBClient ** : create
-deactivate CloudBuffer.Buffer
 activate ProcessHistorian
 ProcessHistorian -> PollThread ** : create worker\nthreads
 ProcessHistorian -> PushThread ** : create worker\nthread
