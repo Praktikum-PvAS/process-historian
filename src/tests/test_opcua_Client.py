@@ -20,8 +20,10 @@ class OPCUATest(unittest.TestCase):
         with open(cfg_f, "r") as opcua_conf:
             self.config = json.load(opcua_conf)
         self.opcua = Client(self.config, self.callback, self.callback_many)
+        # Wait 2 seconds before every test
+        time.sleep(2)
 
-    def callback(self, a, b, c, d):
+    def callback(self, _a, _b, _c, _d):
         """
         Is called when the Client is used.
         """
@@ -54,33 +56,35 @@ class OPCUATest(unittest.TestCase):
         if there is no error if the input is correct.
         """
         with self.assertRaises(ValueError):
-            client = Client(None, self.callback, self.callback_many)
+            _client = Client(None, self.callback, self.callback_many)
         with self.assertRaises(KeyError):
-            client = Client({}, self.callback, self.callback_many)
+            _client = Client({}, self.callback, self.callback_many)
         with self.assertRaises(ValueError):
-            client = Client(self.config, None, self.callback_many)
+            _client = Client(self.config, None, self.callback_many)
         with self.assertRaises(ValueError):
-            client = Client(self.config, 1, self.callback_many)
+            _client = Client(self.config, 1, self.callback_many)
         with self.assertRaises(ValueError):
-            client = Client(self.config, self.callback, None)
+            _client = Client(self.config, self.callback, None)
         with self.assertRaises(ValueError):
-            client = Client(self.config, self.callback, 1)
-        client = Client(self.config, self.callback, self.callback_many)
+            _client = Client(self.config, self.callback, 1)
+        _client = Client(self.config, self.callback, self.callback_many)
 
     def test_connect_disconnect(self):
         """
-        Checks if it is possible to connect to and disconnect from the OPC UA server:
+        Checks if it is possible to connect to and disconnect from the OPC
+        UA server:
         a) if no server is started
         b) if a server is started
         """
         self.opcua.connect()
-        self.opcua.disconnect()
+        self.opcua.disconnect(log=False)
         self.start_sim_server(5)
         try:
-            self.opcua.disconnect()
+            self.opcua.disconnect(log=False)
             self.opcua.connect()
-            self.opcua.connect()
-            self.opcua.disconnect()
+            with self.assertRaises(ConnectionError):
+                self.opcua.connect()
+            self.opcua.disconnect(log=False)
         finally:
             self.wait_for_sim_server()
 
@@ -93,20 +97,22 @@ class OPCUATest(unittest.TestCase):
             self.opcua.connect()
             self.assertEqual([1000], self.opcua.get_intervals())
         finally:
+            self.opcua.disconnect()
             self.wait_for_sim_server()
 
     def test_poll(self):
         """
-        Checks if the poll function is executable and if it is executed as often as expected.
+        Checks if the poll function is executable and if it is executed
+         as often as expected.
         """
         self.start_sim_server(2)
         try:
             self.opcua.connect()
             self.opcua.poll(1000)
-            self.opcua.disconnect()
-            self.assertEqual(self.appended_points, 2)
         finally:
+            self.opcua.disconnect()
             self.wait_for_sim_server()
+            self.assertEqual(self.appended_points, 2)
 
     def test_poll_server_status(self):
         """
@@ -122,7 +128,8 @@ class OPCUATest(unittest.TestCase):
 
     def test_subscribe_all(self):
         """
-        Checks whether the client can subscribe to all nodes and the number of value change is detected correctly.
+        Checks whether the client can subscribe to all nodes and the
+        number of value change is detected correctly.
         """
         self.start_sim_server(2)
         try:
