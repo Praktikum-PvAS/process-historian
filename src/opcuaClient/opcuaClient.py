@@ -64,8 +64,8 @@ class Client:
                 self.__init_lists()
             except:
                 pass
-            return
-        raise ConnectionError
+        else:
+            raise ConnectionError
 
     def disconnect(self, log: bool = True):
         """
