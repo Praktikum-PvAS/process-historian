@@ -100,6 +100,7 @@ On Windows the command is called `python` (without the `3`).
 | `--reset-opc-mode`   |              | | **Currently not implemented.** Reset opc ua modes for known objects on opc ua config generation to polling with configured interval. May be used with `--default-opc-mode` to reset to subscriptions. |
 | `--new-config`       | `-n`         | | Force generation of a new sample program config.
 | `--silent-exit-mode` |              | `retry` or `exit` | If the buffer can't be sent to the InfluxDB on exit, don't ask but either retry every push interval or exit. |
+| `--loglevel`         |              | `critical`, `error`, `warning`, `info` or `debug` | Set the loglevel. Defaults to "warning" if not set |
 
 ## Running tests
 Tests are written in the python unittest library
