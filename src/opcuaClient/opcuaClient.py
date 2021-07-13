@@ -2,6 +2,7 @@ import opcua
 from datetime import datetime
 from opcua.ua.attribute_ids import AttributeIds
 from typing import Any, Callable, List, Tuple, Dict
+import logging
 
 from .customNode import CustomNode
 
@@ -50,6 +51,8 @@ class Client:
         self.__subHandler = self.SubscriptionHandler(self.__callback,
                                                      self._nodes2sub)
 
+        self.__logger = logging.getLogger("OPC UA Client")
+
     def connect(self):
         """
         Setup connection to the OPC UA Server
@@ -75,7 +78,8 @@ class Client:
             self._opcua_lib_client.disconnect()
         except:
             if log:
-                print("OPC UA-Client was not able to disconnect!")
+                self.__logger.warning(
+                    "OPC UA-Client was not able to disconnect!")
 
     def __init_lists(self):
         """
@@ -185,7 +189,7 @@ class Client:
             p_results = self._opcua_lib_client.uaclient \
                 .get_attributes(nodeids, AttributeIds.Value)
         except:
-            print("OPC UA Server cannot be reached.")
+            self.__logger.warning("OPC UA Server cannot be reached.")
             return
 
         results = []
@@ -231,7 +235,7 @@ class Client:
             if self.__subscription_handles:
                 self.__subscription.unsubscribe(self.__subscription_handles)
         except:
-            print("OPC UA-Client was not able to unsubscribe!")
+            self.__logger.warning("OPC UA-Client was not able to unsubscribe!")
 
     class SubscriptionHandler:
         """
