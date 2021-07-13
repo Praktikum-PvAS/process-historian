@@ -25,7 +25,7 @@ class OPCUATest(unittest.TestCase):
 
     def callback(self, _a, _b, _c, _d):
         """
-        Is called when the Client is used.
+        Counts how often the callback is called
         """
         self.appended_points = self.appended_points + 1
 
@@ -53,7 +53,7 @@ class OPCUATest(unittest.TestCase):
 
     def test_construct_config_invalid(self):
         """
-        Tests constructor raise when config is invalid
+        Tests config validation
         """
         with self.assertRaises(ValueError):
             _client = Client(None, self.callback, self.callback_many)
@@ -62,7 +62,7 @@ class OPCUATest(unittest.TestCase):
 
     def test_construct_cb_invalid(self):
         """
-        Tests constructor raise when callback is invalid
+        Tests callback validation
         """
         with self.assertRaises(ValueError):
             _client = Client(self.config, None, self.callback_many)
@@ -71,7 +71,7 @@ class OPCUATest(unittest.TestCase):
 
     def test_construct_cb_many_invalid(self):
         """
-        Tests constructor raise when callback_many is invalid
+        Tests callback_many validation
         """
         with self.assertRaises(ValueError):
             _client = Client(self.config, self.callback, None)
@@ -144,7 +144,7 @@ class OPCUATest(unittest.TestCase):
     def test_subscribe_all(self):
         """
         Tests whether the client can subscribe to all nodes and the
-        number of value change is detected correctly.
+        number of value changes is detected correctly.
         """
         self.start_sim_server(2)
         try:
