@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 
 from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import WriteOptions, WriteType
@@ -8,7 +8,7 @@ class InfluxWrapper:  # renamed so not as imported class
     """
     This wrapper class establishes a connection to the InfluxDB.
     """
-    def __init__(self, connection_params: dict):
+    def __init__(self, connection_params: Dict):
         """
         Constructor of the class.
         :param connection_params: Necessary connection parameters to connect to
@@ -52,7 +52,9 @@ class InfluxWrapper:  # renamed so not as imported class
             raise ValueError("Point MUST NOT be None!")
         try:
             with self.__influxDBClient.write_api(
-                    write_options=WriteOptions(max_retries=0, write_type=WriteType.synchronous)) as write_client:
+                    write_options=WriteOptions(
+                        max_retries=0,
+                        write_type=WriteType.synchronous)) as write_client:
                 write_client(bucket=self.__bucket, record=point)
             return 0
         except:
@@ -72,7 +74,9 @@ class InfluxWrapper:  # renamed so not as imported class
             raise ValueError("Point list must not be empty!")
         try:
             with self.__influxDBClient.write_api(write_options=WriteOptions(
-                    batch_size=len(points), max_retries=0, write_type=WriteType.synchronous)) as write_client:
+                    batch_size=len(points),
+                    max_retries=0,
+                    write_type=WriteType.synchronous)) as write_client:
                 write_client.write(self.__bucket, self.__org, points)
             return 0
         except:

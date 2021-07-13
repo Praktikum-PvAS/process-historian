@@ -8,13 +8,14 @@
     },
     "influxdb": {
         "host": "url",
-        "username": "string",
-        "password": "string",
+        "token": "string",
         "organization": "string",
         "bucket": "string"
     },
     "buffer": {
-        "size": "number"
-    }
+        "size": "number",
+        "push_interval": "number"
+    },
+    "heartbeat_interval": "number"
 }
 @endjson

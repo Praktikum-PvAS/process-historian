@@ -1,0 +1,78 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "required": ["host", "actuators", "sensors", "services"],
+  "properties": {
+    "host": {
+      "type": "string",
+      "format": "uri",
+      "minLength": 1
+    },
+    "actuators": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/assemblyType"
+      }
+    },
+    "sensors": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/assemblyType"
+      }
+    },
+    "services": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/assemblyType"
+      }
+    }
+  },
+  "$defs": {
+    "assemblyType": {
+      "type": "object",
+      "required": [
+        "id",
+        "attributes"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "attributes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/assemblyAttr"
+          }
+        }
+      }
+    },
+    "assemblyAttr": {
+      "type": "object",
+      "required": ["interval", "name", "namespace", "node_identifier"],
+      "properties": {
+        "interval": {
+          "type": "number",
+          "multipleOf": 1.0,
+          "minimum": 1
+        },
+        "mode": {
+          "enum": [
+            "poll",
+            "subscription"
+          ],
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "namespace": {
+          "type": "string"
+        },
+        "node_identifier": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "type": "object"
+}
+
