@@ -10,7 +10,7 @@ class InfluxWrapperTest(unittest.TestCase):
         setUp method
         """
         self.valid_connection_params = {
-            "host": "localhost",
+            "host": "http://localhost",
             "organization": "TUD",
             "bucket": "A",
             "token": "my_token"
@@ -40,7 +40,7 @@ class InfluxWrapperTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             my_influx_wrapper = InfluxWrapper(invalid_connection_params)
         # organization not set
-        invalid_connection_params["host"] = "localhost"
+        invalid_connection_params["host"] = "http://localhost"
         invalid_connection_params["organization"] = None
         with self.assertRaises(ValueError):
             my_influx_wrapper = InfluxWrapper(invalid_connection_params)

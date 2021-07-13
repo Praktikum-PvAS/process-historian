@@ -9,7 +9,7 @@ class CloudBufferTest(unittest.TestCase):
         setUp method
         """
         self.valid_connection_params = {
-            "host": "localhost",
+            "host": "http://localhost",
             "organization": "TUD",
             "bucket": "my_bucket",
             "port": 8086,
