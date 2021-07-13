@@ -18,51 +18,72 @@ class InfluxWrapperTest(unittest.TestCase):
 
         self.influxWrapper = InfluxWrapper(self.valid_connection_params)
 
-    def test_connection_params(self):
+    def test_constructor_valid(self):
         """
-        Test constructor with valid and invalid connection_params
+        Test constructor with valid connection_params
         """
-        # all params ok
-        my_influx_wrapper = InfluxWrapper(self.valid_connection_params)
-        # one data missing
-        with self.assertRaises(KeyError):
-            my_influx_wrapper = InfluxWrapper({})
-        # host not set
-        invalid_connection_params = {
-            "host": None,
-            "organization": "TUD",
-            "bucket": "A",
-            "token": "my_token"
-        }
+        _my_influx_wrapper = InfluxWrapper(self.valid_connection_params)
+
+    def test_constructor_none(self):
+        """
+        Test constructor with empty connection_params
+        """
         with self.assertRaises(ValueError):
-            my_influx_wrapper = InfluxWrapper(invalid_connection_params)
+            _influx_wrapper = InfluxWrapper(None)
+        with self.assertRaises(KeyError):
+            _influx_wrapper = InfluxWrapper({})
+
+    def test_constructor_invalid_host(self):
+        """
+        Test constructor with invalid host in connection_params
+        """
+        invalid_connection_params = self.valid_connection_params
+
+        invalid_connection_params["host"] = None
+        with self.assertRaises(ValueError):
+            _influx_wrapper = InfluxWrapper(invalid_connection_params)
         invalid_connection_params["host"] = ""
         with self.assertRaises(ValueError):
-            my_influx_wrapper = InfluxWrapper(invalid_connection_params)
-        # organization not set
-        invalid_connection_params["host"] = "http://localhost"
+            _influx_wrapper = InfluxWrapper(invalid_connection_params)
+
+    def test_constructor_invalid_org(self):
+        """
+        Test constructor with invalid organization in connection_params
+        """
+        invalid_connection_params = self.valid_connection_params
+
         invalid_connection_params["organization"] = None
         with self.assertRaises(ValueError):
-            my_influx_wrapper = InfluxWrapper(invalid_connection_params)
+            _influx_wrapper = InfluxWrapper(invalid_connection_params)
         invalid_connection_params["organization"] = ""
         with self.assertRaises(ValueError):
-            my_influx_wrapper = InfluxWrapper(invalid_connection_params)
-        # no bucket set
-        invalid_connection_params["organization"] = "TUD"
+            _influx_wrapper = InfluxWrapper(invalid_connection_params)
+
+    def test_constructor_invalid_bucket(self):
+        """
+        Test constructor with invalid bucket in connection_params
+        """
+        invalid_connection_params = self.valid_connection_params
+
         invalid_connection_params["bucket"] = None
         with self.assertRaises(ValueError):
-            my_influx_wrapper = InfluxWrapper(invalid_connection_params)
+            _influx_wrapper = InfluxWrapper(invalid_connection_params)
         invalid_connection_params["bucket"] = ""
         with self.assertRaises(ValueError):
-            my_influx_wrapper = InfluxWrapper(invalid_connection_params)
-        # no token set
-        invalid_connection_params["bucket"] = "A"
+            _influx_wrapper = InfluxWrapper(invalid_connection_params)
+
+    def test_constructor_invalid_token(self):
+        """
+        Test constructor with invalid token in connection_params
+        """
+        invalid_connection_params = self.valid_connection_params
+
         invalid_connection_params["token"] = None
         with self.assertRaises(ValueError):
-            my_influx_wrapper = InfluxWrapper(invalid_connection_params)
+            _influx_wrapper = InfluxWrapper(invalid_connection_params)
         invalid_connection_params["token"] = ""
         with self.assertRaises(ValueError):
-            my_influx_wrapper = InfluxWrapper(invalid_connection_params)
+            _influx_wrapper = InfluxWrapper(invalid_connection_params)
 
     def test_insert_many_invalid(self):
         """

@@ -17,20 +17,21 @@ class CloudBufferTest(unittest.TestCase):
         }
         self.test_buffer = Buffer(1000, self.valid_connection_params)
 
-    def test_constructor(self):
+    def test_constructor_max_buffer_invalid(self):
         """
         Test valid and invalid constructor parameter
         """
         with self.assertRaises(ValueError):
-            buffer = Buffer(None, self.valid_connection_params)
+            _buffer = Buffer(None, self.valid_connection_params)
         with self.assertRaises(ValueError):
-            buffer = Buffer(0, self.valid_connection_params)
+            _buffer = Buffer(0, self.valid_connection_params)
         with self.assertRaises(ValueError):
-            buffer = Buffer(-2, self.valid_connection_params)
+            _buffer = Buffer(-2, self.valid_connection_params)
 
-        buffer = Buffer(1, self.valid_connection_params)
+    def test_constructor_valid(self):
+        _buffer = Buffer(1, self.valid_connection_params)
 
-    def test_append_valid_insert(self):
+    def test_append_valid(self):
         """
         Test the append method with valid parameters
         """
@@ -38,7 +39,7 @@ class CloudBufferTest(unittest.TestCase):
                                 [("value", 1)], "2009-11-10T23:00:00.123456Z")
         self.assertEqual(len(self.test_buffer._Buffer__buffer), 1)
 
-    def test_append_invalid_measurement_insert(self):
+    def test_append_invalid_measurement(self):
         """
         Test the append method with an invalid measurement
         """
@@ -50,7 +51,7 @@ class CloudBufferTest(unittest.TestCase):
                                     [("value", 1)],
                                     "2009-11-10T23:00:00.123456Z")
 
-    def test_append_invalid_values_insert(self):
+    def test_append_invalid_values(self):
         """
         Test the append method with invalid values
         """
@@ -61,7 +62,7 @@ class CloudBufferTest(unittest.TestCase):
             self.test_buffer.append("node_name", [("tag_a", "tag")], [],
                                     "2009-11-10T23:00:00.123456Z")
 
-    def test_append_invalid_timestamp_insert(self):
+    def test_append_invalid_timestamp(self):
         """
         Test the append method with an invalid timestamp
         """
@@ -80,11 +81,10 @@ class CloudBufferTest(unittest.TestCase):
         self.test_buffer.append_many(points)
         self.assertEqual(len(self.test_buffer._Buffer__buffer), 10)
 
-    def test_append_many_invalid(self):
+    def test_append_many_invalid_measurement(self):
         """
-        Test the append_many method with invalid parameters
+        Test the append_many method with a invalid measurements
         """
-        # Measurement
         points = [("", [("tag_a", "tag")], [("value", 1)],
                    "2009-11-10T23:00:00.123456Z")]
         with self.assertRaises(ValueError):
@@ -93,7 +93,11 @@ class CloudBufferTest(unittest.TestCase):
                    "2009-11-10T23:00:00.123456Z")]
         with self.assertRaises(ValueError):
             self.test_buffer.append_many(points)
-        # Values
+
+    def test_append_many_invalid_values(self):
+        """
+        Test the append_many method with invalid values
+        """
         points = [("node_name", [("tag_a", "tag")], [],
                    "2009-11-10T23:00:00.123456Z")]
         with self.assertRaises(ValueError):
@@ -102,14 +106,18 @@ class CloudBufferTest(unittest.TestCase):
                    "2009-11-10T23:00:00.123456Z")]
         with self.assertRaises(ValueError):
             self.test_buffer.append_many(points)
-        # Timestamp
+
+    def test_append_many_invalid_timestamp(self):
+        """
+        Test the append_many method with a invalid timestamp
+        """
         points = [("node_name", [("tag_a", "tag")], [("value", 1)], None)]
         with self.assertRaises(ValueError):
             self.test_buffer.append_many(points)
 
     def test_max_buffer_length(self):
         """
-        Test if the max_buffer_length is used
+        Test if the buffer respects the max_buffer_length
         """
         points = []
         for i in range(1050):
@@ -143,6 +151,10 @@ class CloudBufferTest(unittest.TestCase):
                            "2009-11-10T23:00:00.123456Z"))
         buffer.append_many(points)
         self.assertEqual(len(buffer._Buffer__buffer), test_length)
+
+        buffer.append("node_name", [("tag_a", "tag")], [("value", 1)],
+                      "2009-11-10T23:00:00.123456Z")
+        self.assertEqual(len(buffer._Buffer__buffer), test_length + 1)
 
 
 if __name__ == '__main__':
