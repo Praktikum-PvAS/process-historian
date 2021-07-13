@@ -107,7 +107,7 @@ class OPCUAIntegrationTest(unittest.TestCase):
             self.opcua.subscribe_all()
             time.sleep(2.2)
             self.opcua.disconnect()
-            # expected: first value + 2 further values from the server
+            # expected: first value + 2 more values from the server
             self.assertEqual(3, len(self.buffer._Buffer__buffer))
             self.assertIsInstance(self.buffer._Buffer__buffer[0],
                                   influxdb_client.Point)
