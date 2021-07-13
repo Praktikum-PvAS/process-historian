@@ -8,12 +8,15 @@ class InfluxWrapper:  # renamed so not as imported class
     """
     This wrapper class establishes a connection to the InfluxDB.
     """
+
     def __init__(self, connection_params: Dict):
         """
         Constructor of the class.
         :param connection_params: Necessary connection parameters to connect to
         the InfluxDB.
         """
+        if connection_params is None:
+            raise ValueError("connection_params must not be None!")
         if connection_params['host'] is None:
             raise ValueError("variable value of url is none")
         if connection_params['host'] == "":
@@ -59,6 +62,7 @@ class InfluxWrapper:  # renamed so not as imported class
             return 0
         except:
             # urllib.error.URLError
+            # TODO: specify except more precisely
             return 1
 
     def insert_many(self, points: List[Point]):
@@ -69,7 +73,7 @@ class InfluxWrapper:  # renamed so not as imported class
         """
         if points is None:
             raise ValueError("Point list must not be None!")
-        if points is []:
+        if len(points) == 0:
             raise ValueError("Point list must not be empty!")
         try:
             with self.__influxDBClient.write_api(write_options=WriteOptions(
@@ -79,4 +83,5 @@ class InfluxWrapper:  # renamed so not as imported class
                 write_client.write(self.__bucket, self.__org, points)
             return 0
         except:
+            # TODO: specify except more precisely
             return 1
