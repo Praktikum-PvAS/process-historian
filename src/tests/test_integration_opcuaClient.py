@@ -50,7 +50,7 @@ class OPCUAIntegrationTest(unittest.TestCase):
 
     def test_integration_poll(self):
         """
-        Checks whether the poll function is executable and if the
+        Tests whether the poll function is executable and if the
         expected number of points is present in the buffer.
         """
         self.assertEqual(0, len(self.buffer._Buffer__buffer))
@@ -69,7 +69,7 @@ class OPCUAIntegrationTest(unittest.TestCase):
 
     def test_integration_subscribe(self):
         """
-        Checks if node subscribing is possible and if the expected
+        Tests if node subscribing is possible and if the expected
         number of points is present in the buffer.
         """
         self.assertEqual(0, len(self.buffer._Buffer__buffer))

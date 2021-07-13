@@ -86,7 +86,7 @@ class OPCUATest(unittest.TestCase):
 
     def test_connect_disconnect(self):
         """
-        Checks if it is possible to connect to and disconnect from the OPC
+        Tests if it is possible to connect to and disconnect from the OPC
         UA server:
         a) if no server is started
         b) if a server is started
@@ -117,7 +117,7 @@ class OPCUATest(unittest.TestCase):
 
     def test_poll(self):
         """
-        Checks if the poll function is executable and if it is executed
+        Tests if the poll function is executable and if it is executed
          as often as expected.
         """
         self.start_sim_server(2)
@@ -131,7 +131,7 @@ class OPCUATest(unittest.TestCase):
 
     def test_poll_server_status(self):
         """
-        Checks whether the server status can be queried and its correctness.
+        Tests whether the server status can be queried and its correctness.
         """
         self.start_sim_server(2)
         try:
@@ -143,7 +143,7 @@ class OPCUATest(unittest.TestCase):
 
     def test_subscribe_all(self):
         """
-        Checks whether the client can subscribe to all nodes and the
+        Tests whether the client can subscribe to all nodes and the
         number of value change is detected correctly.
         """
         self.start_sim_server(2)
