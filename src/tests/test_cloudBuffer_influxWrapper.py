@@ -74,7 +74,7 @@ class InfluxWrapperTest(unittest.TestCase):
             points = []
             self.influxWrapper.insert_many(points)
 
-    def test_insert(self):
+    def test_insert_invalid(self):
         """
         Test insert method with invalid parameters
         """
