@@ -102,4 +102,10 @@ On Windows the command is called `python` (without the `3`).
 | `--silent-exit-mode` |              | `retry` or `exit` | If the buffer can't be sent to the InfluxDB on exit, don't ask but either retry every push interval or exit. |
 
 ## Running tests
-Tests are written in the python unittest library
+Tests are written in the python unittest library. \
+To run all tests use the following commands in the project root:
+```bash
+$ cd ./src
+$ python3 -m unittest discover -s ./tests
+```
+On Windows the second command is called `python` (without the `3`).
