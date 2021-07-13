@@ -20,13 +20,13 @@ class InfluxWrapperTest(unittest.TestCase):
 
     def test_constructor_valid(self):
         """
-        Test constructor with valid connection_params
+        Tests constructor with valid connection_params
         """
         _my_influx_wrapper = InfluxWrapper(self.valid_connection_params)
 
     def test_constructor_none(self):
         """
-        Test constructor with empty connection_params
+        Tests constructor with empty connection_params
         """
         with self.assertRaises(ValueError):
             _influx_wrapper = InfluxWrapper(None)
@@ -35,7 +35,7 @@ class InfluxWrapperTest(unittest.TestCase):
 
     def test_constructor_invalid_host(self):
         """
-        Test constructor with invalid host in connection_params
+        Tests constructor with invalid host in connection_params
         """
         invalid_connection_params = self.valid_connection_params
 
@@ -48,7 +48,7 @@ class InfluxWrapperTest(unittest.TestCase):
 
     def test_constructor_invalid_org(self):
         """
-        Test constructor with invalid organization in connection_params
+        Tests constructor with invalid organization in connection_params
         """
         invalid_connection_params = self.valid_connection_params
 
@@ -61,7 +61,7 @@ class InfluxWrapperTest(unittest.TestCase):
 
     def test_constructor_invalid_bucket(self):
         """
-        Test constructor with invalid bucket in connection_params
+        Tests constructor with invalid bucket in connection_params
         """
         invalid_connection_params = self.valid_connection_params
 
@@ -74,7 +74,7 @@ class InfluxWrapperTest(unittest.TestCase):
 
     def test_constructor_invalid_token(self):
         """
-        Test constructor with invalid token in connection_params
+        Tests constructor with invalid token in connection_params
         """
         invalid_connection_params = self.valid_connection_params
 
@@ -87,7 +87,7 @@ class InfluxWrapperTest(unittest.TestCase):
 
     def test_insert_many_invalid(self):
         """
-        Test insert_many method with invalid parameters
+        Tests insert_many method with invalid parameters
         """
         with self.assertRaises(ValueError):
             self.influxWrapper.insert_many(None)
@@ -97,7 +97,7 @@ class InfluxWrapperTest(unittest.TestCase):
 
     def test_insert_invalid(self):
         """
-        Test insert method with invalid parameters
+        Tests insert method with invalid parameters
         """
         with self.assertRaises(ValueError):
             self.influxWrapper.insert(None)

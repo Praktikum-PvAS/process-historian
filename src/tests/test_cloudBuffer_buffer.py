@@ -19,7 +19,7 @@ class CloudBufferTest(unittest.TestCase):
 
     def test_constructor_max_buffer_invalid(self):
         """
-        Test valid and invalid constructor parameter
+        Tests valid and invalid constructor parameter
         """
         with self.assertRaises(ValueError):
             _buffer = Buffer(None, self.valid_connection_params)
@@ -33,7 +33,7 @@ class CloudBufferTest(unittest.TestCase):
 
     def test_append_valid(self):
         """
-        Test the append method with valid parameters
+        Tests the append method with valid parameters
         """
         self.test_buffer.append("node_name", [("tag_a", "tag")],
                                 [("value", 1)], "2009-11-10T23:00:00.123456Z")
@@ -41,7 +41,7 @@ class CloudBufferTest(unittest.TestCase):
 
     def test_append_invalid_measurement(self):
         """
-        Test the append method with an invalid measurement
+        Tests the append method with an invalid measurement
         """
         with self.assertRaises(ValueError):
             self.test_buffer.append("", [("tag_a", "tag")], [("value", 1)],
@@ -53,7 +53,7 @@ class CloudBufferTest(unittest.TestCase):
 
     def test_append_invalid_values(self):
         """
-        Test the append method with invalid values
+        Tests the append method with invalid values
         """
         with self.assertRaises(ValueError):
             self.test_buffer.append("node_name", [("tag_a", "tag")], None,
@@ -64,7 +64,7 @@ class CloudBufferTest(unittest.TestCase):
 
     def test_append_invalid_timestamp(self):
         """
-        Test the append method with an invalid timestamp
+        Tests the append method with an invalid timestamp
         """
         with self.assertRaises(ValueError):
             self.test_buffer.append("node_name", [("tag_a", "tag")],
@@ -72,7 +72,7 @@ class CloudBufferTest(unittest.TestCase):
 
     def test_append_many(self):
         """
-        Test the append_many method with valid parameters
+        Tests the append_many method with valid parameters
         """
         points = []
         for i in range(10):
@@ -83,7 +83,7 @@ class CloudBufferTest(unittest.TestCase):
 
     def test_append_many_invalid_measurement(self):
         """
-        Test the append_many method with a invalid measurements
+        Tests the append_many method with a invalid measurements
         """
         points = [("", [("tag_a", "tag")], [("value", 1)],
                    "2009-11-10T23:00:00.123456Z")]
@@ -96,7 +96,7 @@ class CloudBufferTest(unittest.TestCase):
 
     def test_append_many_invalid_values(self):
         """
-        Test the append_many method with invalid values
+        Tests the append_many method with invalid values
         """
         points = [("node_name", [("tag_a", "tag")], [],
                    "2009-11-10T23:00:00.123456Z")]
@@ -109,7 +109,7 @@ class CloudBufferTest(unittest.TestCase):
 
     def test_append_many_invalid_timestamp(self):
         """
-        Test the append_many method with a invalid timestamp
+        Tests the append_many method with a invalid timestamp
         """
         points = [("node_name", [("tag_a", "tag")], [("value", 1)], None)]
         with self.assertRaises(ValueError):
@@ -117,7 +117,7 @@ class CloudBufferTest(unittest.TestCase):
 
     def test_max_buffer_length(self):
         """
-        Test if the buffer respects the max_buffer_length
+        Tests if the buffer respects the max_buffer_length
         """
         points = []
         for i in range(1050):
@@ -139,7 +139,7 @@ class CloudBufferTest(unittest.TestCase):
 
     def test_max_buffer_length_infinity(self):
         """
-        Test if an infinite buffer length works.
+        Tests if an infinite buffer length works.
         Warning: When test_length is high this test needs a large amount
         of RAM to run!
         """
