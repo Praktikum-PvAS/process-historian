@@ -4,6 +4,7 @@ import threading
 import time
 from pathlib import Path
 import argparse
+import logging
 from typing import Callable, Optional, Any, Union
 
 from yaml import safe_load as yaml_load, dump as yaml_dump
@@ -50,6 +51,7 @@ class ProcessHistorian:
         self.__push_thread = None
         self.__opc_thread_objs = []
         self.__opc_threads = []
+        self.__logger = logging.getLogger("Process Historian")
 
         # First step: Make sure the program config is correct and parse it
         self.__load_program_config()
@@ -111,7 +113,8 @@ class ProcessHistorian:
         Helper function that waits for the OPC UA
         """
         self._opcua_client.disconnect(log=False)
-        print("Waiting for opc connection to be (re)established...")
+        self.__logger.info(
+            "Waiting for opc connection to be (re)established...")
         while True:
             try:
                 time.sleep(self.heartbeat_interval_seconds)
@@ -149,31 +152,33 @@ class ProcessHistorian:
 
     def __load_program_config(self):
         if not os.path.isdir(self.__config_folder):
-            print("The config folder wasn't found.")
+            self.__logger.warning("The config folder wasn't found.")
             try:
                 os.mkdir(self.__config_folder)
                 ProcessHistorian.create_empty_program_config(
                     self.__program_conf_loc)
-                print("A config folder with an empty program configuration " +
-                      "was created.")
+                self.__logger.warning("A config folder with an empty program "
+                                      "configuration was created.")
             except (FileExistsError, PermissionError):
-                print("Can't create a config folder. Make sure you have the " +
-                      "right permissions and no other file named \"config\" " +
-                      "exists in the program folder.")
+                self.__logger.error(
+                    "Can't create a config folder. Make sure you "
+                    "have the right permissions and no other file "
+                    "named \"config\" exists in the program folder.")
             finally:
                 exit(1)
         if not os.path.isfile(self.__program_conf_loc):
-            print("No program_config.yaml found.")
+            logger.warning("No program_config.yaml found.")
             try:
                 ProcessHistorian.create_empty_program_config(
                     self.__program_conf_loc)
-                print("An empty program configuration " +
-                      "was created.")
+                self.__logger.warning(
+                    "An empty program configuration was created.")
             except (FileExistsError, PermissionError):
-                print("Can't create a empty program configuration. Make " +
-                      "sure you have the right permissions and no other " +
-                      "folder named \"program_config.yaml\" exists in the " +
-                      "config folder.")
+                self.__logger.error(
+                    "Can't create an empty program configuration. "
+                    "Make sure you have the right permissions and "
+                    "no other folder named \"program_config.yaml\" "
+                    "exists in the config folder.")
             finally:
                 exit(1)
         self.__parse_program_conf()
@@ -215,9 +220,10 @@ class ProcessHistorian:
             with open(self.__program_conf_loc) as prog_conf:
                 self.__program_conf = yaml_load(prog_conf)
         except (FileExistsError, PermissionError):
-            print("Can't read program_config! Make sure you have the " +
-                  "right permissions and the file exists")
-            exit()
+            self.__logger.error(
+                "Can't read program_config! Make sure you have the " +
+                "right permissions and the file exists")
+            exit(1)
 
         self.__schemata_loc = self.__script_location / "json_schemata"
         program_schema = self.__schemata_loc / "program_config_schema.json"
@@ -226,14 +232,16 @@ class ProcessHistorian:
             with open(program_schema) as fschema:
                 schema = json.load(fschema)
         except (FileExistsError, PermissionError):
-            print("Can't read json validation schema for program_config! " +
-                  "Make sure you have the " +
-                  "right permissions and the file exists")
-            print("Config check is skipped.")
+            self.__logger.warning(
+                "Can't read json validation schema for program_config! " +
+                "Make sure you have the " +
+                "right permissions and the file exists")
+            self.__logger.warning("Config check is skipped.")
             return
         except json.JSONDecodeError:
-            print("JSON validation schema for program config is incorrect.")
-            print("Config check is skipped.")
+            self.__logger.warning(
+                "JSON validation schema for program config is incorrect.")
+            self.__logger.warning("Config check is skipped.")
             return
 
         try:
@@ -244,11 +252,9 @@ class ProcessHistorian:
             self.__buffer_push_interval = self.__program_conf["buffer"] \
                 .get("push_interval", 1000)
         except ValidationError as e:
-            print("Your program config seems to be incorrect or incomplete.")
-            print("The reason is below:")
-            print()
-            print(e)
-            exit()
+            self.__logger.error(
+                "Your program config seems to be incorrect or incomplete:")
+            self.__logger.error(e)
 
     def __parse_opcua_conf(self):
         """
@@ -259,33 +265,34 @@ class ProcessHistorian:
             with open(self.__opcua_conf_loc, "r") as opcua_conf:
                 self.__opcua_conf = json.load(opcua_conf)
         except (FileExistsError, PermissionError):
-            print("Can't read opcua config! Make sure you have the " +
-                  "right permissions and the file exists")
-            exit()
+            self.__logger.error(
+                "Can't read opcua config! Make sure you have the " +
+                "right permissions and the file exists")
+            exit(1)
 
         opcua_schema = self.__schemata_loc / "opcua_config_schema.json"
         try:
             with open(opcua_schema) as fschema:
                 schema = json.load(fschema)
         except (FileExistsError, PermissionError):
-            print("Can't read json validation schema for opcua_config! " +
-                  "Make sure you have the " +
-                  "right permissions and the file exists")
-            print("Config check is skipped.")
+            self.__logger.warning(
+                "Can't read json validation schema for opcua_config! " +
+                "Make sure you have the " +
+                "right permissions and the file exists")
+            self.__logger.warning("Config check is skipped.")
             return
         except json.JSONDecodeError:
-            print("JSON validation schema for opcua config is incorrect.")
-            print("Config check is skipped.")
+            self.__logger.warning(
+                "JSON validation schema for opcua config is incorrect.")
+            self.__logger.warning("Config check is skipped.")
             return
 
         try:
             validate(self.__opcua_conf, schema)
         except ValidationError as e:
-            print("Your program config seems to be incorrect or incomplete.")
-            print("The reason is below:")
-            print()
-            print(e)
-            exit()
+            self.__logger.error(
+                "Your opcua config seems to be incorrect or incomplete:")
+            self.__logger.error(e)
 
     def exit(self, silent_exit_mode: Optional[str] = None):
         """
@@ -297,8 +304,8 @@ class ProcessHistorian:
         "retry" will retry every heartbeat interval, "exit" will exit
         the program.
         """
-        print("Exiting the ProcessHistorian...")
-        print("Waiting for all worker threads to finish...")
+        self.__logger.info("Exiting the ProcessHistorian...")
+        self.__logger.info("Waiting for all worker threads to finish...")
         # Tell all threads they should stop
         if self.__push_thread_obj:
             self.__push_thread_obj.should_exit()
@@ -309,16 +316,15 @@ class ProcessHistorian:
             self.__push_thread.join()
         for thread in self.__opc_threads:
             thread.join()
-        print("Disconnecting from OPC UA Server...")
+        self.__logger.info("Disconnecting from OPC UA Server...")
         self._opcua_client.unsubscribe_all()
         self._opcua_client.disconnect()
         # One last push of the values
-        print("Push remaining values (if any) from buffer...")
+        self.__logger.info("Push remaining values (if any) from buffer...")
         status = self._buffer.write_points()
         while status:
-            print("Buffer could be sent.")
             if not silent_exit_mode:
-                choice = input("Try again?  (Y/n): ")
+                choice = input("Buffer could be sent. Try again?  (Y/n): ")
                 while choice.lower() != "n" and \
                         choice.lower() != "y" and \
                         choice != "":
@@ -327,13 +333,15 @@ class ProcessHistorian:
                 if choice.lower() == "n":
                     break
             elif silent_exit_mode == "retry":
+                self.__logger.warning("Buffer could not be sent.")
                 time.sleep(self.heartbeat_interval_seconds)
-                print("Retrying...")
+                self.__logger.warning("Retrying...")
             else:
+                self.__logger.warning("Buffer could not be sent.")
                 break
             status = self._buffer.write_points()
 
-        print("Exit complete! Goodbye!")
+        self.__logger.info("Exit complete! Goodbye!")
         exit()
 
     @property
@@ -430,15 +438,17 @@ if __name__ == "__main__":
         ask but either retry every push interval or exit""")
     args = parser.parse_args()
 
+    logger = logging.getLogger("Process Historian")
+
     if args.reset_intervals:
-        print("Warning: The opc ua config builder is not yet implemented! "
-              "--reset-intervals does not work.")
+        logger.warning("Warning: The opc ua config builder is not yet "
+                       "implemented! --reset-intervals does not work.")
     if args.default_opc_mode:
-        print("Warning: The opc ua config builder is not yet implemented! "
-              "--default-opc-mode does not work.")
+        logger.warning("Warning: The opc ua config builder is not yet "
+                       "implemented! --default-opc-mode does not work.")
     if args.reset_opc_mode:
-        print("Warning: The opc ua config builder is not yet implemented! "
-              "--reset-opc-mode does not work.")
+        logger.warning("Warning: The opc ua config builder is not yet "
+                       "implemented! --reset-opc-mode does not work.")
 
     if args.new_config:
         script_location = Path(os.path.dirname(os.path.realpath(__file__)))
@@ -451,16 +461,18 @@ if __name__ == "__main__":
         try:
             ProcessHistorian.create_empty_program_config(program_conf_loc)
         except PermissionError:
-            print("Insufficient permissions for writing new config file at " +
-                  str(program_conf_loc))
-            print("A new program config could not have been written.")
+            logger.error("Insufficient permissions "
+                         "for writing new config file at " +
+                         str(program_conf_loc))
+            logger.error("A new program config could not be written.")
             exit(1)
-        print("New empty program config created at " + str(program_conf_loc))
+        logger.info("New empty program config created at " +
+                    str(program_conf_loc))
         exit(0)
 
     if not args.faststart:
-        print("Warning: The opc ua config builder is not yet implemented! "
-              "--faststart is implied.")
+        logger.warning("Warning: The opc ua config builder is not yet "
+                       "implemented! --faststart is implied.")
 
     ph = ProcessHistorian()
     hb_interval = ph.heartbeat_interval_seconds  # in seconds for time.sleep()
@@ -475,5 +487,5 @@ if __name__ == "__main__":
             exit()
         except:
             ph.wait_for_new_opc_connection()
-            print("Resubscribing to opc...")
+            logger.info("Resubscribing to opc...")
             ph.resubscribe_opc()
