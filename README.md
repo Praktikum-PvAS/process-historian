@@ -103,4 +103,10 @@ On Windows the command is called `python` (without the `3`).
 | `--log-level`         |              | `critical`, `error`, `warning`, `info` or `debug` | Set the loglevel. Defaults to "warning" if not set |
 
 ## Running tests
-Tests are written in the python unittest library
+Tests are written in the python unittest library. \
+To run all tests use the following commands in the project root:
+```bash
+$ cd ./src
+$ python3 -m unittest discover -s ./tests
+```
+On Windows the second command is called `python` (without the `3`).
