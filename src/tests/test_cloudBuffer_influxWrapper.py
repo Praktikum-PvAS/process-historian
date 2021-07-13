@@ -6,6 +6,9 @@ from cloudBuffer.influxWrapper import InfluxWrapper
 class MyTestCase(unittest.TestCase):
 
     def setUp(self):
+        """
+        setUp method
+        """
         self.valid_connection_params = {
             "host": "localhost",
             "organization": "TUD",
@@ -16,6 +19,9 @@ class MyTestCase(unittest.TestCase):
         self.influxWrapper = InfluxWrapper(self.valid_connection_params)
 
     def test_connection_params(self):
+        """
+        Test constructor with valid and invalid connection_params
+        """
         # all params ok
         my_influx_wrapper = InfluxWrapper(self.valid_connection_params)
         # one data missing
@@ -59,6 +65,9 @@ class MyTestCase(unittest.TestCase):
             my_influx_wrapper = InfluxWrapper(invalid_connection_params)
 
     def test_insert_many_invalid(self):
+        """
+        Test insert_many method with invalid parameters
+        """
         with self.assertRaises(ValueError):
             self.influxWrapper.insert_many(None)
         with self.assertRaises(ValueError):
@@ -66,6 +75,9 @@ class MyTestCase(unittest.TestCase):
             self.influxWrapper.insert_many(points)
 
     def test_insert(self):
+        """
+        Test insert method with invalid parameters
+        """
         with self.assertRaises(ValueError):
             self.influxWrapper.insert(None)
 
