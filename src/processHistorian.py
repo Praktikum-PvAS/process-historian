@@ -160,7 +160,7 @@ class ProcessHistorian:
                 self.__logger.warning("A config folder with an empty program "
                                       "configuration was created.")
             except (FileExistsError, PermissionError):
-                self.__logger.error(
+                self.__logger.critical(
                     "Can't create a config folder. Make sure you "
                     "have the right permissions and no other file "
                     "named \"config\" exists in the program folder.")
@@ -174,7 +174,7 @@ class ProcessHistorian:
                 self.__logger.warning(
                     "An empty program configuration was created.")
             except (FileExistsError, PermissionError):
-                self.__logger.error(
+                self.__logger.critical(
                     "Can't create an empty program configuration. "
                     "Make sure you have the right permissions and "
                     "no other folder named \"program_config.yaml\" "
@@ -220,7 +220,7 @@ class ProcessHistorian:
             with open(self.__program_conf_loc) as prog_conf:
                 self.__program_conf = yaml_load(prog_conf)
         except (FileExistsError, PermissionError):
-            self.__logger.error(
+            self.__logger.critical(
                 "Can't read program_config! Make sure you have the " +
                 "right permissions and the file exists")
             exit(1)
@@ -232,14 +232,14 @@ class ProcessHistorian:
             with open(program_schema) as fschema:
                 schema = json.load(fschema)
         except (FileExistsError, PermissionError):
-            self.__logger.warning(
+            self.__logger.error(
                 "Can't read json validation schema for program_config! " +
                 "Make sure you have the " +
                 "right permissions and the file exists")
             self.__logger.warning("Config check is skipped.")
             return
         except json.JSONDecodeError:
-            self.__logger.warning(
+            self.__logger.error(
                 "JSON validation schema for program config is incorrect.")
             self.__logger.warning("Config check is skipped.")
             return
@@ -252,9 +252,9 @@ class ProcessHistorian:
             self.__buffer_push_interval = self.__program_conf["buffer"] \
                 .get("push_interval", 1000)
         except ValidationError as e:
-            self.__logger.error(
+            self.__logger.critical(
                 "Your program config seems to be incorrect or incomplete:")
-            self.__logger.error(e)
+            self.__logger.critical(e)
 
     def __parse_opcua_conf(self):
         """
@@ -265,7 +265,7 @@ class ProcessHistorian:
             with open(self.__opcua_conf_loc, "r") as opcua_conf:
                 self.__opcua_conf = json.load(opcua_conf)
         except (FileExistsError, PermissionError):
-            self.__logger.error(
+            self.__logger.critical(
                 "Can't read opcua config! Make sure you have the " +
                 "right permissions and the file exists")
             exit(1)
@@ -275,14 +275,14 @@ class ProcessHistorian:
             with open(opcua_schema) as fschema:
                 schema = json.load(fschema)
         except (FileExistsError, PermissionError):
-            self.__logger.warning(
+            self.__logger.error(
                 "Can't read json validation schema for opcua_config! " +
                 "Make sure you have the " +
                 "right permissions and the file exists")
             self.__logger.warning("Config check is skipped.")
             return
         except json.JSONDecodeError:
-            self.__logger.warning(
+            self.__logger.error(
                 "JSON validation schema for opcua config is incorrect.")
             self.__logger.warning("Config check is skipped.")
             return
@@ -290,9 +290,9 @@ class ProcessHistorian:
         try:
             validate(self.__opcua_conf, schema)
         except ValidationError as e:
-            self.__logger.error(
+            self.__logger.critical(
                 "Your opcua config seems to be incorrect or incomplete:")
-            self.__logger.error(e)
+            self.__logger.critical(e)
 
     def exit(self, silent_exit_mode: Optional[str] = None):
         """
@@ -466,10 +466,10 @@ if __name__ == "__main__":
         try:
             ProcessHistorian.create_empty_program_config(program_conf_loc)
         except PermissionError:
-            logger.error("Insufficient permissions "
+            logger.critical("Insufficient permissions "
                          "for writing new config file at " +
                          str(program_conf_loc))
-            logger.error("A new program config could not be written.")
+            logger.critical("A new program config could not be written.")
             exit(1)
         logger.info("New empty program config created at " +
                     str(program_conf_loc))
