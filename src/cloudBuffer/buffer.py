@@ -19,8 +19,10 @@ class Buffer:
         :param connection_params: Necessary connection parameters to connect to
         the InfluxDB.
         """
+        if max_buffer_len is None:
+            raise ValueError("Maximum buffer length must not be None!")
         if max_buffer_len < 1 and max_buffer_len != -1:
-            raise ValueError("Maximum buffer length must be at least 1!")
+            raise ValueError("Maximum buffer length must be -1 or at least 1!")
         if connection_params is None:
             raise ValueError("Connection parameters must not be None!")
         self.__max_buffer_len = max_buffer_len
@@ -30,7 +32,7 @@ class Buffer:
 
     def append(self, measurement: str,
                tags: Optional[List[Tuple[str, str]]],
-               values: Optional[List[Tuple[str, Any]]],
+               values: List[Tuple[str, Any]],
                timestamp: Any):
         """"
         Adds a measurement point to the end of the buffer.
@@ -67,7 +69,7 @@ class Buffer:
 
     def append_many(self, raw_point_list: List[
         Tuple[str, Optional[List[Tuple[str, str]]],
-              Optional[List[Tuple[str, Any]]], Any]]):
+              List[Tuple[str, Any]], Any]]):
         """
         Adds multiple measurement points to the end of the buffer.
         :param raw_point_list: List which contains multiple measurement points.
@@ -143,4 +145,4 @@ class Buffer:
         if number_of_elements >= len(self.__buffer):
             raise ValueError(
                 "Number of Elements to pop exceeds length of buffer")
-        self.__buffer[0:number_of_elements - 1] = []
+        self.__buffer = self.__buffer[number_of_elements:]
