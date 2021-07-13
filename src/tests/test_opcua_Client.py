@@ -51,45 +51,30 @@ class OPCUATest(unittest.TestCase):
         if self.server_thread and self.server_thread.is_alive():
             self.server_thread.join()
 
-    def test_construct_config_none(self):
+    def test_construct_config_invalid(self):
         """
-        Tests constructor raise when config is none
+        Tests constructor raise when config is invalid
         """
         with self.assertRaises(ValueError):
             _client = Client(None, self.callback, self.callback_many)
-
-    def test_construct_config_empty(self):
-        """
-        Tests constructor raise when config is empty
-        """
         with self.assertRaises(KeyError):
             _client = Client({}, self.callback, self.callback_many)
 
-    def test_construct_cb_none(self):
+    def test_construct_cb_invalid(self):
         """
-        Tests constructor raise when callback is none
+        Tests constructor raise when callback is invalid
         """
         with self.assertRaises(ValueError):
             _client = Client(self.config, None, self.callback_many)
-
-    def test_construct_cb_not_callable(self):
-        """
-        Tests constructor raise when callback is not callable
-        """
         with self.assertRaises(ValueError):
             _client = Client(self.config, 1, self.callback_many)
 
-    def test_construct_cb_many_none(self):
+    def test_construct_cb_many_invalid(self):
         """
-        Tests constructor raise when callback_many is none
+        Tests constructor raise when callback_many is invalid
         """
         with self.assertRaises(ValueError):
             _client = Client(self.config, self.callback, None)
-
-    def test_construct_cb_many_not_callable(self):
-        """
-        Tests constructor raise when callback_many is not callable
-        """
         with self.assertRaises(ValueError):
             _client = Client(self.config, self.callback, 1)
 
