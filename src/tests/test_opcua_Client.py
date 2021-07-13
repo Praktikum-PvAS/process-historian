@@ -45,28 +45,58 @@ class OPCUATest(unittest.TestCase):
 
     def wait_for_sim_server(self):
         """
-        Joins the thread and waits until it is terminated.
+        Joins the simulation server thread and waits until it is
+        terminated.
         """
         if self.server_thread and self.server_thread.is_alive():
             self.server_thread.join()
 
-    def test_construct(self):
+    def test_construct_config_none(self):
         """
-        Checks if the errors are caught if the constructor inputs are wrong and
-        if there is no error if the input is correct.
+        Test constructor raise when config is none
         """
         with self.assertRaises(ValueError):
             _client = Client(None, self.callback, self.callback_many)
+
+    def test_construct_config_empty(self):
+        """
+        Test constructor raise when config is empty
+        """
         with self.assertRaises(KeyError):
             _client = Client({}, self.callback, self.callback_many)
+
+    def test_construct_cb_none(self):
+        """
+        Test constructor raise when callback is none
+        """
         with self.assertRaises(ValueError):
             _client = Client(self.config, None, self.callback_many)
+
+    def test_construct_cb_not_callable(self):
+        """
+        Test constructor raise when callback is not callable
+        """
         with self.assertRaises(ValueError):
             _client = Client(self.config, 1, self.callback_many)
+
+    def test_construct_cb_many_none(self):
+        """
+        Test constructor raise when callback_many is none
+        """
         with self.assertRaises(ValueError):
             _client = Client(self.config, self.callback, None)
+
+    def test_construct_cb_many_not_callable(self):
+        """
+        Test constructor raise when callback_many is not callable
+        """
         with self.assertRaises(ValueError):
             _client = Client(self.config, self.callback, 1)
+
+    def test_construct_valid(self):
+        """
+        Test constructor when all parameters are valid
+        """
         _client = Client(self.config, self.callback, self.callback_many)
 
     def test_connect_disconnect(self):
@@ -90,7 +120,7 @@ class OPCUATest(unittest.TestCase):
 
     def test_get_intervals(self):
         """
-        Checks if the interval is transmitted correctly.
+        Test if the interval is transmitted correctly
         """
         self.start_sim_server(2)
         try:
