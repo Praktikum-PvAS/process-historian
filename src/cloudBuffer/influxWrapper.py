@@ -15,6 +15,8 @@ class InfluxWrapper:  # renamed so not as imported class
         :param connection_params: Necessary connection parameters to connect to
         the InfluxDB.
         """
+        if connection_params is None:
+            raise ValueError("connection_params must not be None!")
         if connection_params['host'] is None:
             raise ValueError("variable value of url is none")
         if connection_params['host'] == "":
