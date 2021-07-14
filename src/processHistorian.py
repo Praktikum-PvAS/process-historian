@@ -1,5 +1,6 @@
 import json
 import os
+import signal
 import threading
 import time
 from pathlib import Path
@@ -80,6 +81,8 @@ class ProcessHistorian:
                                        self._buffer.append_many)
         self.wait_for_new_opc_connection()
 
+        self.__logger.info("Connection top OPC UA Server established")
+
         # Sixth step: Create timed threads to poll the data and
         # subscribe datachange
         intervals = self._opcua_client.get_intervals()
@@ -107,6 +110,8 @@ class ProcessHistorian:
             name="ProcessHistorian - CloudBuffer Push",
             target=self.__push_thread_obj.work)
         self.__push_thread.start()
+
+        self.__logger.info("Initialization complete")
 
     def wait_for_new_opc_connection(self):
         """
@@ -479,6 +484,12 @@ if __name__ == "__main__":
     if not args.faststart:
         logger.warning("Warning: The opc ua config builder is not yet "
                        "implemented! --faststart is implied.")
+
+
+    def sigterm_handler(_signal, _frame):
+        raise KeyboardInterrupt()
+
+    signal.signal(signal.SIGTERM, sigterm_handler)
 
     ph = ProcessHistorian()
     hb_interval = ph.heartbeat_interval_seconds  # in seconds for time.sleep()
