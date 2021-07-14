@@ -9,4 +9,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY src src
 
-ENTRYPOINT [ "python", "./src/processHistorian.py" ]
+ENTRYPOINT ["python", "./src/processHistorian.py", "--silent-exit-mode", "retry"]

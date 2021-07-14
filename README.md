@@ -48,25 +48,28 @@ $ docker-compose build
 ```
 
 #### Run the image
-_For a description which arguments can be used see [here](#cli-arguments)._ \
+_To change CLI arguments the Dockerfile must be edited._
+_After your changes you have to rerun the `build` command._
+_For a description which arguments can be used see [here](#cli-arguments)._
+
 A container can be started by using:
 ```bash
-$ docker run --rm -v "$(pwd)"/config:/usr/app/config process-historian [arguments]
+$ docker run --rm -v "$(pwd)"/config:/usr/app/config process-historian
 ```
 You have to run this command in the project root or change `"$(pwd)"/config` to an absolute path to the config folder.
 Be sure to mount the config folder else the program won't work. \
 If you want to start the container in a detached mode, use:
 ```bash
-$ docker run --rm -d -v "$(pwd)"/config:/usr/app/config process-historian [arguments]
+$ docker run --rm -d -v "$(pwd)"/config:/usr/app/config process-historian
 ```
 
 Docker-compose can be used here too:
 ```bash
-$ docker-compose up [arguments]
+$ docker-compose up
 ```
 Or, if you want to start the container in detached mode use:
 ```bash
-$ docker-compose up -d [arguments]
+$ docker-compose up -d
 ```
 
 ### Without using docker
@@ -100,7 +103,7 @@ On Windows the command is called `python` (without the `3`).
 | `--reset-opc-mode`   |              | | **Currently not implemented.** Reset opc ua modes for known objects on opc ua config generation to polling with configured interval. May be used with `--default-opc-mode` to reset to subscriptions. |
 | `--new-config`       | `-n`         | | Force generation of a new sample program config.
 | `--silent-exit-mode` |              | `retry` or `exit` | If the buffer can't be sent to the InfluxDB on exit, don't ask but either retry every push interval or exit. |
-| `--log-level`         |              | `critical`, `error`, `warning`, `info` or `debug` | Set the loglevel. Defaults to "warning" if not set |
+| `--log-level`        |              | `critical`, `error`, `warning`, `info` or `debug` | Set the loglevel. Defaults to "warning" if not set |
 
 ## Running tests
 Tests are written in the python unittest library. \
